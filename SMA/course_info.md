@@ -1,12 +1,20 @@
 # Simulation Modelling and Analysis
 
-In other words, model and analyse a simulated model.
+Instructors: (to be added)
 
 ## Class Timetable
 
 Monday 9am to 11am
 Monday 5pm to 6pm
 Wednesday 9am to 11am
+
+
+
+| Day       | Mode    | Time        | Remarks    |
+| --------- | ------- | ----------- | ---------- |
+| Monday    | lecture | 9am to 11am | not cohort |
+| Monday    | lecture | 5pm to 6pm  |            |
+| Wednesday | lecture | 9am to 11am |            |
 
 ## Course timetable
 
@@ -17,7 +25,7 @@ Week 8 in consultation
 
 
 
-### Grading
+## Grading Breakdown
 
 | Grading Component               | Weight (%) |
 | ------------------------------- | ---------- |
@@ -48,7 +56,7 @@ Project (35%)
 
 
 
-## Project guidelines
+## Project Guidelines
 
 Default score is 8/10 for each component.
 

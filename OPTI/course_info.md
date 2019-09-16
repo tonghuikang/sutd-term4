@@ -2,22 +2,15 @@
 
 Instructors: Selin and Xingyin
 
-### Grading breakdown
+## Class Timetable
 
-| Component           | Weightage (%) |
-| ------------------- | ------------- |
-| Midterms            | 32.5          |
-| Finals              | 32.5          |
-| Quiz 1              | 15            |
-| Quiz 2              | 15            |
-| Class participation | 3             |
-| Course evaluation   | 2             |
+Day | Mode | Time | Remarks
+-|-|-|-
+Monday | lecture | 11am to 1pm |
+Wednesday | cohort | 11am to 1pm |
+Friday | office hours |10am to 11am|optional
 
-Friday class is an optional consult session. There is also no project for this module.
-
-Six homework assignments with due dates will be uploaded. Students are required to complete all problems in time although the answers will not be graded or collected. After the due date, the suggested solutions will be uploaded. Students are responsible to check their own solutions.
-
-### Course Timetable
+## Course Timetable
 
 | Week | Content                                                      |
 | ---- | ------------------------------------------------------------ |
@@ -35,3 +28,19 @@ Six homework assignments with due dates will be uploaded. Students are required 
 | 12   | Dynamic programming: shortest paths, Bellman’s principle of optimality. |
 | 13   | Traveling Salesman Problem                                   |
 | 14   | Review session. Final exam                                   |
+
+## Grading Breakdown
+
+| Component           | Weightage (%) |
+| ------------------- | ------------- |
+| Midterms            | 32.5          |
+| Finals              | 32.5          |
+| Quiz 1              | 15            |
+| Quiz 2              | 15            |
+| Class participation | 3             |
+| Course evaluation   | 2             |
+
+Friday class is an optional consult session. There is also no project for this module.
+
+Six homework assignments with due dates will be uploaded. Students are required to complete all problems in time although the answers will not be graded or collected. After the due date, the suggested solutions will be uploaded. Students are responsible to check their own solutions.
+
