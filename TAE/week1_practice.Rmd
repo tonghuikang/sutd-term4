@@ -1,0 +1,30 @@
+Load the dataframe mtcars available with the base R installation in data. The data was extracted from the 1974 Motor Trend US magazine, and comprises 
+- fuel consumption 
+- 10 aspects of automobile design
+- performance 
+for 32 automobiles (1973-74 models).
+
+
+```{r}
+library(ggplot2)
+head(mtcars)
+```
+
+(a) Use ggplot() to plot the weight versus miles per gallon and comment on the relationship.
+Add to this plot, a coloring of the points based on the number of cylinders, and the sizing of the points based on the displacement (volume) of the car.
+
+
+```{r}
+acol <- ggplot(mtcars,aes(x=wt, y=mpg, color=cyl, cex=disp))
+acol + geom_point(na.rm=T) + geom_smooth(na.rm=T)
+```
+
+(b) Use the tapply() function to compute the standard deviation of the mpg for groups with
+the same number of cylinders
+
+Refer to: https://www.rdocumentation.org/packages/base/versions/3.6.1/topics/tapply
+
+```{r}
+tapply(mtcars$mpg, mtcars$cyl, sd)
+```
+

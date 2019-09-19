@@ -48,6 +48,7 @@ class(z1)
 
 ```
 
+The result returns as NA if the data cannot be casted.
 
 ```{r}
 w <- as.character(z1)
@@ -135,21 +136,54 @@ a%*%solve(a)
 
 ## Eigen decomposition of a matrix
 
-Eigen decomposition which values and vectors. How to get its values and vectors?
+Eigen decomposition which values and vectors. Use the dolar sign to get its characterisitics.
 
 ```{r}
 eigen(a)
+eigen(a)$vectors
 ```
 
+## List (Ordered Collection)
 
 List consists of an ordered collection of objects that can be of different or the same type.
 
+We are defining a list/dictionary of "objects". 
 
 ```{r}
-?list
+barack <- list(age=58, gender="M", child.ages=c(21,18))
+barack
+class(barack)
+barack[1]
+class(barack[1])
+barack[[1]]
+class(barack[[1]])
 ```
 
+```{r}
+serena <- list(age=38, gender="F", child.ages=2)
+serena
+```
 
+Here we are combining the arrays together? This looks so unwieldy.
+
+```{r}
+Cleg <- c(barack, serena)
+Cleg
+Cleg[1]
+Cleg[4]
+```
+
+## Dataframes
 
 Dataframes are a tightly coupled collection of variables that share many of the properties of matrices and lists and is the fundamental data structure that will be used in most of this course.
+
+```{r}
+CELG <- data.frame(names=c("barack","serena"), ages=c(58,38),children=c(2,1))
+CELG
+```
+
+```{r}
+CELG$spouse <- c("michelle","alexis")
+CELG
+```
 

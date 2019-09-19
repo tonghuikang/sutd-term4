@@ -1,0 +1,99 @@
+---
+title: "WHO Notebook"
+output:
+  html_document: default
+  html_notebook: default
+  pdf_document: default
+--- 
+```{r}
+# install.packages("ggplot2") 
+```
+
+### Comments
+Compared to Python matplotlib, you add characteristics by adding `+`.
+
+### Guide
+
+Please add the file into the folder.
+
+One of the advantages of software such as R is that you can add and install packages that provided added functionality. The `ggplot2` packages is one such package that improves on the basic plotting in R. In this package, you build a graph by adding layer upon layer where you specify the data, aesthetic mapping, statistical transformations (if any) and geometric object (type of plot).
+
+We will use a data set from <http://www.who.int/gho/en>. The dataset contains data on 194 countries from WHO where the variables are: 
+1. Country - name of country, 
+2. Region - region the country lies in, 
+3. Population - population in thousands, 
+4. Under15 - Percentage of the population under 15 years of age, 
+5. Over60 - Percentage of the population over 60 years of age,
+6. FertilityRate - Average number of children per woman,
+7. LifeExpectancy - Life expectancy in years,
+8. LiteracyRate - Literacy rate among adults at least 15 years of age,
+9. GNI - Gross national income per capita
+
+
+First we have a look at the data set
+```{r}
+library(ggplot2)
+WHO <- read.csv("WHO.csv")
+```
+
+```{r}
+str(WHO)
+```
+
+`which` to find the index.
+
+```{r}
+index <- which(WHO$Country == "Singapore")
+index
+WHO[index,]$GNI
+summary(WHO$Over60)
+summary(WHO$Under15)
+```
+
+
+Let us see how many countries are there in each region
+```{r}
+bar <- ggplot(WHO) + 
+  geom_bar(mapping = aes(x = Region, fill = Region), 
+           show.legend = FALSE, width = 1) + 
+  theme(aspect.ratio = 1) + 
+  labs(x = NULL, y = NULL)
+bar + coord_flip()
+bar + coord_polar()
+```
+
+
+### Scatter plots
+
+Now we compare the following
+
+1. GNI vs Fertility rate
+2. GNI vc Literacy Rate
+3. GNI vc Life Expectancy
+
+We also subgroup by region sometimes
+
+`facet_wrap` to organise the chart more neatly. Probably should display region with marker color (later), and population size with marker size.
+
+```{r}
+a <- ggplot(WHO, aes(x=GNI, y=FertilityRate))
+a + geom_point(na.rm=T) + facet_wrap(.~Region)
+```
+
+```{r}
+a + geom_point(na.rm=T) + geom_smooth(na.rm=T)
+```
+
+
+Plots a confidence boundary (?) for countries of every region. Messy but we just do it. 
+
+(Is there some statistical way to constrain that it is impossible to achieve negative fertility rate?)
+
+```{r}
+acol <- ggplot(WHO,aes(x=GNI, y=FertilityRate, color=Region))
+acol + geom_point(na.rm=T)
+acol + geom_point(na.rm=T) + geom_smooth(na.rm=T)
+```
+
+
+
