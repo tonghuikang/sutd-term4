@@ -1,0 +1,42 @@
+---
+title: 'Basic R Notebook: Lecture 2'
+output:
+  pdf_document: default
+  html_notebook: default
+  html_document: default
+---
+
+
+R stores objects in a variety of classes - numeric, integer, character, logical, list, matrix, dataframe and has logical overriding operations when you convert from one class to another.
+
+
+Factors: 
+
+
+The function tapply:
+
+Matrix and arrays
+
+
+Matrix operations:
+
+Array operations:
+
+Other operations with matrices:
+
+Matrix multiplication:
+
+
+
+Solutions of linear equations:
+
+Eigen decomposition of a matrix:
+
+
+
+List consists of an ordered collection of objects that can be of different or the same type.
+
+
+
+Dataframes are a tightly coupled collection of variables that share many of the properties of matrices and lists and is the fundamental data structure that will be used in most of this course.
+
