@@ -1,3 +1,11 @@
+---
+title: "Week 1 Practice"
+output:
+  html_document: default
+  html_notebook: default
+  pdf_document: default
+--- 
+
 Load the dataframe mtcars available with the base R installation in data. The data was extracted from the 1974 Motor Trend US magazine, and comprises 
 - fuel consumption 
 - 10 aspects of automobile design
