@@ -126,3 +126,33 @@ CREATE TABLE RevenueCity AS
       FROM Invoice 
   GROUP BY BillingCity
 ```
+
+
+Use of `CASE WHEN ... THEN ... ELSE ... END`
+
+```sql
+SELECT InvoiceId, 
+       CustomerId, 
+       InvoiceDate, 
+       Total, 
+       CASE WHEN Total >= 10 THEN "High" ELSE "Low" END AS RevenueClass
+  FROM Invoice
+```
+
+Use of `DATETIME`
+
+```sql
+  SELECT InvoiceId, CustomerId, InvoiceDate from Q030HighRevenue
+   WHERE InvoiceDate >= DATETIME("2013-01-01 00:00:00") 
+ORDER BY InvoiceDate DESC
+```
+
+Use of `IFNULL`
+
+```sql
+SELECT *,
+       IFNULL(Company, "Missing Name") AS CompanyNew
+  FROM Customer
+```
+
+(how to replace the new column, anyway?)
