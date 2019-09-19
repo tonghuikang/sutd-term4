@@ -6,35 +6,148 @@ output:
   html_document: default
 ---
 
+### Comparision on R and Jupyter
+Here you are editing the markdown script of the notebook. This is not very possible on Jupyter, which is saved as a JSON.
+On RStudio you can also collaspe the section, makeing your view more focused.
+
+
+### Notes on MacOS
+Keyboard shortcuts
+https://bookdown.org/yihui/rmarkdown/notebook.html
+
+Cmd + Opt + I for new cell
+Refer to the the 'Run' option on the top right of this window to see the shortcut related to running and restarting the cell.
+- Restart and run all
+- Run chunk
+- Run line
+
+
+
+### Other notes
+?(command) for help
+
+### R class types
 
 R stores objects in a variety of classes - numeric, integer, character, logical, list, matrix, dataframe and has logical overriding operations when you convert from one class to another.
 
+"integer" class is part of "numeric"
 
-Factors: 
+```{r}
+z <- c(0:9)
+z
+
+class(z)
+```
+
+
+```{r}
+z1 <- c("a","b","d")
+z1
+
+class(z1)
+
+```
+
+
+```{r}
+w <- as.character(z1)
+w
+
+class(w)
+as.integer(w)
+```
+
+### Factors
+ 
+Essentially tabulate by count?
+
+```{r}
+ct <- c("jap", "kor", "kor", "jap", "sgp")
+class(ct)
+fct <- factor(ct)
+fct
+summary(fct)
+```
 
 
 The function tapply:
 
-Matrix and arrays
+# Matrix and arrays
+
+### Matrix operations
+
+```{r}
+r <- matrix(c(3,4,5,6,7,8), nrow=3, ncol=2)
+r
+
+class(r)
+dim(r)
+r[2,2]
+r[5]
+```
+
+r[5] reads the flatted array. (Different from Python)
+
+### Array operations
+
+Casting an array into your specified multi-dimensional matrix.
+
+```{r}
+s <- array(c(3,4,5,6,7,8), c(3,2))
+s
+
+class(s)
+z <- 1:50
+dim(z) <- c(5,2,5)
+```
+
+### Other operations with matrices
+
+Writing an identity matrix of size 10
+
+```{r}
+diag(10)
+```
 
 
-Matrix operations:
+### Matrix multiplication
 
-Array operations:
+`%*%` is matrix multiplication. Probably there are some commands for transpose, etc.
 
-Other operations with matrices:
+```{r}
+a <- array(c(2,1,-1,2), c(2,2))
+a%*%a
+```
 
-Matrix multiplication:
+
+### Solutions of linear equations
+
+solve(a) will invert the matrix. Please revise your linear algebra.
+
+```{r}
+a <- array(c(2,1,-1,2), c(2,2))
+b <- c(4,4)
+a
+b
+a%*%solve(a)
+```
 
 
+## Eigen decomposition of a matrix
 
-Solutions of linear equations:
+Eigen decomposition which values and vectors. How to get its values and vectors?
 
-Eigen decomposition of a matrix:
-
+```{r}
+eigen(a)
+```
 
 
 List consists of an ordered collection of objects that can be of different or the same type.
+
+
+```{r}
+?list
+```
 
 
 

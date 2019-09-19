@@ -226,21 +226,219 @@ summary {
 
 
 <!-- rnb-text-begin -->
+<div id="comparision-on-r-and-jupyter" class="section level3">
+<h3>Comparision on R and Jupyter</h3>
+<p>Here you are editing the markdown script of the notebook. This is not very possible on Jupyter, which is saved as a JSON. On RStudio you can also collaspe the section, makeing your view more focused.</p>
+</div>
+<div id="notes-on-macos" class="section level3">
+<h3>Notes on MacOS</h3>
+<p>Keyboard shortcuts <a href="https://bookdown.org/yihui/rmarkdown/notebook.html" class="uri">https://bookdown.org/yihui/rmarkdown/notebook.html</a></p>
+<p>Cmd + Opt + I for new cell Refer to the the ‘Run’ option on the top right of this window to see the shortcut related to running and restarting the cell. - Restart and run all - Run chunk - Run line</p>
+</div>
+<div id="other-notes" class="section level3">
+<h3>Other notes</h3>
+<p>?(command) for help</p>
+</div>
+<div id="r-class-types" class="section level3">
+<h3>R class types</h3>
 <p>R stores objects in a variety of classes - numeric, integer, character, logical, list, matrix, dataframe and has logical overriding operations when you convert from one class to another.</p>
-<p>Factors:</p>
+<p>“integer” class is part of “numeric”</p>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuY2xhc3MoeilcblxuYGBgIn0= -->
+<pre class="r"><code>class(z)
+</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiWzFdIFwiaW50ZWdlclwiXG4ifQ== -->
+<pre><code>[1] &quot;integer&quot;</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuY2xhc3MoejEpXG5cbmBgYCJ9 -->
+<pre class="r"><code>class(z1)
+</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiWzFdIFwiY2hhcmFjdGVyXCJcbiJ9 -->
+<pre><code>[1] &quot;character&quot;</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuYXMuaW50ZWdlcih3KVxuXG5gYGAifQ== -->
+<pre class="r"><code>as.integer(w)
+</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiTkFzIGludHJvZHVjZWQgYnkgY29lcmNpb25cbiJ9 -->
+<pre><code>NAs introduced by coercion</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiWzFdIE5BIE5BIE5BXG4ifQ== -->
+<pre><code>[1] NA NA NA</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+</div>
+<div id="factors" class="section level3">
+<h3>Factors</h3>
+<p>Essentially tabulate by count?</p>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuY3QgPC0gYyhcImphcFwiLCBcImtvclwiLCBcImtvclwiLCBcImphcFwiLCBcInNncFwiKVxuY2xhc3MoY3QpXG5gYGAifQ== -->
+<pre class="r"><code>ct &lt;- c(&quot;jap&quot;, &quot;kor&quot;, &quot;kor&quot;, &quot;jap&quot;, &quot;sgp&quot;)
+class(ct)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiWzFdIFwiY2hhcmFjdGVyXCJcbiJ9 -->
+<pre><code>[1] &quot;character&quot;</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZmN0IDwtIGZhY3RvcihjdClcbmZjdFxuYGBgIn0= -->
+<pre class="r"><code>fct &lt;- factor(ct)
+fct</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiWzFdIGphcCBrb3Iga29yIGphcCBzZ3BcbkxldmVsczogamFwIGtvciBzZ3BcbiJ9 -->
+<pre><code>[1] jap kor kor jap sgp
+Levels: jap kor sgp</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc3VtbWFyeShmY3QpXG5gYGAifQ== -->
+<pre class="r"><code>summary(fct)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiamFwIGtvciBzZ3AgXG4gIDIgICAyICAgMSBcbiJ9 -->
+<pre><code>jap kor sgp 
+  2   2   1 </code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
 <p>The function tapply:</p>
-<p>Matrix and arrays</p>
-<p>Matrix operations:</p>
-<p>Array operations:</p>
-<p>Other operations with matrices:</p>
-<p>Matrix multiplication:</p>
-<p>Solutions of linear equations:</p>
-<p>Eigen decomposition of a matrix:</p>
+</div>
+<div id="matrix-and-arrays" class="section level1">
+<h1>Matrix and arrays</h1>
+<div id="matrix-operations" class="section level3">
+<h3>Matrix operations</h3>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuciA8LSBtYXRyaXgoYygzLDQsNSw2LDcsOCksIG5yb3c9MywgbmNvbD0yKVxuclxuXG5jbGFzcyhyKVxuZGltKHIpXG5yWzIsMl1cbnJbNV1cbmBgYCJ9 -->
+<pre class="r"><code>r &lt;- matrix(c(3,4,5,6,7,8), nrow=3, ncol=2)
+r
+
+class(r)
+dim(r)
+r[2,2]
+r[5]</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<p>r[5] reads the flatted array. (Different from Python)</p>
+</div>
+<div id="array-operations" class="section level3">
+<h3>Array operations</h3>
+<p>Casting an array into your specified multi-dimensional matrix.</p>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc1xuXG5gYGAifQ== -->
+<pre class="r"><code>s
+</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiICAgICBbLDFdIFssMl1cblsxLF0gICAgMyAgICA2XG5bMixdICAgIDQgICAgN1xuWzMsXSAgICA1ICAgIDhcbiJ9 -->
+<pre><code>     [,1] [,2]
+[1,]    3    6
+[2,]    4    7
+[3,]    5    8</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+</div>
+<div id="other-operations-with-matrices" class="section level3">
+<h3>Other operations with matrices</h3>
+<p>Writing an identity matrix of size 10</p>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZGlhZygxMClcblxuYGBgIn0= -->
+<pre class="r"><code>diag(10)
+</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiICAgICAgWywxXSBbLDJdIFssM10gWyw0XSBbLDVdIFssNl0gWyw3XSBbLDhdIFssOV0gWywxMF1cbiBbMSxdICAgIDEgICAgMCAgICAwICAgIDAgICAgMCAgICAwICAgIDAgICAgMCAgICAwICAgICAwXG4gWzIsXSAgICAwICAgIDEgICAgMCAgICAwICAgIDAgICAgMCAgICAwICAgIDAgICAgMCAgICAgMFxuIFszLF0gICAgMCAgICAwICAgIDEgICAgMCAgICAwICAgIDAgICAgMCAgICAwICAgIDAgICAgIDBcbiBbNCxdICAgIDAgICAgMCAgICAwICAgIDEgICAgMCAgICAwICAgIDAgICAgMCAgICAwICAgICAwXG4gWzUsXSAgICAwICAgIDAgICAgMCAgICAwICAgIDEgICAgMCAgICAwICAgIDAgICAgMCAgICAgMFxuIFs2LF0gICAgMCAgICAwICAgIDAgICAgMCAgICAwICAgIDEgICAgMCAgICAwICAgIDAgICAgIDBcbiBbNyxdICAgIDAgICAgMCAgICAwICAgIDAgICAgMCAgICAwICAgIDEgICAgMCAgICAwICAgICAwXG4gWzgsXSAgICAwICAgIDAgICAgMCAgICAwICAgIDAgICAgMCAgICAwICAgIDEgICAgMCAgICAgMFxuIFs5LF0gICAgMCAgICAwICAgIDAgICAgMCAgICAwICAgIDAgICAgMCAgICAwICAgIDEgICAgIDBcblsxMCxdICAgIDAgICAgMCAgICAwICAgIDAgICAgMCAgICAwICAgIDAgICAgMCAgICAwICAgICAxXG4ifQ== -->
+<pre><code>      [,1] [,2] [,3] [,4] [,5] [,6] [,7] [,8] [,9] [,10]
+ [1,]    1    0    0    0    0    0    0    0    0     0
+ [2,]    0    1    0    0    0    0    0    0    0     0
+ [3,]    0    0    1    0    0    0    0    0    0     0
+ [4,]    0    0    0    1    0    0    0    0    0     0
+ [5,]    0    0    0    0    1    0    0    0    0     0
+ [6,]    0    0    0    0    0    1    0    0    0     0
+ [7,]    0    0    0    0    0    0    1    0    0     0
+ [8,]    0    0    0    0    0    0    0    1    0     0
+ [9,]    0    0    0    0    0    0    0    0    1     0
+[10,]    0    0    0    0    0    0    0    0    0     1</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+</div>
+<div id="matrix-multiplication" class="section level3">
+<h3>Matrix multiplication</h3>
+<p><code>%*%</code> is matrix multiplication. Probably there are some commands for transpose, etc.</p>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuYSAlKiUgYVxuXG5gYGAifQ== -->
+<pre class="r"><code>a %*% a
+</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiICAgICBbLDFdIFssMl1cblsxLF0gICAgMyAgIC00XG5bMixdICAgIDQgICAgM1xuIn0= -->
+<pre><code>     [,1] [,2]
+[1,]    3   -4
+[2,]    4    3</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+</div>
+<div id="solutions-of-linear-equations" class="section level3">
+<h3>Solutions of linear equations</h3>
+<p>solve(a) will invert the matrix. Please revise your linear algebra.</p>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuYSUqJXNvbHZlKGEpXG5cbmBgYCJ9 -->
+<pre class="r"><code>a%*%solve(a)
+</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiICAgICBbLDFdIFssMl1cblsxLF0gICAgMSAgICAwXG5bMixdICAgIDAgICAgMVxuIn0= -->
+<pre><code>     [,1] [,2]
+[1,]    1    0
+[2,]    0    1</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+</div>
+<div id="eigen-decomposition-of-a-matrix" class="section level2">
+<h2>Eigen decomposition of a matrix</h2>
+<p>Eigen decomposition which values and vectors. How to get its values and vectors?</p>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZWlnZW4oYSlcblxuYGBgIn0= -->
+<pre class="r"><code>eigen(a)
+</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiZWlnZW4oKSBkZWNvbXBvc2l0aW9uXG4kdmFsdWVzXG5bMV0gMisxaSAyLTFpXG5cbiR2ZWN0b3JzXG4gICAgICAgICAgICAgICAgICAgICBbLDFdICAgICAgICAgICAgICAgICBbLDJdXG5bMSxdIDAuNzA3MTA2OCswLjAwMDAwMDBpIDAuNzA3MTA2OCswLjAwMDAwMDBpXG5bMixdIDAuMDAwMDAwMC0wLjcwNzEwNjhpIDAuMDAwMDAwMCswLjcwNzEwNjhpXG4ifQ== -->
+<pre><code>eigen() decomposition
+$values
+[1] 2+1i 2-1i
+
+$vectors
+                     [,1]                 [,2]
+[1,] 0.7071068+0.0000000i 0.7071068+0.0000000i
+[2,] 0.0000000-0.7071068i 0.0000000+0.7071068i</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
 <p>List consists of an ordered collection of objects that can be of different or the same type.</p>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
 <p>Dataframes are a tightly coupled collection of variables that share many of the properties of matrices and lists and is the fundamental data structure that will be used in most of this course.</p>
 <!-- rnb-text-end -->
+</div>
+</div>
 
-<div id="rmd-source-code">LS0tCnRpdGxlOiAnQmFzaWMgUiBOb3RlYm9vazogTGVjdHVyZSAyJwpvdXRwdXQ6CiAgcGRmX2RvY3VtZW50OiBkZWZhdWx0CiAgaHRtbF9ub3RlYm9vazogZGVmYXVsdAogIGh0bWxfZG9jdW1lbnQ6IGRlZmF1bHQKLS0tCgoKUiBzdG9yZXMgb2JqZWN0cyBpbiBhIHZhcmlldHkgb2YgY2xhc3NlcyAtIG51bWVyaWMsIGludGVnZXIsIGNoYXJhY3RlciwgbG9naWNhbCwgbGlzdCwgbWF0cml4LCBkYXRhZnJhbWUgYW5kIGhhcyBsb2dpY2FsIG92ZXJyaWRpbmcgb3BlcmF0aW9ucyB3aGVuIHlvdSBjb252ZXJ0IGZyb20gb25lIGNsYXNzIHRvIGFub3RoZXIuCgoKRmFjdG9yczogCgoKVGhlIGZ1bmN0aW9uIHRhcHBseToKCk1hdHJpeCBhbmQgYXJyYXlzCgoKTWF0cml4IG9wZXJhdGlvbnM6CgpBcnJheSBvcGVyYXRpb25zOgoKT3RoZXIgb3BlcmF0aW9ucyB3aXRoIG1hdHJpY2VzOgoKTWF0cml4IG11bHRpcGxpY2F0aW9uOgoKCgpTb2x1dGlvbnMgb2YgbGluZWFyIGVxdWF0aW9uczoKCkVpZ2VuIGRlY29tcG9zaXRpb24gb2YgYSBtYXRyaXg6CgoKCkxpc3QgY29uc2lzdHMgb2YgYW4gb3JkZXJlZCBjb2xsZWN0aW9uIG9mIG9iamVjdHMgdGhhdCBjYW4gYmUgb2YgZGlmZmVyZW50IG9yIHRoZSBzYW1lIHR5cGUuCgoKCkRhdGFmcmFtZXMgYXJlIGEgdGlnaHRseSBjb3VwbGVkIGNvbGxlY3Rpb24gb2YgdmFyaWFibGVzIHRoYXQgc2hhcmUgbWFueSBvZiB0aGUgcHJvcGVydGllcyBvZiBtYXRyaWNlcyBhbmQgbGlzdHMgYW5kIGlzIHRoZSBmdW5kYW1lbnRhbCBkYXRhIHN0cnVjdHVyZSB0aGF0IHdpbGwgYmUgdXNlZCBpbiBtb3N0IG9mIHRoaXMgY291cnNlLgoK</div>
+<div id="rmd-source-code">LS0tCnRpdGxlOiAnQmFzaWMgUiBOb3RlYm9vazogTGVjdHVyZSAyJwpvdXRwdXQ6CiAgcGRmX2RvY3VtZW50OiBkZWZhdWx0CiAgaHRtbF9ub3RlYm9vazogZGVmYXVsdAogIGh0bWxfZG9jdW1lbnQ6IGRlZmF1bHQKLS0tCgojIyMgQ29tcGFyaXNpb24gb24gUiBhbmQgSnVweXRlcgpIZXJlIHlvdSBhcmUgZWRpdGluZyB0aGUgbWFya2Rvd24gc2NyaXB0IG9mIHRoZSBub3RlYm9vay4gVGhpcyBpcyBub3QgdmVyeSBwb3NzaWJsZSBvbiBKdXB5dGVyLCB3aGljaCBpcyBzYXZlZCBhcyBhIEpTT04uCk9uIFJTdHVkaW8geW91IGNhbiBhbHNvIGNvbGxhc3BlIHRoZSBzZWN0aW9uLCBtYWtlaW5nIHlvdXIgdmlldyBtb3JlIGZvY3VzZWQuCgoKIyMjIE5vdGVzIG9uIE1hY09TCktleWJvYXJkIHNob3J0Y3V0cwpodHRwczovL2Jvb2tkb3duLm9yZy95aWh1aS9ybWFya2Rvd24vbm90ZWJvb2suaHRtbAoKQ21kICsgT3B0ICsgSSBmb3IgbmV3IGNlbGwKUmVmZXIgdG8gdGhlIHRoZSAnUnVuJyBvcHRpb24gb24gdGhlIHRvcCByaWdodCBvZiB0aGlzIHdpbmRvdyB0byBzZWUgdGhlIHNob3J0Y3V0IHJlbGF0ZWQgdG8gcnVubmluZyBhbmQgcmVzdGFydGluZyB0aGUgY2VsbC4KLSBSZXN0YXJ0IGFuZCBydW4gYWxsCi0gUnVuIGNodW5rCi0gUnVuIGxpbmUKCgoKIyMjIE90aGVyIG5vdGVzCj8oY29tbWFuZCkgZm9yIGhlbHAKCiMjIyBSIGNsYXNzIHR5cGVzCgpSIHN0b3JlcyBvYmplY3RzIGluIGEgdmFyaWV0eSBvZiBjbGFzc2VzIC0gbnVtZXJpYywgaW50ZWdlciwgY2hhcmFjdGVyLCBsb2dpY2FsLCBsaXN0LCBtYXRyaXgsIGRhdGFmcmFtZSBhbmQgaGFzIGxvZ2ljYWwgb3ZlcnJpZGluZyBvcGVyYXRpb25zIHdoZW4geW91IGNvbnZlcnQgZnJvbSBvbmUgY2xhc3MgdG8gYW5vdGhlci4KCiJpbnRlZ2VyIiBjbGFzcyBpcyBwYXJ0IG9mICJudW1lcmljIgoKYGBge3J9CnogPC0gYygwOjkpCnoKCmNsYXNzKHopCmBgYAoKCmBgYHtyfQp6MSA8LSBjKCJhIiwiYiIsImQiKQp6MQoKY2xhc3MoejEpCgpgYGAKCgpgYGB7cn0KdyA8LSBhcy5jaGFyYWN0ZXIoejEpCncKCmNsYXNzKHcpCmFzLmludGVnZXIodykKYGBgCgojIyMgRmFjdG9ycwogCkVzc2VudGlhbGx5IHRhYnVsYXRlIGJ5IGNvdW50PwoKYGBge3J9CmN0IDwtIGMoImphcCIsICJrb3IiLCAia29yIiwgImphcCIsICJzZ3AiKQpjbGFzcyhjdCkKZmN0IDwtIGZhY3RvcihjdCkKZmN0CnN1bW1hcnkoZmN0KQpgYGAKCgpUaGUgZnVuY3Rpb24gdGFwcGx5OgoKIyBNYXRyaXggYW5kIGFycmF5cwoKIyMjIE1hdHJpeCBvcGVyYXRpb25zCgpgYGB7cn0KciA8LSBtYXRyaXgoYygzLDQsNSw2LDcsOCksIG5yb3c9MywgbmNvbD0yKQpyCgpjbGFzcyhyKQpkaW0ocikKclsyLDJdCnJbNV0KYGBgCgpyWzVdIHJlYWRzIHRoZSBmbGF0dGVkIGFycmF5LiAoRGlmZmVyZW50IGZyb20gUHl0aG9uKQoKIyMjIEFycmF5IG9wZXJhdGlvbnMKCkNhc3RpbmcgYW4gYXJyYXkgaW50byB5b3VyIHNwZWNpZmllZCBtdWx0aS1kaW1lbnNpb25hbCBtYXRyaXguCgpgYGB7cn0KcyA8LSBhcnJheShjKDMsNCw1LDYsNyw4KSwgYygzLDIpKQpzCgpjbGFzcyhzKQp6IDwtIDE6NTAKZGltKHopIDwtIGMoNSwyLDUpCmBgYAoKIyMjIE90aGVyIG9wZXJhdGlvbnMgd2l0aCBtYXRyaWNlcwoKV3JpdGluZyBhbiBpZGVudGl0eSBtYXRyaXggb2Ygc2l6ZSAxMAoKYGBge3J9CmRpYWcoMTApCmBgYAoKCiMjIyBNYXRyaXggbXVsdGlwbGljYXRpb24KCmAlKiVgIGlzIG1hdHJpeCBtdWx0aXBsaWNhdGlvbi4gUHJvYmFibHkgdGhlcmUgYXJlIHNvbWUgY29tbWFuZHMgZm9yIHRyYW5zcG9zZSwgZXRjLgoKYGBge3J9CmEgPC0gYXJyYXkoYygyLDEsLTEsMiksIGMoMiwyKSkKYSUqJWEKYGBgCgoKIyMjIFNvbHV0aW9ucyBvZiBsaW5lYXIgZXF1YXRpb25zCgpzb2x2ZShhKSB3aWxsIGludmVydCB0aGUgbWF0cml4LiBQbGVhc2UgcmV2aXNlIHlvdXIgbGluZWFyIGFsZ2VicmEuCgpgYGB7cn0KYSA8LSBhcnJheShjKDIsMSwtMSwyKSwgYygyLDIpKQpiIDwtIGMoNCw0KQphCmIKYSUqJXNvbHZlKGEpCmBgYAoKCiMjIEVpZ2VuIGRlY29tcG9zaXRpb24gb2YgYSBtYXRyaXgKCkVpZ2VuIGRlY29tcG9zaXRpb24gd2hpY2ggdmFsdWVzIGFuZCB2ZWN0b3JzLiBIb3cgdG8gZ2V0IGl0cyB2YWx1ZXMgYW5kIHZlY3RvcnM/CgpgYGB7cn0KZWlnZW4oYSkKYGBgCgoKTGlzdCBjb25zaXN0cyBvZiBhbiBvcmRlcmVkIGNvbGxlY3Rpb24gb2Ygb2JqZWN0cyB0aGF0IGNhbiBiZSBvZiBkaWZmZXJlbnQgb3IgdGhlIHNhbWUgdHlwZS4KCgpgYGB7cn0KP2xpc3QKYGBgCgoKCkRhdGFmcmFtZXMgYXJlIGEgdGlnaHRseSBjb3VwbGVkIGNvbGxlY3Rpb24gb2YgdmFyaWFibGVzIHRoYXQgc2hhcmUgbWFueSBvZiB0aGUgcHJvcGVydGllcyBvZiBtYXRyaWNlcyBhbmQgbGlzdHMgYW5kIGlzIHRoZSBmdW5kYW1lbnRhbCBkYXRhIHN0cnVjdHVyZSB0aGF0IHdpbGwgYmUgdXNlZCBpbiBtb3N0IG9mIHRoaXMgY291cnNlLgoK</div>
 
 
 
