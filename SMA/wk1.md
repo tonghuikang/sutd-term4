@@ -2,8 +2,6 @@
 
 In other words, model and analyse a simulated model
 
-
-
 ![Screenshot 2019-09-16 at 10.08.45 AM](assets/Screenshot 2019-09-16 at 10.08.45 AM.png)
 
 Objectives
@@ -23,10 +21,6 @@ Example
 
 
 
-
-
-
-
 ### System Dynamics Tools
 
 Process of building system dynamics tools
@@ -36,7 +30,7 @@ Process of building system dynamics tools
 - implement in software
 - simulate with chosen parameters
 
-Two types introducted - causal loop diagrams and 
+Two types introducted - causal loop diagrams and stock-and-flows
 
 #### Causal Loop Diagrams
 Nodes - factors or variables
@@ -48,7 +42,7 @@ Usefulness of causal loop diagrams
   - for discussion with the client
   - for identifying and naming variables
   - identify feedback loops
-- not useful for detailed modeling
+- not useful for detailed modeling - does not convey mechanisms of change
 - not useful when too large which overwhelms the client
 
 ### Stocks and flows
@@ -57,23 +51,21 @@ Usefulness of causal loop diagrams
 - Flows: transient variables which directly increase or decrease a stock variable
 - Auxiliary: transient variables which influcence a flow
 
-Arrows with valves: flows
-Rectangles: stocks
-Cloud: unspecified source or sink
+Arrows with valves: Flows (of stocks?). Auxiliary variables control the flows.
+Rectangles: Stocks (or something that holds the stock?)
+Cloud: Unspecified source or sink. Allows stocks to be created or destroy.
+Circles: Auxiliary variables. If nothing influence the circle (arrow pointing to it), it is constant.
 
-**Concept.** Stocks needs to flow somewhere, it is either initialised, create at source or destroyed at the sink. **Circles are variables.** If nothing influence the circle (arrow pointing to it), it is constant.
+**Concept.** **Stocks needs to flow somewhere**, it is either initialised, create at source or destroyed at the sink. 
 
 ![Screenshot 2019-09-18 at 9.26.22 AM](assets/Screenshot 2019-09-18 at 9.26.22 AM.png)
 
 
-
-Specify parameters and intial stocks.
-
-
+To simulate - specify parameters and intial stocks.
 
 Example given - company financial and staffing information.
-Stock is income statement or cash flow statement or hiring/firing/retiring numbers.
-Flow is balance sheet or staffing information.
+Stocks are items on an income statement or cash flow statement or hiring/firing/retiring numbers.
+Flow are items on a balance sheet or staffing information.
 
 
 
@@ -94,7 +86,18 @@ Interpreting population charts
 - horizontal slices (average time a patient stays infected)
 - vertical slices (part of the population at a point in time)
 
+Euler method is to solve for the next time step. It is a good approximation of the analytic solution. A more exact numerical method is Runge-Kutta Method.
 
+Make sure you are able to visualise the derivative and culumative. 
+
+The changes in populations:
+
+X | SI | IR | SIR | SEIR
+- | - | - | - | -
+$\frac{dS}{dt}$ | $-\beta i s$ |  | $-\beta i s$ | $-\beta i s$ 
+$\frac{dE}{dt}$ | - | - | - | $\beta i s - \sigma e$ 
+$\frac{dI}{dt}$ | $\beta i s$ | $-\gamma i$ | $\beta i s - \gamma i$ | $\sigma e - \gamma i$ 
+$\frac{dR}{dt}$ | - | $\gamma i$ | $\gamma i$ | $\gamma i$ 
 
 #### Basic Infection Model
 
@@ -104,21 +107,6 @@ Interpreting population charts
 
 Eventually all the suspectible population will income infected.
 
-Euler Method - to solve for the next time step. 
-
-
-
-$$
-ds/dt = -\beta is \\
-di/dt = \beta is \\
-s(0) = 1 - i_0 \\
-i(0) = i_0
-$$
-
-Euler Method is a good approximating of the analytic solution. A more exact numerical method is Runge-Kutta Method.
-
-![image-20190918095354998](assets/image-20190918095354998.png)
-
 
 
 #### Basic Recovery Model
@@ -127,10 +115,6 @@ Euler Method is a good approximating of the analytic solution. A more exact nume
 
 Those infected are removed from the population at some removal rate (they die or recover).
 
-$$
-TODO
-$$
-
 
 
 
@@ -138,17 +122,13 @@ $$
 
 ![Screenshot 2019-09-18 at 10.12.00 AM](assets/Screenshot 2019-09-18 at 10.12.00 AM.png)
 
-$$
-TODO
-$$
-
-Those infected are removed from the population at some rate (they die or recover) 
-
-Individuals removed from the population can no longer infect others (lifelong immunity)
 
 
+Those infected are removed from the population at some rate (they die or recover). Individuals removed from the population can no longer infect others (lifelong immunity)
 
-Three factor model (applies to SIR)
+Eventually everybody will become infected, and then removed.
+
+Three factor model (applies to **SIR** - only?)
 
 
 $$
@@ -162,6 +142,8 @@ $T_1$ = mean infection duration
 
 $R_0$ can change, as people respond to the disease.
 
+
+
 #### Susceptible - Exposed - Infected - Recovery (SEIR) Model
 
 This is account that susceptible population do not become infectious immediately. Therefore we have a new stock - exposed population.
@@ -171,26 +153,42 @@ This is account that susceptible population do not become infectious immediately
 ![Screenshot 2019-09-18 at 10.17.43 AM](assets/Screenshot 2019-09-18 at 10.17.43 AM.png)
 
 
-$$
-TODO
-$$
-
-
-
-TODO
-
-X | SI | IR | SIR | SEIR
-- | - | - | - | -
-$\frac{dS}{dt}$ | - | - | - | -
-$\frac{dI}{dt}$ | - | - | - | -
-$\frac{dR}{dt}$ | - | - | - | -
-$\frac{dE}{dt}$ | - | - | - | -
-
-
-
-
 
 Use solver to find the best parameters compared to the real world data.
+
+
+
+Question 1
+$$
+\begin{align}
+\frac{di}{dt} &= -\gamma i \\
+\frac{dr}{dt} &= \gamma i \\
+\\
+i(0) &= i_0 \\
+r(0) &= 1 - i_0\\
+\\
+\\
+\text{From the first equation:}\\
+\int \frac{di}{i(t)} &= \int -\gamma \enspace dt \\
+log(i(t)) &= -\gamma t + C \\
+i(t) &= exp(-\gamma t + C) \\
+i(t) &= D \cdot exp(-\gamma t) \\
+\\
+\text{Since } i(0) = i_0, \text{ when } t=0:& \\
+D &= i_0  \\
+\therefore i(t) &= i_0 e^{-\gamma t}\\
+\\
+\\
+\text{Since } r(t) = 1 - i(t):&\\
+\therefore r(t) &= 1 - i_0 e^{-\gamma t}
+
+\end{align}
+$$
+Question 2
+
+![Screenshot 2019-09-21 at 1.13.18 AM](assets/Screenshot 2019-09-21 at 1.13.18 AM.png)
+
+
 
 
 
