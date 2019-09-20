@@ -1,0 +1,3 @@
+[submodule "ENTRE/entre-personal"]
+	path = ENTRE/entre-personal
+	url = https://github.com/tonghuikang/entre-personal
