@@ -2,6 +2,8 @@
 
 Reference: http://web.mit.edu/15.053/www/AMP-Chapter-01.pdf
 
+You need to know how to transform a linear program into a standard linear program. (Linear constraints, with "linear absolute residuals" or "maximum absolute residual" the objective function is still a linear program, and you need to know how to transform those as well).
+
 ### Optimisation Paradigm
 
 1) **Decision Variables.** The elements under the control of the decision maker.
@@ -57,9 +59,9 @@ Types of optimisation problem based on solution types
 
 
 
-### Linear program
+### Types of Linear Program
 
-"General" linear program (one if the objective function is linear and the constraints are linear equalities or inequalities)
+"General" **linear program** (one if the objective function is linear and the constraints are linear equalities or inequalities)
 
 $$
 \begin{align*}
@@ -105,17 +107,17 @@ All general linear program **can be transformed** to a standard linear program. 
 
 
 **Canonical** form of a Linear Program 
-(not elaborated in week 1)
+(not elaborated in week 1, explained later here)
 
 An LP is in canonical form if: 
 - It is in standard form. 
 - The constraint matrix contains (a permutation of) the identity matrix as a submatrix. 
-- The variables with a “+1” coefficient in the identity matrix appear with a zero coefficient in the objective function
+- The variables with a "+1" coefficient in the identity matrix appear with a zero coefficient in the objective function
 
 
 
 
-### Examples: Nurse scheduling problem
+### Example: Nurse scheduling problem
 
 Basic formulation
 
@@ -139,7 +141,7 @@ $$x_1 + x_4 + x_5 + x_6 + x_7 + d + e = 17$$ where $d$ and $e$ is deficit and ex
 
 
 
-## Converting linear residuals into a linear program
+### Converting linear residuals into a linear program
 
 **Least squares - cannot be converted into a linear program.**
 
@@ -201,7 +203,7 @@ From the slides (notice that $\epsilon_i$ is an an expression).
 
 
 
-## Basic and feasible solutions
+### Basic and feasible solutions
 
 Feasible solutions are solutions that are feasible (duh?) - the solution satisfies all the constrains in the question. It may not be basic.
 
@@ -220,3 +222,9 @@ Feasible solutions are solutions that are feasible (duh?) - the solution satisfi
 ![Screen Shot 2019-09-20 at 23.03.42 PM](assets/Screen Shot 2019-09-20 at 23.03.42 PM.png)
 
 ![Screen Shot 2019-09-20 at 23.03.46 PM](assets/Screen Shot 2019-09-20 at 23.03.46 PM.png)
+
+
+
+
+
+
