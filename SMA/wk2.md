@@ -42,5 +42,10 @@ Then policies could be implemented. For example
 - Control Immigration (build a wall)
 - Encourage urban regeneration
 
+A controversial conclusion in Urban Dynamics was that the most commonly-accepted plans for improving an urban area could actually be inefficient and potentially harmful for the city.
 
+- Financial aid, low-cost housing and government jobs programs
+They could lead to other problems such as overpopulation and unemployment.
+
+Urban renewal policies were found to be very effective as they shift the bias away from non-job-generating structures (e.g., housing) to job-generating structures.
 

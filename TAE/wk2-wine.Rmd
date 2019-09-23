@@ -1,0 +1,182 @@
+---
+title: "Wine analytics Notebook"
+output:
+  html_notebook: default
+  html_document: default
+  pdf_document: default
+---
+```{r}
+#install.packages("ggplot2")
+#install.packages("psych")
+#install.packages("ggfortify")
+library("ggplot2")
+library("psych")
+library("ggfortify")
+```
+
+Linear model
+
+$$
+y = \beta_0 + \beta_1 x_1 + \beta_2 x_2 + \beta_3 x_3 + \epsilon 
+$$
+Find the set of $\beta$ such that $\epsilon$ is minimum.
+
+We can express this problem as
+
+$$
+
+$$
+
+
+The dataset consists of 38 observations of 6 variables (small dataset): 1952 to 1989. Ashenfelter published his paper in 1990.
+```{r}
+wine <- read.csv("wk2-wine.csv")
+str(wine)
+summary(wine)
+```
+
+1954 and 1956 wine prices are not available in the dataset since they are rarely sold now. The prices from 1981 to 1989 are not available in the dataset.
+
+```{r}
+#is.na(wine)
+```
+
+The scatter plot indicates a negative relationship but there is considerable variation that still needs to be captured. We can also plot a matrix of all scatter plots using the pairs command.
+Use plot() or ggplot()
+    pairs.panels() or pairs()
+```{r}
+ggplot(wine, aes(VINT,LPRICE)) + pairs.panels(wine, ellipses=F, lm =T, breaks=10, hist.col="blue")
+```
+
+Split the data set into a training dataset from 1952 to 1978 (drop 1954 and 1956 since prices are not observable) and we use the test set from 1979 onwards. Note that for the test set however we only have prices till 1980 (so in this case we can only use 1979 and 1980) to test the model.
+
+```{r}
+winetrain <- subset(wine, wine$VINT <= 1978 & !is.na(wine$LPRICE))
+winetrain
+winetest <- subset(wine, wine$VINT > 1978)
+winetest
+```
+
+One variable regression - lm() is the basic command to fit a linear model to the data.
+
+```{r}
+?lm
+model1  <- lm(LPRICE~VINT,data=winetrain)
+model1
+summary(model1)
+#autoplot(...)
+```
+
+The regression fit here is LPRICE = 72.99-0.0378*VINT. 
+Both estimated coefficents are significant at the 0.01 level with R^2 = 0.2005 and adjusted R^2 = 0.1657.
+Plot the best fit line with a slope of -0.0378.
+
+```{r}
+ggplot(...)
+```
+
+Evaluate the sum of squared errors and total sum of squares
+residuals = actual - fitted
+```{r}
+model1$residuals
+sse1 <- ...
+sst1 <- ...
+1 - sse1/sst1
+summary(model1)
+```
+
+The result indicates that older the wine, greater is the value but there is still significant variation.
+
+One variable regression - continued
+```{r}
+model2  <- lm(LPRICE~WRAIN,data=winetrain)
+summary(model2)
+```
+```{r}
+model3  <- lm(LPRICE~HRAIN,data=winetrain)
+summary(model3)
+```
+```{r}
+model4  <- lm(LPRICE~DEGREES,data=winetrain)
+summary(model4)
+```
+Two variables - The effect of DEGREES and HRAIN on LPRICE.
+```{r}
+br<-mean(winetrain$LPRICE)
+
+ggplot(winetrain,aes(DEGREES,HRAIN,color=cut(LPRICE,c(-Inf,-1.42,Inf)))) + 
+  geom_point(na.rm=T) + 
+  scale_color_discrete(name = "LPRICE",
+                       labels = c("< mean(LPRICE)",
+                                  "> mean(LPRICE)")) +
+  geom_vline(xintercept=mean(winetrain$DEGREES),color="blue",lwd=1) +
+  geom_hline(yintercept=mean(winetrain$HRAIN),color="blue",lwd=1)
+#plot(winetrain$DEGREES,winetrain$HRAIN,col=ifelse(winetrain$LPRICE>=mean(winetrain$LPRICE),"red","black"))
+```
+The figure indicates that hot and dry summers produce wines that obtain higher prices while cooler summers with more rain gives lower priced wines. 1961 is an year where an extremely high quality wine was produced.
+
+Two variable regression
+```{r}
+model5  <- lm(LPRICE~DEGREES+HRAIN,data=winetrain)
+summary(model5)
+```
+LPRICE = -10.69 + 0.602*DEGREES - 0.0045*HRAIN. Both variables are extremely significant in the fit with R^2 = 0.7 and adjusted R^2 = 0.68.
+
+Multiple linear regression
+```{r}
+model6  <- lm(LPRICE~VINT+TIME_SV,data=winetrain)
+summary(model6)
+cor(winetrain)
+```
+
+Note tha TIME_SV coefficients are not defined as it is perfectly correlated with the VINT variable (perfect multicollinearity). We drop the variable and redo the regression. High correlation (in absolute value) between independent variables is not good (indication of multicollinearity) while high correlation (in absolute value) between dependent and independent variables is good.
+
+```{r}
+model7  <- lm(LPRICE~VINT+DEGREES+HRAIN+WRAIN,data=winetrain)
+summary(model7)
+```
+
+R^2 = 0.828 and adjusted R^2 = 0.794. The coefficients indicate that high quality wines correlate strongly in a positive manner with summer temperatures, negatively correlate with harvest rain and positively correlate with winter rain. The result indicates that 80% of the variaion can be explained by including the weather variables in comparison to 20% with only the vintage year.
+
+```{r}
+model7a <- lm(LPRICE~WRAIN+DEGREES+HRAIN,data=winetrain)
+summary(model7a)
+```
+We can run the model by dropping VINT but this decreases R^2 to 0.75 and adjusted R^2 to 0.71.
+
+We can obtain confidence intervals for the estimates using the confint command.
+```{r}
+model7$coefficients
+model7$residuals
+confint(model7)
+confint(model7,level=0.99)
+```
+Predictions - The predict function helps predict the outcome of the model on values in the test set. The test R-squared for model 7 is 0.82, for model 4 it is 0.435 and for model 5 it is 0.70.
+```{r}
+# we only got two elements in the test set?
+str(winetest)
+# customary of use the mean (why?)
+sst <- sum((winetest$LPRICE[1:2]-mean(winetrain$LPRICE))^2)
+
+wineprediction7 <- predict(model7a, newdata = winetest)
+wineprediction7
+sse7 <- sum((wineprediction7[1:2]-winetest$LPRICE[1:2])^2)
+1 - sse7/sst
+
+wineprediction4 <- predict(model4, newdata = winetest)
+wineprediction4
+sse4 <- sum((wineprediction4[1:2]-winetest$LPRICE[1:2])^2)
+1-sse4/sst
+
+wineprediction5 <- predict(model5,newdata=winetest)
+wineprediction5
+sse5 <- sum((wineprediction5[1:2]-winetest$LPRICE[1:2])^2)
+1-sse5/sst
+```
+We use the training test mean to compute the total sum of squares for computing the test R^2 values. The results indicate that better R^2 in the training set does not necessarily indicate better R^2 in test set (this can also be negative). 
+```{r}
+ggplot(wine,aes(LPRICE))+geom_histogram(...)
+#hist(wine$LPRICE)
+#hist(exp(wine$LPRICE))
+```
+The use of logarithms for prices is fairly common in the economics literature - partly jusified by skewed values in some datasets dealing with numbers such as salaries and partly justified by functional relations such as y = exp(a+bx) which gives log y = a+bx. Such transformations need to be justified and is sometime specific to domains. Even if one directly uses prices in the regression, similar insights are found in this dataset. 
