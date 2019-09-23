@@ -49,3 +49,35 @@ They could lead to other problems such as overpopulation and unemployment.
 
 Urban renewal policies were found to be very effective as they shift the bias away from non-job-generating structures (e.g., housing) to job-generating structures.
 
+
+
+### Question 4
+
+We are tasked to 
+
+- maximise population 
+- minimise unemployment 
+- minimise abandoned houses.
+
+
+Some tradeoffs need to be considered when we want the best combination when there are multiple objectives? (In other words, which objective is more important than the others?) 
+
+
+However, we were tasked to find the best combination of "parameters".
+What are the constraints that we cannot change, what are the variables that we can change?
+
+
+The following constraints the total potential population that the city can hold. Increasing these variables can increase the population indefinitely (however, the variables need to be realistic)
+- greater land area, increasing the capacity for people
+- greater jobs per business structure increase the business land-use more efficient, increasing the capacity for people
+- greater people per household makes housing land-use more efficient, increasing the capacity for people
+
+
+To minimise unemployment and minimising abandoned houses. 
+- bring housing demolition rate to be equal to the housing construction rate
+This way abandoned houses can be demolished which reduces housing construction rate
+This also provides businesses with the opportunity to construct houses, which provide jobs
+- reduce immigration rate and outmigration rate and make them equal
+When immigration rate is higher than outmigration rate, there is unemployment. When outmigration rate is higher than the immigration rate, there are abandoned houses. Bringing these two numbers down will reduce both rates of unemployment and the rate of abandoned houses to 1, which is the ideal.
+
+In addition, we might want to reach the ideal state faster. This means that the city planner should modify the parameters in response to the state of the city - for example, encourage immigration when the city has not reached capacity.
