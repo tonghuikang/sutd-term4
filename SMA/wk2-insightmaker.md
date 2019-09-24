@@ -81,3 +81,4 @@ This also provides businesses with the opportunity to construct houses, which pr
 When immigration rate is higher than outmigration rate, there is unemployment. When outmigration rate is higher than the immigration rate, there are abandoned houses. Bringing these two numbers down will reduce both rates of unemployment and the rate of abandoned houses to 1, which is the ideal.
 
 In addition, we might want to reach the ideal state faster. This means that the city planner should modify the parameters in response to the state of the city - for example, encourage immigration when the city has not reached capacity.
+
