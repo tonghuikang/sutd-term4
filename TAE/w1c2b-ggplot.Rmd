@@ -33,7 +33,7 @@ We will use a data set from <http://www.who.int/gho/en>. The dataset contains da
 First we have a look at the data set
 ```{r}
 library(ggplot2)
-WHO <- read.csv("WHO.csv")
+WHO <- read.csv("w1c2b-WHO.csv")
 ```
 
 ```{r}

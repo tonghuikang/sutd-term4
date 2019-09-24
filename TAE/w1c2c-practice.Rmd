@@ -27,8 +27,7 @@ acol <- ggplot(mtcars,aes(x=wt, y=mpg, color=cyl, cex=disp))
 acol + geom_point(na.rm=T) + geom_smooth(na.rm=T)
 ```
 
-(b) Use the tapply() function to compute the standard deviation of the mpg for groups with
-the same number of cylinders
+(b) Use the tapply() function to compute the standard deviation of the mpg for groups with the same number of cylinders
 
 Refer to: https://www.rdocumentation.org/packages/base/versions/3.6.1/topics/tapply
 

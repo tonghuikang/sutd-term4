@@ -22,6 +22,7 @@ $$
 Find the set of $\beta$ such that $\epsilon$ is minimum.
 
 We can express this problem as
+(TODO: MATH)
 
 $$
 
@@ -30,7 +31,7 @@ $$
 
 The dataset consists of 38 observations of 6 variables (small dataset): 1952 to 1989. Ashenfelter published his paper in 1990.
 ```{r}
-wine <- read.csv("wk2-wine.csv")
+wine <- read.csv("w2c1-wine.csv")
 str(wine)
 summary(wine)
 ```
