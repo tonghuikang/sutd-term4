@@ -13,12 +13,6 @@ Please alert your professors if the objectives shift.
 
 
 
-### Introduction to SQLite
-
-(Review) The introduction to SQL should be been done better. What is SQL - is it a language, software or infrastructure? What are the available products out there? How is this different from Excel? Why do companies use SQL? Is NoSQL SQL? What is a relational database?
-
-
-
 
 
 

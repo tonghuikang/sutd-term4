@@ -2,9 +2,7 @@
 
 ![image-20190919121243284](assets/image-20190919121243284.png)
 
-
-
-
+(What is the difference between the different SQL languages/schemas?)
 
 ## Tables
 
@@ -27,8 +25,6 @@ Notice: ArtistId is a FOREIGN KEY as it is the PRIMARY KEY in the Artist Table
 
 For example, we know that the artist of the the album "Let There Be Rock" has a ArtistId of 1.
 
-
-
 Each artist can have many albums, but each album have only one ID. This is a **one-to-many relationship**.
 
 Notice that each relationship is a one-to-many. You need a foreign key and primary key in each relationship.
@@ -45,17 +41,18 @@ PlaylistTrack data view
 
 ![image-20190919124057351](assets/image-20190919124057351.png)
 
+**What is the value of a relational database?**
 
-## Queries
+Consider Track, Album, Artist and Genre. It is possible to have every row in the Track table contain the information on the Album and the Artist, as well as the Genre. However this presents a few problems
 
-By convention, capitalise keywords. SQL keywords are NOT case sensitive: "select" is the same as "SELECT". Identation and extra whitespace does not matter.
+- It is a waste of storage space. The Album information than it has now, it needs to repeat for every occurances in the track.
+- It is less easy to modify the Album information, because you need to do it for every relevant Track
+- (more to be thought of)
 
 
-"Non-procedural: does not describe HOW to get data (looping, testing)"
+## Queries involving one table
 
-
-Prescribed syntax: "KEYWORD expression KEYWORD expression ... etc". Not really always - "SELECT AS"
-
+By convention, capitalise keywords. SQL keywords are NOT case sensitive: "select" is the same as "SELECT". Identation and extra whitespace does not matter, but it is recommended for readability.
 
 Select all data from a table.
 
@@ -82,7 +79,7 @@ Produce results with descending order
 ```sql
   SELECT * 
     FROM Invoice 
-   WHERE BillingCity = ‘London’ 
+   WHERE BillingCity = 'London' 
 ORDER BY Total DESC
 ```
 
@@ -115,15 +112,15 @@ Make a new table.
 ```sql
 CREATE TABLE RevenueCity AS 
     SELECT BillingCity, SUM(Total) AS CityTotal 
-      FROM Invoice 
+      FROM Invoice
   GROUP BY BillingCity
 ```
 
 Modify data in the database. **Please only modify new tables.**
 ```sql
-CREATE TABLE RevenueCity AS 
-    SELECT BillingCity, SUM(Total) AS CityTotal 
-      FROM Invoice 
+CREATE TABLE RevenueCity AS
+    SELECT BillingCity, SUM(Total) AS CityTotal
+      FROM Invoice
   GROUP BY BillingCity
 ```
 
@@ -155,4 +152,286 @@ SELECT *,
   FROM Customer
 ```
 
-(how to replace the new column, anyway?)
+(how to replace with the new column, anyway?)
+
+
+
+## Queries involving multiple tables
+
+We go through the more advanced SQL with 
+
+**Which albums does the artist named “Queen” owns?**
+
+Select all possible combinations. If Album contains $n$ rows and Artist contains $m$ rows, we are extracting $n \times m$ rows.
+
+```SQL
+SELECT * 
+  FROM Album, 
+       Artist
+```
+
+This filters all the combination that fulfils the where condition.
+
+```SQL
+SELECT * 
+  FROM Album, 
+       Artist 
+ WHERE Album.ArtistId = Artist.ArtistId
+```
+
+The following is equivalent. (Why `ON` instead of `WHERE`? `ON` is used together with `INNER JOIN`)
+
+```SQL
+SELECT * 
+  FROM Album 
+       INNER JOIN 
+       Artist ON Album.ArtistId = Artist.ArtistId
+```
+
+There are four types of join 
+- `INNER JOIN`
+- `LEFT JOIN`
+- `RIGHT JOIN` (not supported, use `LEFT JOIN`)
+-  `FULL OUTER JOIN` (not supported)
+
+
+Which albums does the artist named “Queen” owns?
+```SQL
+SELECT *
+  FROM Album 
+       INNER JOIN 
+       Artist ON Album.ArtistId = Artist.ArtistId
+ WHERE Artist.Name = "Queen"
+```
+
+Show only relevant information.
+```SQL
+SELECT Album.Title, Artist.Name 
+  FROM Album 
+       INNER JOIN 
+       Artist ON Album.ArtistId = Artist.ArtistId
+ WHERE Artist.Name = "Queen"
+```
+
+**Which employee serves the most number of customers?**
+
+Extract the relevant information
+
+```SQL
+SELECT Employee.FirstName, 
+       Employee.LastName, 
+       Customer.CustomerId 
+  FROM Employee 
+       INNER JOIN 
+       Customer ON Employee.EmployeeId = Customer.SupportRepId
+```
+
+Count the number of customer each employee served and group by employee.
+Then order the results in descending order.
+
+```SQL
+  SELECT Employee.FirstName, 
+         Employee.LastName,
+         COUNT(Customer.CustomerId) AS CustomerNo
+    FROM Employee INNER JOIN Customer
+      ON Employee.EmployeeId = Customer.SupportRepId
+GROUP BY Employee.EmployeeId
+ORDER BY CustomerNo DESC
+```
+
+**Which artist has the greatest sales?**
+
+There are four questions to answer
+
+- The sales of each track
+
+This only involves one table `InvoiceLine`, and multiplies the unit price and quantity to calculate sales.
+
+```SQL
+SELECT InvoiceLine.TrackId, 
+       InvoiceLine.UnitPrice * InvoiceLine.Quantity AS TrackSales
+  FROM InvoiceLine
+```
+
+- The sales of each track in each album
+
+This involves the `INNER JOIN` two tables `InvoiceLine` and `Track` based on `TrackID`.
+
+```SQL
+SELECT InvoiceLine.TrackId,
+       Track.AlbumId,
+       InvoiceLine.UnitPrice * InvoiceLine.Quantity AS TrackSales
+  FROM InvoiceLine
+       INNER JOIN
+       Track ON InvoiceLine.TrackId = Track.TrackId;
+```
+
+- The sales of each track of each artist
+```SQL
+SELECT Artist.Name,
+       InvoiceLine.UnitPrice * InvoiceLine.Quantity AS TrackSales
+  FROM (
+           (
+               InvoiceLine
+               INNER JOIN
+               Track ON InvoiceLine.TrackId = Track.TrackId
+           )
+           INNER JOIN
+           Album ON Track.AlbumId = Album.AlbumId
+       )
+       INNER JOIN
+       Artist ON Album.ArtistId = Artist.ArtistId;
+```
+
+- The total sales of each artist
+
+Use `SUM` together with `GROUP BY` to the total ArtistSales
+
+```SQL
+SELECT Artist.Name,
+       SUM(InvoiceLine.UnitPrice * InvoiceLine.Quantity) AS ArtistSales
+  FROM (
+           (
+               InvoiceLine
+               INNER JOIN
+               Track ON InvoiceLine.TrackId = Track.TrackId
+           )
+           INNER JOIN
+           Album ON Track.AlbumId = Album.AlbumId
+       )
+       INNER JOIN
+       Artist ON Album.ArtistId = Artist.ArtistId
+ GROUP BY Artist.Name
+ ORDER BY ArtistSales DESC;
+```
+
+
+**What is the most popular genre of music in Texas?**
+
+Can be done, please try.
+
+**Which invoice caused the most number of customer support calls**
+
+Not possible because no information. (Is it possible for the reason to be due to how the database is structured?)
+
+
+## SQLiteStudio - Troubleshooting
+
+Nothing appears when loaded
+- View > Check "Databases"
+
+
+# Cheatsheet
+
+Here I compile the essential commands for SQL.
+
+The following should require no explaination.
+
+```SQL
+  SELECT * 
+    FROM Invoice 
+   WHERE BillingCity = 'London' 
+ORDER BY Total DESC
+   LIMIT 2
+```
+
+##### One table only
+
+When you are interested in total amount of bills from each city.
+
+```sql
+  SELECT BillingCity, SUM(Total) AS CityTotal 
+    FROM Invoice 
+GROUP BY BillingCity
+```
+
+Use of `CASE WHEN ... THEN ... ELSE ... END`
+
+```sql
+SELECT InvoiceId, 
+       CustomerId, 
+       InvoiceDate, 
+       Total, 
+       CASE WHEN Total >= 10 THEN "High" 
+            WHEN Total >= 5 THEN "Medium" 
+            ELSE "Low" 
+            END AS RevenueClass
+  FROM Invoice
+```
+
+Use of `DATETIME`. `CURRENT_TIMESTAMP` is current time.
+
+```sql
+  SELECT InvoiceId, CustomerId, InvoiceDate from Q030HighRevenue
+   WHERE InvoiceDate >= DATETIME("2013-01-01 00:00:00") 
+ORDER BY InvoiceDate DESC
+```
+
+Use of `IFNULL`. The column 'CompanyNew' contains is the column 'Company' but the missing values replaced with 'Missing Name'. 
+
+```sql
+SELECT *,
+       IFNULL(Company, "Missing Name") AS CompanyNew
+  FROM Customer
+```
+
+##### Multiple tables
+
+This filters all the combination that fulfils the where condition. (This may be inefficient?)
+
+```SQL
+SELECT * 
+  FROM Album, 
+       Artist 
+ WHERE Album.ArtistId = Artist.ArtistId
+```
+
+`INNER JOIN` is used together with `ON` to merge tables. Entries in 'Album' with null values in `ArtistId` is excluded.
+
+```SQL
+SELECT * 
+  FROM Album 
+       INNER JOIN 
+       Artist ON Album.ArtistId = Artist.ArtistId
+```
+
+There are two types of join `INNER JOIN` and `LEFT JOIN`.
+`RIGHT JOIN` and `FULL OUTER JOIN` not supported.
+
+**Try to understand the following queries.**
+
+Which employee serves the most number of customers?
+
+```SQL
+  SELECT Employee.FirstName, 
+         Employee.LastName,
+         COUNT(Customer.CustomerId) AS CustomerNo
+    FROM Employee INNER JOIN Customer
+      ON Employee.EmployeeId = Customer.SupportRepId
+GROUP BY Employee.EmployeeId
+ORDER BY CustomerNo DESC
+```
+
+Which artist has the greatest sales?
+
+```SQL
+SELECT Artist.Name,
+       SUM(InvoiceLine.UnitPrice * InvoiceLine.Quantity) AS ArtistSales
+  FROM (
+           (
+               InvoiceLine
+               INNER JOIN
+               Track ON InvoiceLine.TrackId = Track.TrackId
+           )
+           INNER JOIN
+           Album ON Track.AlbumId = Album.AlbumId
+       )
+       INNER JOIN
+       Artist ON Album.ArtistId = Artist.ArtistId
+ GROUP BY Artist.Name
+ ORDER BY ArtistSales DESC;
+```
+
+**Common errors**
+Forgetting a comma in the middle of an array.
+Please create a new table first, if you want to modify data.

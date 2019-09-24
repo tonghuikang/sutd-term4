@@ -17,6 +17,10 @@ Instructors: Ying Xu, Douglas Rolph
 
 
 
+Exam need to hand-write some script.
+
+
+
 ## Grading Breakdown
 
 | Component             | Weightage (%) |
