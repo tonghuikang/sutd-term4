@@ -151,21 +151,21 @@ This includes the least squares best-fit line.
 
 **Converting linear absolute residuals into a linear program.** 
 
-The problem: minimize $\Sigma_{i=1}^6 |\epsilon_i|$, where $\epsilon$ is a linear expression.
+The problem: minimize $\Sigma_{i=1}^6 |\epsilon_i|$, where $\epsilon$ is a linear expression of decision variables (in this case, the intercept and slope of two variables).
 
 **Solution 1**
 Minimise $\Sigma_{i=1}^6 r_i^-, + r_i^+$
 
 where 
 $$
-|\epsilon| = r_i^- - r_i^+
+\epsilon = r_i^- - r_i^+
 $$
-with 
+with
 $$
 r_i^-, r_i^+ \geq 0
 $$
 
-
+(The optimal solution will minimise such that $r_i^-$ and/or $r_i^+$ is zero.)
 
 **Solution 2**
 Minimise $\Sigma_{i=1}^6 z_i$
@@ -176,6 +176,8 @@ $$
 -\epsilon_i &\leq z_i
 \end{align}
 $$
+
+(I still don't understand how this works.)
 
 **Converting maximum absolute residual into a linear program**.
 
@@ -201,7 +203,7 @@ From the slides (notice that $\epsilon_i$ is an an expression).
 
 ![Screenshot 2019-09-20 at 10.51.17 PM](assets/Screenshot 2019-09-20 at 10.51.17 PM.png)
 
-
+The linear program finds the optimal values of $b_0$, $b_1$, $b_2$ and $r$(s) that optimises the objective function. $L_i$ and $E_i$ are constants given by the data.
 
 ### Basic and feasible solutions
 

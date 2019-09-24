@@ -12,6 +12,8 @@ Adherence to scope. You are working with a client, who may not know what they wa
 Please alert your professors if the objectives shift.
 
 
+The projects given is said to be "low priority, high value".
+
 
 
 
