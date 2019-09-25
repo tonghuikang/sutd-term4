@@ -2,7 +2,12 @@
 
 Reference: http://web.mit.edu/15.053/www/AMP-Chapter-01.pdf
 
-You need to know how to transform a linear program into a standard linear program. (Linear constraints, with "linear absolute residuals" or "maximum absolute residual" the objective function is still a linear program, and you need to know how to transform those as well).
+You need to know how to transform a **linear program** into **a standard linear program** (and understand what are they, as well). 
+
+You also need to know how to obtain the linear program from less obvious formulations.
+
+- Linear constraints, with "linear absolute residuals" or "maximum absolute residual" the objective function is still a linear program.
+- Other variations (see nurse scheduling problem)
 
 ### Optimisation Paradigm
 
@@ -83,7 +88,7 @@ $$
 
 $\vec{b}$ is a **nonnegative** vector.
 
-All general linear program **can be transformed** to a standard linear program. Please transform according to these steps.
+**All linear programs can be transformed to a standard linear program.** Please transform according to these steps.
 
 - If the objective function is to minimise, filp all the coefficients $\vec{c}$.
 
@@ -204,6 +209,8 @@ From the slides (notice that $\epsilon_i$ is an an expression).
 ![Screenshot 2019-09-20 at 10.51.17 PM](assets/Screenshot 2019-09-20 at 10.51.17 PM.png)
 
 The linear program finds the optimal values of $b_0$, $b_1$, $b_2$ and $r$(s) that optimises the objective function. $L_i$ and $E_i$ are constants given by the data.
+
+
 
 ### Basic and feasible solutions
 

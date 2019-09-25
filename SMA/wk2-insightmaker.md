@@ -1,7 +1,5 @@
 # Urban dynamics
 
-
-
 ![Insight Maker Diagram](assets/Insight Maker Diagram.svg)
 
 
@@ -82,3 +80,28 @@ When immigration rate is higher than outmigration rate, there is unemployment. W
 
 In addition, we might want to reach the ideal state faster. This means that the city planner should modify the parameters in response to the state of the city - for example, encourage immigration when the city has not reached capacity.
 
+
+
+**The value of developing system dynamics model**
+
+- You can get whatever you want. You might been coercing the result from trial and error.
+- However, it is good to organise your ideas and understand the relationship between the different.
+- It is a powerful way to sell our ideas to the public.
+
+
+
+**General Motors Case Study**
+
+They thought there were two separate markets
+- the new car market
+- the used car market
+
+There is a rise of used car 'superstores' - does this affect their profits? 
+
+Actually, the cars with 2-year lease is substituable with new cars, they might well be in the same market. In addition, the supply of 2-year-old cars is scheduled and cannot be stopped. During financial crisis, the influx of 2-year-old cars will decrease the price of new cars. But we need to show that this impact is significant enough to forgo the opportunity of making revenue from 2-year-leases.
+
+The conclusion is 2-year-leases are bad for profit, 4-year-leases are good for profits.
+
+They used of a bathtub to illustrate the concept of stock and flow. There was no need for the executives to understand the mathematics.
+
+Results - 1997 financial crisis, Ford was more affected from GM, and car companies now move away from two-year leases.
