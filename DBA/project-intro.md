@@ -19,3 +19,12 @@ The projects given is said to be "low priority, high value".
 
 
 
+Additional tips of public speaking and leadership
+- signals of leadership - many things
+- pause when you introduce your name (more important than the title)
+- the pause is the most powerful tool of speech
+  - which shows that you are in control
+- people want a leader, people want you to succeed
+
+
+
