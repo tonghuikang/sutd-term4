@@ -1,0 +1,119 @@
+---
+title: "Moneyball Notebook"
+output:
+  pdf_document: default
+  html_notebook: default 
+---
+The dataset consists of 420 observations of 17 variables consisting of:
+Team (Name of team), League (American or National league), Year (1999 to 2012), Games (Number of games played), W (Number of wins), RS (Runs scored), RA (Runs against), OBP (On base percentage), SLG (Slugging percentage), BA (Batting Average), OPS (On base plus slugging), OOBP (Opposition on base percentage), OSLG (Opposition slugging percentage), OOPS (Opposition on base plus slugging), Playoffs (1 if teams makes playoff and 0 otherwise), RankSeason (Rank in season), RankPlayoffs (Rank in playoffs) 
+
+```{r}
+baseball <- read.csv("baseball.csv")
+str(baseball)
+summary(baseball)
+```
+Before the 2002 season, Paul DePodesta reduced the planning problem for the upcoming season to a mathematics problem. 
+He asked the question: 
+
+What would it take to make the playoffs?
+```{r}
+table(baseball$Year)
+baseball2002 <- subset(...)
+str(baseball2002)
+```
+
+Let us look at how many games are needed to be won to make playoffs.
+
+```{r}
+library(ggplot2)
+ggplot(baseball2002)+ geom_point(aes(W,Team))
+#ggplot(baseball2002)+ geom_point(na.rm=T,aes(W,Team,color=as.factor(Playoffs))) +
+#   scale_color_manual(name="Playoffs",values=c("black","red"),labels=c("No","Yes")) +  #geom_vline(xintercept=95,color="blue",lwd=1) + geom_vline(xintercept=85,color="lightblue",lwd=1) 
+
+```
+Paul De Podesta judged that it would take around 95 games to make it to playoffs. If they won 95 games and still could not make it to playoffs, then that was just bad luck. So how many runs needed to be scored for and against to win so many games? Bill James, the founder of sabermetrics had earlier noticed that over time, there was a fairly stable relationship between the total runs difference in a season for a team (for-against) and the number of wins.
+```{r}
+
+baseball2002$RD <- ...
+ggplot(baseball2002,aes(RD,W))+geom_point()+geom_smooth(method="lm",se=F)
+model1 <- lm()
+summary(model1)
+
+
+```
+The result indicates a linear fit of the form $$W = 80.92 + 0.099*RD.$$ 
+To get to playoffs, one need 95 wins (most of the time) and putting in the formula:
+```{r}
+RDreqd<- ...
+RDreqd
+```
+To have 95 wins, you needed around 142 runs difference. In the book, it is stated that Paul Podesta estimated this number to be around 135 (it would depend on the dataset he used),
+
+The summary indicates that slugging percentage and on-base percentage are on similar types of scales.
+```{r}
+summary(baseball2002$BA)
+summary(baseball2002$SLG)
+summary(baseball2002$OBP)
+summary(baseball2002$OPS)
+```
+Linear regression models: Predicting runs scored from OBP, SLG, BA and OPS.
+One dependent
+```{r}
+m1 <- lm(RS~...,data=baseball2002)
+summary(m1)
+m2 <- lm(RS~...,data=baseball2002)
+summary(m2)
+m3 <- lm(RS~...,data=baseball2002)
+summary(m3)
+m4 <- lm(RS~...,data=baseball2002)
+summary(m4)
+```
+Add `OBP` and `SLG`:
+```{r}
+
+m5 <- lm(RS~...,data=baseball2002)
+summary(m5)
+```
+Add to that `BA`:
+```{r}
+m6 <- lm(RS~...,data=baseball2002)
+summary(m6)
+```
+The results indicate that the estimated beta coefficient for OBP is higher in comparison to SLG sugesting that an extra percentage point on base might be more valuable than an extra percentage point of slugging. Note that both variables are statistically significant. Note that OPS weighs them equally. Paul De Podesta decided that it was about three times as important. We also see that adding the extra BA variable in model m6 kept R squared about the same and slightly decreased adjusted R squared. Furthemore this variable is not statistically significant from the result (multicollinearity is a possible reason). We will hence stick to model m5.
+
+A similar analysis can be done for opposition performance.
+```{r}
+m5_Opp <- lm(RA~...,data=baseball2002)
+summary(m5_Opp)
+```
+
+The results support the claim in Moneyball that OBP and OOBP has a significant correlation with RS and RA. 
+At the start of 2002, the team OBP = 0.339 and SLG = 0.43 based on player statistics. You can plug this in to the regression equation for model m5 to predict how many runs will be scored.
+```{r}
+RS_pred<- ...
+RS_pred
+```
+
+In the book Paul De Podesta predicted it to be between 800 and 820. 
+
+Similarly using opposition statistics, they estimated OOBP = 0.307 and OOSLG = 0.373.
+Plugging in you can estimate RA and then use the first model to predict the number of wins. 
+```{r}
+RA_pred<- ...
+RA_pred
+```
+Now we can predict RD
+```{r}
+RD_pred<- ...
+RD_pred
+```
+ 
+ So RD is predicted to be 179. Using our model, then number of wins is given by:
+ 
+```{r}
+W_pred<-
+W_pred
+``` 
+
+In the book, Paul De Podesta predicted they would win between 93 and 97 games.  They actually won 103.
+
