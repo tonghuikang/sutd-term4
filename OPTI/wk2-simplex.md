@@ -52,15 +52,16 @@ $$
     - if there are multiple non-basis variable choose the variable the **smallest index**
     
     
+
   We also choose an **incoming basis variable** (which will be a non-basis variable)
     
     - the constraint coefficient of the nonbasic variable is **nonnegative** 
     - among those above, choose the variable with the **smallest ratio** of RHS to constraint coefficient (QUESTION can be zero, right?) 
   - if the ratio is a tie, choose the variable will a **smaller index**
-      
-  
+    
+
   Then we pivot the basis variables, and then **iterate**.
-  
+
   - Then we reach either one of the following conditions
   
     - All variables have nonpositive reduced costs: the current basic feasible solution is optimal, we can stop.
@@ -297,4 +298,61 @@ I x_B + A_B^{-1} A_N x_N = A_B^{-1} b &=& x_B + \bar{A}_N x_N &=& \bar{b} \\
 && x_B, x_N &\geq& 0 
 \end{array}
 $$
+
+![image-20190930111139778](assets/image-20190930111139778.png)
+
+Before computation
+$$
+\begin{align}
+x_B = [x_6, x_7, x_8] \\ 
+x_N = \\
+A_B = \\
+A_N = 
+\end{align}
+$$
+
+After computation
+$$
+\begin{align}
+\bar{c}_N &= [0,0,0,-2,-1,-5,-8,-3] \\
+\bar{z} &= 139 \\
+\bar{A}_N &= \begin{bmatrix} 
+-1 & -1 &  1 &    &    \\
+-1 &  1 &    &  1 &    \\
+   &    &  1 &  1 &  1 \\
+\end{bmatrix}\\
+\bar{b} &= [11,9,4] \\
+x_B &= [x_1, x_2, x_3] \\
+\end{align}
+$$
+
+Calculated values
+$$
+\begin{align}
+A_B^{-1} &= \begin{bmatrix} 
+ 1 &    &    \\
+   &  1 &    \\
+ 1 &  1 &  1 \\
+\end{bmatrix}\\ 
+\end{align}
+$$
+which $[A_B | I]  \xrightarrow{RREF} [I | A_B^{-1}] $  
+
+Where is the simplex multipler $y_B$ in the table? [-5, -8, -3]
+
+
+
+![image-20190930112635937](assets/image-20190930112635937.png)
+
+Tableu is for humans. The revised simplex method has a lower memory requirement. (I do not really understand how and why). 
+
+![image-20190930115733919](assets/image-20190930115733919.png)
+
+# Todo
+Revise
+Learn how to do the RREF
+Learn how to invert a 3x3 matrix
+Do homework
+Print some slides
+Cheatsheet with all the annotations
 

@@ -1,3 +1,5 @@
+
+
 ## Discrete Event Simulation
 
 "Discrete event simulation is a flexible way to describe a system’s behavior. The structure of a simulation model can be described with an event graph."
@@ -33,4 +35,23 @@ These are some questions that are asked in the **exam**.
 - What are the conditions under which events are triggered?
 
 
+
+**Schruben’s Event Graph language**
+
+Shape | Function| Rules 
+- | - | - 
+Diamonds | Condition | One condition for one diamond (i.e. yes/no condition in one diamond is NOT allowed)<br />Condition nodes trigger all outgoing arcs, if condition is true. 
+Circle | Event| There must be one event node that has no incoming arcs (triggers): this is the first event.<br />Events can be triggered only by other events, through condition nodes and delay nodes. 
+Delay | ServiceTime| 
+
+
+![Screen Shot 2019-09-30 at 13.55.41 PM](assets/Screen Shot 2019-09-30 at 13.55.41 PM.png)
+
+The model
+
+![Screen Shot 2019-09-30 at 13.55.58 PM](assets/Screen Shot 2019-09-30 at 13.55.58 PM.png)
+
+My solution for homework problem with two types of cookies. This requires an additional rule to understand which cookie is being processed.
+
+![cookie](assets/cookie.svg)
 

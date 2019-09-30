@@ -1,0 +1,105 @@
+---
+title: "Challenger Notebook"
+output:
+  html_notebook: default
+  pdf_document: default
+---
+The dataset consists of 144 observations of 5 variables consisting of:  
+Flight: name of flight; 
+Date (date of flight);  
+Field (1 if an Oring fails and 0 otherwise);  
+Temp (Temperature in degrees Fahrenheit);   
+Pres (Leak check pressure in psi).   
+Each flight had 6 orings.
+```{r}
+orings <- read.csv("Orings.csv")
+str(orings)
+#summary(orings)
+```
+Let us check the number of orings that have failed out of 6 in each of the flights launched.
+```{r}
+tapply(...)
+table(...))
+```
+We plot the failures and temperatures.  
+We use jitter plot to randomly perturb points by a small amount to see the points that lie on top of each other better.
+```{r}
+library("ggplot2")
+ggplot(orings[orings$Field>0,],aes(Temp,Field)) +  geom_point(na.rm=T)
+# geom_jitter(na.rm=T,width=0,height=0.1)+ylim(c(0.5,1.5))
+# geom_jitter(na.rm=T,width=2,height=0)+ylim(c(0.5,1.5))
+
+```
+The plots of temperature with failures only and the plot of temperatures with both failures and non-failures provides different insights. In the former, there are failures across the range with some more at the extremes. In the second case, it is much clearer that there are lesser failures at higher temperatures. It is believed that analysis of plots such as the first one led the managers to conclude that there was not a significant influence of low temperatures.
+
+Fitting a iinear regression model
+```{r}
+model1 <- lm(...,data=orings)
+#summary(model1)
+```
+Now we use only Temperature
+```{r}
+model2 <- lm(...,data=orings)
+#summary(model2)
+ggplot(orings,aes(Temp,Field)) + geom_jitter(na.rm=T,height=0,width=2) #+ #geom_smooth(method="lm",se=F,na.rm=T,fullrange=T)
+
+```
+The result indicates that the linear fit is not particularly convincing with a small value of R-squared, though it does identify that temperature has a significant effect and it is a negative impact.
+
+Fitting a logistic regression model: glm() is a generalized linear model that can be used to fit a logistic regression model by choosing family=binomial.
+```{r}
+model3 <- glm(...,data=orings)
+#summary(model3)
+```
+Now we use only temperature
+```{r}
+model4 <- glm(...,data=orings,family=binomial)
+#summary(model4)
+```
+```{r}
+#model3$coefficients
+#model3$aic
+```
+Model 3 describes  
+$Prob(Fail = 1) = exp(3.95-0.119 Temp + 0.008 Pres)/(1+exp(3.95-0.119Temp+0.008Pres)).$  
+The result indicates that Temp is significant at the 5% level.  
+```{r}
+#model4$coefficients
+#model4$aic
+```
+
+Model 4 has a fit given by   
+$P(Fail=1) = exp(6.75-0.1397Temp)/(1+exp(6.75-0.1397Temp))$.  
+In terms of AIC, Model 4 is preferred to Model 3. 
+We drop the pressure variable in this example.
+
+Predictions:
+```{r}
+predict(...) # predicts on log(odds) scale
+# predict(...,type="response")
+```
+Plots
+```{r}
+ggplot(orings,aes(Temp,Field)) + geom_jitter(na.rm=T,height=0,width=2) #+ #geom_smooth(method="glm",se=F,na.rm=T,fullrange=T,method.args = list(family = "binomial"))
+```
+The predicted probability of failure under the model ...
+
+Developing a predictive rule (classifier) and tabulating confusion matrices.  
+Here we are still evaluating  this with the training data. Typically we will use a test data to check on the results.
+```{r}
+Pred <- predict(model4,newdata=orings,type="response")
+#table(Pred[1:138]>0.5,orings$Field[1:138])
+
+```
+The ROCR package is useful for visualizing the performance of classifier. The prediction function transforms the data to a standardized format and the performance function is used to do all kinds of prediction evaluations.
+```{r}
+#install.packages("ROCR")
+library(ROCR)
+ROCRpred <- prediction(Pred[1:138],orings$Field[1:138])
+?performance
+#ROCRperf <- performance(ROCRpred,x.measure="fpr",measure="tpr")
+#plot(ROCRperf)
+#plot(ROCRperf, colorize=T,print.cutoffs.at=c(0,0.1,0.2,0.3,0.5,1), text.adj=c(-0.2,1.7))
+#performance(ROCRpred,measure="auc")
+```
+The AUC for this example is ...

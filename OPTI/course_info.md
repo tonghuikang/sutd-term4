@@ -44,3 +44,10 @@ Friday class is an optional consult session. There is also no project for this m
 
 Six homework assignments with due dates will be uploaded. Students are required to complete all problems in time although the answers will not be graded or collected. After the due date, the suggested solutions will be uploaded. Students are responsible to check their own solutions.
 
+Quiz 1 details
+- no help sheet or calculator 
+- following formulas provided on the cover page
+
+$$
+\bar{b} = A_B^{-1}b
+$$
