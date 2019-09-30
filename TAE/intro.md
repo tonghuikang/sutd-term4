@@ -66,3 +66,32 @@ install.packages("ggfortify")
 ```
 
 
+
+
+
+# Confusion matrices
+
+
+
+$\enspace$  | Predict = 0 | Predict = 1 
+--------------- | ------------------- | ------------------- 
+**Actual = 1** | False Negative (FN) | True Positive (TP)  
+**Actual = 0** | True Negative (TN)  | False Positive (FP) 
+
+
+![confusion_on_logistic](assets/confusion_on_logistic.png)
+
+
+ Name                  | Alt Name             | Formula                           
+ --------------------- | -------------------- | --------------------------------- 
+ False Positive Rate   | Specificity          | $\frac{FP}{FP+TN}$                
+ True Negative Rate    | Type I error         | $\frac{TN}{FP+TN}$                
+ True Positive Rate    | Sensitivity, Recall  | $\frac{TP}{TP+FN}$                
+ False Negative Rate   | Type II error        | $\frac{FN}{TP+FN}$                
+ Precision             |                      | $\frac{TP}{TP + FP}$              
+ **Compiled measures** |                      |                                   
+ Overall Accuracy      |                      | $\frac{TP+TN}{FP + FN + TP + TN}$ 
+ F1 Score              |                      |                                   
+ ROC Curve             | Plot TPR against FPR |                                   
+
+
