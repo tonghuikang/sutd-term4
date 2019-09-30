@@ -1,0 +1,43 @@
+
+.colorMain { color: #FFE5B4; }
+.bgColor0 { background-color: #FFE5B4; }
+.bgColor1 { background-color: #B4FFE5; }
+.bgColor2 { background-color: #78D9B7; }
+.bgColor3 { background-color: #DAFFF2; }
+.bgColor4 { background-color: #E5B4FF; }
+.bgColor5 { background-color: #B778D9; }
+.bgColor6 { background-color: #F2DAFF; }
+.fontColor0 { color: #FFE5B4; }
+.fontColor1 { color: #B4FFE5; }
+.fontColor2 { color: #78D9B7; }
+.fontColor3 { color: #DAFFF2; }
+.fontColor4 { color: #E5B4FF; }
+.fontColor5 { color: #B778D9; }
+.fontColor6 { color: #F2DAFF; }
+
+/* This font is a nice web version of Arial Rounded MT Bold */
+@font-face {
+	font-family: '616';
+	src: url('../fonts/616/616.eot');
+	src: local('616'), url('../fonts/616/616.woff') format('woff'), url('../fonts/616/616.ttf') format('truetype');
+}
+/* Note you may have to use font-family="'616'" in some contexts */
+/* use this class to attach this font to any element i.e. <p class="fontsforweb_fontid_6898">Text with this font applied</p> */
+.fontsforweb_fontid_6898 {
+	font-family: '616' !important;
+}
+/* Font downloaded from FontsForWeb.com */
+@font-face {
+	font-family: 'thegirlnextdoor';
+	src: url('../fonts/thegirlnextdoor/thegirlnextdoor.eot');
+	src: local('thegirlnextdoor'), url('../fonts/thegirlnextdoor/thegirlnextdoor.woff') format('woff'), url('../fonts/thegirlnextdoor/thegirlnextdoor.ttf') format('truetype');
+}
+/* use this class to attach this font to any element i.e. <p class="fontsforweb_fontid_7356">Text with this font applied</p> */
+.fontsforweb_fontid_7356 {
+	font-family: 'thegirlnextdoor' !important;
+}
+/* Font downloaded from FontsForWeb.com */
+
+/* Set default font to be 616. Use 'thegirlnextdoor' for tooltips and suggestions.*/
+.official{font-family:'616';}
+.unofficial{font-family:'thegirlnextdoor';}

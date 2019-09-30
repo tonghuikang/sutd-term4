@@ -1,0 +1,38 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+<title>Basic Agent Model</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+
+		<!-- d3 is for data visualization -->
+		<script type="text/javascript" src="lib/d3.min.js"></script>
+		
+		
+		<!-- custom styles for this application -->
+		<link rel="stylesheet" href="styles/basicagentmodel.css" media="screen">
+
+</head>
+<!-- Set class to official for more formal font; unofficial for informal font -->
+<body class="official bgColor0">
+	
+	<!-- The surface is the main playing field for the game -->
+	<svg  id="surface" style="width:100% height:100%" xmlns="http://www.w3.org/2000/svg" version="1.1" onclick="toggleSimStep();">
+	</svg>
+	
+	<div id="title"  style="position:absolute;bottom:0;left:0">Basic Agent-Based Model</div>
+	
+	<div id="controls" style="position:absolute;bottom:0;left:35%">Animation Speed:
+	<input id="slider1" type="range" min="0" value:"275" max="500" step="10" onchange="redrawWindow();" /> 
+	</div>
+	
+	<a id="credits" href="http://www.icons-land.com" style="position:absolute;bottom:0;right:0">Icons by icons-land.com</a>
+	
+	
+	
+	<!-- Anything below this line should be a popup window or dialog or a late-loading library -->
+	
+	<script type="text/javascript" src="lib/BasicAgentModel.js"></script>
+	
+</body>
+</html>
