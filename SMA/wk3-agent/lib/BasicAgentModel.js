@@ -108,7 +108,7 @@ var probDeparture = 0.4;
 // We can have different types of patients (A and B) according to a probability, probTypeA.
 // This version of the simulation makes no difference between A and B patients except for the display image
 // Later assignments can build on this basic structure.
-var probTypeA = 0.5;
+var probTypeA = 0.05;
 
 // To manage the queues, we need to keep track of patientIDs.
 var nextPatientID_A = 0; // increment this and assign it to the next admitted patient of type A
@@ -439,15 +439,18 @@ function updatePatient(patientIndex) {
       // Queueing behavior depends on the patient priority
       // For this model we will give access to the doctor on a first come, first served basis
       if (hasArrived) {
-        //The patient is staged right next to the doctor
-        if (doctor.state == IDLE) {
-          // the doctor is IDLE so this patient is the first to get access
-          doctor.state = BUSY;
-          patient.state = INTREATMENT;
-          patient.target.row = doctorRow;
-          patient.target.col = doctorCol;
-          if (patient.type == "A") nextTreatedPatientID_A++;
-          else nextTreatedPatientID_B++;
+          var patientsWithPriorityCleared = patients.some(patient => patient.type === "A" && patient.state===STAGING);
+          if (patient.type === "A" || (patient.type === "B" && !patientsWithPriorityCleared)){
+            // The patient is staged right next to the doctor
+            if (doctor.state == IDLE) {
+              // the doctor is IDLE so this patient is the first to get access
+              doctor.state = BUSY;
+              patient.state = INTREATMENT;
+              patient.target.row = doctorRow;
+              patient.target.col = doctorCol;
+              if (patient.type == "A") nextTreatedPatientID_A++;
+              else nextTreatedPatientID_B++;
+          }
         }
       }
       break;
