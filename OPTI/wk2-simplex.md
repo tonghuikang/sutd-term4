@@ -2,71 +2,79 @@
 
 There are two phases of the simplex algorithm. Phase I requires the use of Phase II algorithm.
 
-TODO - code algorithm for Simplex?
+TODO - code an algorithm for Simplex?
 
 **PHASE I** - Transforming the standard form to the **canonical form**
 
-  - First, we add nonnegative artificial variables to create a **different LP problem**. However, this problem is in canonical form. 
-    - We may use matrices to do this. However, this requires $A$ to be made up on linearly independent rows.
-
-> Standard form of the linear program with $A$ that has linearly independent rows.
-
+  - (**Artificial** variables would have been added to create a standard form of the linear problem. For the sake of sanity, please make sure that the rows of A is linearly independent)
 $$
 max\left\{ cx | A\vec{x} = \vec{b} \geq \vec{0}, \vec{x} \geq 0 \right\}
 $$
 
-> Some variables are chosen to be basis variables such that $A_B$ is invertible.
-
-$$
-\begin{array}{r@{}cl}
-max \quad c_B x_B + c_N x_N   \\
-\quad A_B x_B + A_N x_N &=& b \\
-\quad x_B, x_N &\geq& 0
-\end{array}
-$$
-
-> Now your standard LP can be expressed in canonical form:
-
-$$
-\begin{array}{r@{}cl}
-max \quad \left( c_N - c_B A_B^{-1} A_N \right) x_N + c_B A_B^{-1} b &=& \bar{c}_N x_N + \bar{z} & \\
-
-I x_B + A_B^{-1} A_N x_N = A_B^{-1} b &=& x_B + \bar{A}_N x_N &=& \bar{b} \\
-
-&& x_B, x_N &\geq& 0 
-\end{array}
-$$
-
-  - We optimise the canonical form using the **Phase II algorithm**.
-  - We know the nonnegative artificial variables are zero. We **remove** the nonnegative artificial variables and obtain a canonical form of the solution. (QUESTION - correct?)
+  - First, we add nonnegative $n$ **slack** variables to create a **<u>different</u> LP problem** with a different objective function. (We can add less if there are variables that can serve as basis variables.)
+  - Begin with a canonical form of the new LP problem by managing the objective function.
+  - Carry out the Simplex Phase II iteration. Results:
+      - (Copy over bad results of Phase I)
+      - Remove the slack variables, and continue Phase II with the original objective function from the standard form.
 
 
 
 **PHASE II** - Obtaining the **optimal solution** from the canonical form
 
-  - We start with the canonical form, which has a certain number of basis variables.
-  
-  - We choose an **incoming basis variable** (which is currently a non-basis variable)
-  
-    - the non-basis variable has **positive reduced cost** (all basis variables have zero reduced cost)
-    - if there are multiple non-basis variable choose the variable the **smallest index**
-    
-    
+We start with the **canonical form**, which has a certain number of basis variables.
 
-  We also choose an **incoming basis variable** (which will be a non-basis variable)
-    
-    - the constraint coefficient of the nonbasic variable is **nonnegative** 
-    - among those above, choose the variable with the **smallest ratio** of RHS to constraint coefficient (QUESTION can be zero, right?) 
-  - if the ratio is a tie, choose the variable will a **smaller index**
-    
+- You can read off a **basic feasible solution**. 
+  - The non-basis variables are zero
+  - The basis variables is equal to the RHS.
+  - The objective value is the RHS of $z$.
 
-  Then we pivot the basis variables, and then **iterate**.
+We choose an **incoming basis variable** (which is currently a non-basis variable)
+
+  - the non-basis variable has **positive reduced cost** (all basis variables have zero reduced cost)
+  - if there are multiple non-basis variable choose the variable the **smallest index**
+
+
+
+We also choose an **outgoing basis variable** (which will be a non-basis variable)
+- the constraint coefficient of the nonbasic variable is **nonnegative** 
+- among those above, choose the variable with the **smallest ratio** of RHS to constraint coefficient
+  - The ratio will be negative This must be positive because coefficient and RHS is positive. QUESTION: can be zero, right - yes. What happens if the smallest is infinite? If you do not use a minimum ratio, you will end up with a negative RHS) 
+- if the ratio is a tie, choose the variable will a **smaller index**
+  
+
+Then we pivot the basis variables, and then **iterate**.
 
   - Then we reach either one of the following conditions
   
     - All variables have nonpositive reduced costs: the current basic feasible solution is optimal, we can stop.
-    - There exists one variable with positive reduced cost that appears with all nonpositive coefficients in the constraints: the problem is unbounded, we can stop.
+    - There exists one non-basis variable with positive reduced cost that appears with all nonpositive coefficients in the constraints: the problem is unbounded, we can stop.
+      - You can increase the non-basis variable indefinitely, while the other variables 
     - (QUESTION: How about the case of where an edge is an optimum?)
+
+
+
+
+
+Edge case (literally)
+
+- The reduced cost of a non-basis variable is zero.
+- Convex combination.
+
+
+
+Triage
+
+- If the objective function is parallel to a constraint, then there might be a many optimal solutions.
+
+
+
+Bland's rules help to prevent cycling, it does not change the problem and prevent degeneracy.
+
+
+
+Difference between a line, a ray and a vector
+
+- A ray has a starting point, and extends indefinitely in one direction.
 
 
 
@@ -191,6 +199,10 @@ In essense you can increase $x_4$ and RHS infinitely. (Why? QUESTION)
 
 (QUESTION) How about parallel case? Anywhere along an edge of the boundary it is optimum. This will cycle. Will use simple method to stop this cycling.
 
+Non-basic variable with zero reduce cost.
+
+
+
 
 
 ## Phase I of Simplex algorithm
@@ -244,7 +256,7 @@ Given a Linear Program, if we apply any anticycling rule (such as Bland’s rule
 If a Linear Program has an optimal solution, it has an optimal solution that is a BFS, which corresponds to a corner point.
 
 
-## Phase I represented as matrices
+## Phase I represented as matrices (NOPE)
 
 Standard form of the linear program
 $$
@@ -355,4 +367,6 @@ Learn how to invert a 3x3 matrix
 Do homework
 Print some slides
 Cheatsheet with all the annotations
+
+A BFS is degenerate when a basis variable is zero. What are the implications?
 

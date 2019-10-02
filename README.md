@@ -76,4 +76,4 @@ There might be submodules some subject folders. This is where I house my persona
 
 I hope my seniors have done something like this, even though I will want to make my own notes no matter how similar is theirs are. It is nice to have a reference as well.
 
-I can also show to my future employers that I am a diligent student.
+I can also show to my future employers and my future partner that I am a diligent student.

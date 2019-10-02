@@ -40,7 +40,7 @@ These are some questions that are asked in the **exam**.
 
 Shape | Function| Rules 
 - | - | - 
-Diamonds | Condition | One condition for one diamond (i.e. yes/no condition in one diamond is NOT allowed)<br />Condition nodes trigger all outgoing arcs, if condition is true. 
+Diamonds | Condition | One condition for one diamond (i.e. yes/no condition in one diamond is NOT allowed, one input only)<br />Condition nodes trigger all outgoing arcs, if condition is true. 
 Circle | Event| There must be one event node that has no incoming arcs (triggers): this is the first event.<br />Events can be triggered only by other events, through condition nodes and delay nodes. 
 Delay | ServiceTime| 
 
