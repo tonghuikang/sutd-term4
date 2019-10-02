@@ -66,10 +66,10 @@ var doctor = caregivers[0]; // the doctor is the first element of the caregivers
 var areas = [
   {
     label: "Waiting Area",
-    startRow: 4,
-    numRows: 5,
-    startCol: 15,
-    numCols: 11,
+    startRow: 3,
+    numRows: 3,
+    startCol: 19,
+    numCols: 3,
     color: "pink"
   },
   {
@@ -82,6 +82,10 @@ var areas = [
   }
 ];
 var waitingRoom = areas[0]; // the waiting room is the first element of the areas array
+var OCCUPIED = 1;
+var EMPTY = 0;
+var waitingSeats = new Array(areas[0].numRows).fill(0).map(() => new Array(areas[0].numCols).fill(0));
+var emptySeats = []
 
 var currentTime = 0;
 var statistics = [
@@ -96,6 +100,12 @@ var statistics = [
     location: { row: doctorRow + 4, col: doctorCol - 4 },
     cumulativeValue: 0,
     count: 0
+  },
+  {
+    name: "Average percentage of patients rejected: ",
+    location: { row: doctorRow + 5, col: doctorCol - 4 },
+    cumulativeValue: 0,
+    count: 0
   }
 ];
 
@@ -103,7 +113,7 @@ var statistics = [
 // You also need to allow travel time for patients to move from their seat in the waiting room to get close to the doctor.
 // So don't set probDeparture too close to probArrival.
 var probArrival = 0.25;
-var probDeparture = 0.4;
+var probDeparture = 0.28;
 
 // We can have different types of patients (A and B) according to a probability, probTypeA.
 // This version of the simulation makes no difference between A and B patients except for the display image
@@ -130,7 +140,9 @@ function toggleSimStep() {
   //this function is called by a click event on the html page.
   // Search BasicAgentModel.html to find where it is called.
   isRunning = !isRunning;
-  console.log("isRunning: " + isRunning);
+  if (!isRunning){
+    console.log("Paused."); // to attach breakpoint
+  }
 }
 
 function redrawWindow() {
@@ -151,6 +163,8 @@ function redrawWindow() {
   statistics[0].count = 0;
   statistics[1].cumulativeValue = 0;
   statistics[1].count = 0;
+  statistics[2].cumulativeValue = 0;
+  statistics[2].count = 0;
   patients = [];
 
   //resize the drawing surface; remove all its contents;
@@ -388,25 +402,41 @@ function updatePatient(patientIndex) {
 
   // determine if patient has arrived at destination
   var hasArrived =
-    Math.abs(patient.target.row - row) + Math.abs(patient.target.col - col) ==
-    0;
+    Math.abs(patient.target.row - row) + Math.abs(patient.target.col - col) == 0;
 
   // Behavior of patient depends on his or her state
   switch (state) {
     case UNTREATED:
       if (hasArrived) {
         patient.timeAdmitted = currentTime;
-        patient.state = WAITING;
-        // pick a random spot in the waiting area to queue
-        patient.target.row =
-          waitingRoom.startRow +
-          Math.floor(Math.random() * waitingRoom.numRows);
-        patient.target.col =
-          waitingRoom.startCol +
-          Math.floor(Math.random() * waitingRoom.numCols);
-        // receptionist assigns a sequence number to each patient to govern order of treatment
-        if (patient.type == "A") patient.id = ++nextPatientID_A;
-        else patient.id = ++nextPatientID_B;
+        
+        emptySeats = []
+        for (let row in waitingSeats){
+          for (let col in waitingSeats[row]){
+            if (waitingSeats[row][col] === EMPTY){
+              emptySeats.push([row, col])
+            }
+          }
+        }
+
+        if (emptySeats.length === 0){
+          patient.state = TREATED;
+          statistics[2].cumulativeValue = statistics[2].cumulativeValue + 100; // want to show percentage
+        }
+        else {
+          patient.state = WAITING;
+          // pick a random empty spot in the waiting area to queue
+          [patient.seatedRowForWaiting, patient.seatedColForWaiting] = emptySeats[Math.floor(Math.random() * emptySeats.length)];
+
+          // receptionist assigns a sequence number to each patient to govern order of treatment
+          if (patient.type == "A") patient.id = ++nextPatientID_A;
+          else patient.id = ++nextPatientID_B;
+
+          // parseInt to cast as integer
+          patient.target.row = parseInt(patient.seatedRowForWaiting) + waitingRoom.startRow;
+          patient.target.col = parseInt(patient.seatedColForWaiting) + waitingRoom.startCol;
+          waitingSeats[patient.seatedRowForWaiting][patient.seatedColForWaiting] = OCCUPIED;
+        }
       }
       break;
     case WAITING:
@@ -439,8 +469,14 @@ function updatePatient(patientIndex) {
       // Queueing behavior depends on the patient priority
       // For this model we will give access to the doctor on a first come, first served basis
       if (hasArrived) {
-          var patientsWithPriorityCleared = patients.some(patient => patient.type === "A" && patient.state===STAGING);
-          if (patient.type === "A" || (patient.type === "B" && !patientsWithPriorityCleared)){
+        if (patient.seatedRowForWaiting !== -1 && patient.seatedColForWaiting !== -1){
+          waitingSeats[patient.seatedRowForWaiting][patient.seatedColForWaiting] = EMPTY;
+          patient.seatedRowForWaiting = -1;
+          patient.seatedColForWaiting = -1;
+        }
+          var patientsWithPriorityPending = patients.some(patient => patient.type === "A" && patient.state===STAGING);
+          patientsWithPriorityPending = false;  // condition not applicable for noncolliding model
+          if (patient.type === "A" || (patient.type === "B" && !patientsWithPriorityPending)){
             // The patient is staged right next to the doctor
             if (doctor.state == IDLE) {
               // the doctor is IDLE so this patient is the first to get access
@@ -450,8 +486,8 @@ function updatePatient(patientIndex) {
               patient.target.col = doctorCol;
               if (patient.type == "A") nextTreatedPatientID_A++;
               else nextTreatedPatientID_B++;
+            }
           }
-        }
       }
       break;
     case INTREATMENT:
@@ -483,6 +519,7 @@ function updatePatient(patientIndex) {
     case DISCHARGED:
       if (hasArrived) {
         patient.state = EXITED;
+        statistics[2].count = statistics[2].count + 1;
       }
       break;
     default:
