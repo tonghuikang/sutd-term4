@@ -6,16 +6,29 @@ There are two phases of the Simplex algorithm. Phase I requires the use of Phase
 
 **PHASE I** - Transforming the **standard form** to the **canonical form**
 
-  - (**Artificial** variables would have been added to create a standard form of the linear problem. To , please make sure that the rows of A are already linearly independent. If the rows of A are not linearly independent, there might be redundant constraints, or there is no feasible solution.)
+(**Artificial** variables would have been added to create a standard form of the linear problem. To , please make sure that the rows of A are already linearly independent. If the rows of A are not linearly independent, there might be redundant constraints, or there is no feasible solution.)
 $$
 max\left\{ cx | A\vec{x} = \vec{b} \geq \vec{0}, \vec{x} \geq 0 \right\}
 $$
 
-  - First, we add nonnegative $n$ **slack** variables to create a **<u>different</u> LP problem** with a different objective function. (We can add less if there are variables that can serve as basis variables.)
-  - Begin with a canonical form of the new LP problem by managing the objective function.
-  - Carry out the Simplex Phase II iteration. Results:
-      - (Copy over bad results of Phase I)
-      - Remove the slack variables, and continue Phase II with the original objective function from the standard form.
+First, we add nonnegative $n$ **slack** variables to create a **<u>different</u> LP problem** with a different objective function. (We can add less if there are variables that can serve as basis variables.)
+
+Begin with a canonical form of the new LP problem by managing the objective function.
+
+Carry out the Simplex Phase II iteration. Results:
+- The Phase I objective function value is nonzero: the initial problem has **no feasible solution**. We can stop.
+- The Phase I objective function value is zero and no artificial variable is in the basis: **we have a basic feasible solution** for the initial problem. Proceed.
+- The Phase I objective function value is zero and some artificial variables are in the basis: we pivot them out, if we cannot, then **there are redundant constraints** that we can drop. After this, we drop the artificial variables to obtain the initial simplex tableau for Phase II.
+  - This will not be the case if the rows of $A$ is linearly independent. (TRUE?)
+
+
+Remove the slack variables, and continue Phase II with the original objective function from the standard form.
+
+
+
+
+
+
 
 
 
@@ -52,6 +65,10 @@ Then we pivot the basis variables. The LP problem should remain the same, and st
   - There exists one non-basis variable with **positive** reduced cost that appears with **all nonpositive coefficients** in the constraints: the problem is unbounded, we can stop.
     - You can increase the non-basis variable indefinitely while satistying the constraint.
       - For each constraint - as the non-basis variable increase, the corresponding decrease of its term in the constraint LHS can be balanced by increasing the value of the basis variable.
+
+
+
+
 
 
 
