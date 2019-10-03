@@ -1,0 +1,122 @@
+---
+title: "Framingham Heart Study Notebook"
+output: html_notebook
+---
+
+The dataset consists of 11627 observations of 39 variables. 
+We need to preprocess the data before building the model. 
+
+```{r}
+#install.packages("caTools")
+framing <- read.csv("framingham.csv")
+str(framing)
+```
+We start by identifying the subset of the dataframe such that each individual
+has only one observation corresponding to PERIOD = 1 and is free of CHD at the the time (PREVCHD = 0). 
+
+```{r}
+#framing1 <- subset(framing,...)
+#str(framing1)
+```
+
+
+The new dataframe consists of 4240 observations of 39 variables.
+
+
+To model the event data, we need to identify patients if they had CHD in 10 years from their first visit. We do so by converting time for CHD to years (roughly) and checks if CHD occurs in 10 years. The maximum range of the data in years is 24 in this dataset.
+
+
+
+```{r}
+framing1$TENCHD <- ...
+#table(framing1$TENCHD)
+
+```
+
+We work with some of the more relevant variables in this dataset for our purposes of prediction.
+
+
+```{r}
+colnames(framing1)
+#which(colnames(framing1) == ...)
+#framing1 <- framing1[...]
+#str(framing1)
+```
+The variables in the new dataframe include RANDID (identification number), SEX (1=M,2=F), TOTCHOL (total cholesterol in mg/dL), AGE (age at the exam in years), SYSBP (systolic blood pressure), DIABP (diastolic blood pressure), CURSMOKE (current smoking 0=N,1=Y), CIGPDAY (cigarettes per day), BMI (body mass index), DIABETES (0=Not diabetic,1=Diabetic), BPMEDS (use of antihypertensive medication 1=YES,0=NO), HEARTRTE (heart rate in beats/min), GLUCOSE (glucose in mg/dL), educ (1=0-11 years,2=High school,3=Some college or vocational,4=College or more), PREVCHD(0=free of disease,1=prevalent disease), PREVAP (prevalent agina pectoris 1=YES,0=NO), PREVMI (prevalent myocardial infection 1=YES,0=NO), PREVSTRK (prevalent stroke 1=YES,0=NO), TIME (number of days since examination - all 0 here as it is the first exam date), PERIOD (TIme period). We will use these variables to predict TENCHD. Note that when we use data from secondary sources, we often need to do some preprocessing before we can apply quantitative models to it.
+
+Split the dataset into a training and test set. We will use the training set to build the model and the test set to simply check how the model does. We do so by preserving the ratios of the outcome variable in the two sets which can be done here. The caTools package can help to do so with the sample.split function. We set a seed to make the results replicable across different computers. Note that the split maintains the balance of people with CHD and without CHD in both the training and test sets.
+```{r}
+#install.packages("caTools")
+library(caTools)
+?sample.split
+#set.seed(1)
+#split <- sample.split(...,SplitRatio=...)  # 50% to 80%
+#split
+#training <- subset(framing1,split==TRUE)
+#test <- subset(framing1,split==FALSE)
+#mean(...)
+
+```
+Develop a logistic regression model. The use of ~. lets us use all the variables (other than TENCHD) in making a prediction. The results indicate that variables such as RANDID do not play a role. This is to be expected. EDUC is also not significant which seems reasonable though there might be a counter argument that if a person is more education, they give greater importance to health. We will leave the variable in and rebuild the model. 
+```{r}
+model1 <- glm(TENCHD~.,data=training,family="binomial")
+#summary(model1)
+#model2 <- glm(TENCHD~SEX+TOTCHOL+AGE+SYSBP+DIABP+CIGPDAY+CURSMOKE+BMI+DIABETES+BPMEDS+HEARTRTE+GLUCOSE+educ+PREVSTRK+PREVHYP,data=training,family="binomial")
+#summary(model2)
+```
+The result indicate that the variables signficant at the 0.001 level are the SEX, AGE, SYSBP, CIGPDAY, GLUCOSE (and the intercept). Suppose we use only these variables and refit the model.
+```{r}
+model3 <- glm(TENCHD~SEX+AGE+SYSBP+CIGPDAY+GLUCOSE,data=training,family="binomial")
+#summary(model3)
+```
+
+
+
+All the variables are significant in this new model. While the AIC is more as compared to model 2, in this example let us stick with model 3 for interpretability reasons as it has fewer variables.
+Suppose we have a male who is 60 years old with a systolic blood pressure of 145, smokes two cigarettes per day with a glucose level of 80. For this patient, we can predict the probability of getting a 10 year CHD as roughly 0.266.
+
+Prediction 
+
+
+```{r}
+predict_test <- predict(...)
+CM<-table(predict_test > 0.5,test$TENCHD)  # check with lower values
+
+CM
+
+#Accuracy = (CM[1,1]+CM[2,2])/sum(CM)
+#Accuracy
+
+#BaseAccuracy =  (sum(CM[1:2,1]))/sum(CM)
+#BaseAccuracy
+
+#Sensitivity = (CM[1,1])/sum(CM[1:2,1])
+#Specificity = (CM[2,2])/sum(CM[1:2,2])
+
+#Sensitivity
+#Specificity
+
+
+```
+The accuracy in the test set is 0.8526. We can compare this to a baseline model which predicts no one has CHD. The accuracy of the baseline model is 0.8436. Note that we have fewer observations in the test set then the full set on which we make predictions as there are some missing entries in the dataframe.
+```{r}
+table(training$TENCHD)
+
+
+# check with lower values 0.25
+
+```
+Using a threshold of 0.5, the model beats the baseline model by a small amount. Suppose we use a lower threshold. We are prone to more false positives as we will be predicting more people to have CHD but this might be reasonable for this application as compared to obtaining more false negatives. While more resources might be spent on unnecessary patients, the cost of death versus preventive decisions is a tradeoff to be made here. The effects of false negatives are much more than false positive here. If clinicians used this model, then 222 (135+87) patients would be suggested some treatment, of which 135 would be unnecessary. Accuracy might not always be the most important measure in certain applications as this example illustrates.
+
+More details: Plotting and ROCR
+```{r}
+library(ROCR)
+predict3 <- prediction(predict_test,test$TENCHD)
+perf3 <- performance(predict3,x.measure="fpr",measure="tpr")
+plot(perf3)
+```
+```{r}
+#as.numeric(performance(predict3,measure="auc")@y.values)
+#summary(model3)
+```
+The result indicates that the model can distinguish between low and high risk patients better than random guessing.
