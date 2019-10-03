@@ -63,17 +63,15 @@ Then on R console install the packages.
 install.packages("ggplot2")
 install.packages("psych")
 install.packages("ggfortify")
+install.packages("ROCR")
 ```
-
-
-
 
 
 # Confusion matrices
 
 
 
-$\enspace$  | Predict = 0 | Predict = 1 
+Names  | Predict = 0 | Predict = 1 
 --------------- | ------------------- | ------------------- 
 **Actual = 1** | False Negative (FN) | True Positive (TP)  
 **Actual = 0** | True Negative (TN)  | False Positive (FP) 
@@ -84,8 +82,8 @@ $\enspace$  | Predict = 0 | Predict = 1
 
  Name                  | Alt Name             | Formula                           
  --------------------- | -------------------- | --------------------------------- 
- False Positive Rate   | Specificity          | $\frac{FP}{FP+TN}$                
- True Negative Rate    | Type I error         | $\frac{TN}{FP+TN}$                
+ False Positive Rate   | Type I error         | $\frac{FP}{FP+TN}$                
+ True Negative Rate    | Specificity          | $\frac{TN}{FP+TN}$                
  True Positive Rate    | Sensitivity, Recall  | $\frac{TP}{TP+FN}$                
  False Negative Rate   | Type II error        | $\frac{FN}{TP+FN}$                
  Precision             |                      | $\frac{TP}{TP + FP}$              
