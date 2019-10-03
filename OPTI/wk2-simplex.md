@@ -1,12 +1,12 @@
 # Simplex Algorithm
 
-There are two phases of the simplex algorithm. Phase I requires the use of Phase II algorithm.
+(IN THE SUMMARY - ELABORATE WHAT IS CANONICAL FORM)
 
-TODO - code an algorithm for Simplex?
+There are two phases of the Simplex algorithm. Phase I requires the use of Phase II algorithm.
 
-**PHASE I** - Transforming the standard form to the **canonical form**
+**PHASE I** - Transforming the **standard form** to the **canonical form**
 
-  - (**Artificial** variables would have been added to create a standard form of the linear problem. For the sake of sanity, please make sure that the rows of A is linearly independent)
+  - (**Artificial** variables would have been added to create a standard form of the linear problem. To , please make sure that the rows of A are already linearly independent. If the rows of A are not linearly independent, there might be redundant constraints, or there is no feasible solution.)
 $$
 max\left\{ cx | A\vec{x} = \vec{b} \geq \vec{0}, \vec{x} \geq 0 \right\}
 $$
@@ -19,7 +19,7 @@ $$
 
 
 
-**PHASE II** - Obtaining the **optimal solution** from the canonical form
+**PHASE II** - Obtaining the **optimal solution** from the **canonical form**
 
 We start with the **canonical form**, which has a certain number of basis variables.
 
@@ -28,53 +28,38 @@ We start with the **canonical form**, which has a certain number of basis variab
   - The basis variables is equal to the RHS.
   - The objective value is the RHS of $z$.
 
-We choose an **incoming basis variable** (which is currently a non-basis variable)
+We choose an **entering basis variable** (which is currently a non-basis variable).
 
   - the non-basis variable has **positive reduced cost** (all basis variables have zero reduced cost)
-  - if there are multiple non-basis variable choose the variable the **smallest index**
+  - if there are multiple non-basis variable choose the variable the **smallest index** (Bland's rule 1)
 
 
 
-We also choose an **outgoing basis variable** (which will be a non-basis variable)
-- the constraint coefficient of the nonbasic variable is **nonnegative** 
+We also choose an **leaving basis variable** (which will be a non-basis variable).
+- constraint coefficient of the nonbasic variable is **nonnegative** 
 - among those above, choose the variable with the **smallest ratio** of RHS to constraint coefficient
   - The ratio will be negative This must be positive because coefficient and RHS is positive. QUESTION: can be zero, right - yes. What happens if the smallest is infinite? If you do not use a minimum ratio, you will end up with a negative RHS) 
-- if the ratio is a tie, choose the variable will a **smaller index**
+- if the ratio is a tie, choose the variable will a **smaller index** (Bland's rule 2 - Bland's rules help to prevent cycling, it does not change the problem and prevent degeneracy.)
   
 
-Then we pivot the basis variables, and then **iterate**.
+Then we pivot the basis variables. The LP problem should remain the same, and still in canonical form after every pivot. Then we iterate until we reach either one of the following conditions
 
-  - Then we reach either one of the following conditions
-  
-    - All variables have nonpositive reduced costs: the current basic feasible solution is optimal, we can stop.
-    - There exists one non-basis variable with positive reduced cost that appears with all nonpositive coefficients in the constraints: the problem is unbounded, we can stop.
-      - You can increase the non-basis variable indefinitely, while the other variables 
-    - (QUESTION: How about the case of where an edge is an optimum?)
-
-
-
-
-
-Edge case (literally)
-
-- The reduced cost of a non-basis variable is zero.
-- Convex combination.
+  - All non-basis variable have **negative** reduced costs: the current basic feasible solution is **the** optimal. We can stop.
+  - All non-basis variables have **nonpositive** reduced costs, the current basic feasible solution is **an** optimal. We may stop.
+    - We may pivot to obtain other optimal basic feasible solutions.
+    - To obtain the set of optimal solution, take the convex combination of optimal basic feasible solutions.
+      - $\lambda_1 v_1 + \lambda_2 v_2 + ... \quad \forall \enspace  \lambda_1 + \lambda_2 + ... = 1$
+  - There exists one non-basis variable with **positive** reduced cost that appears with **all nonpositive coefficients** in the constraints: the problem is unbounded, we can stop.
+    - You can increase the non-basis variable indefinitely while satistying the constraint.
+      - For each constraint - as the non-basis variable increase, the corresponding decrease of its term in the constraint LHS can be balanced by increasing the value of the basis variable.
 
 
 
-Triage
-
-- If the objective function is parallel to a constraint, then there might be a many optimal solutions.
 
 
 
-Bland's rules help to prevent cycling, it does not change the problem and prevent degeneracy.
 
 
-
-Difference between a line, a ray and a vector
-
-- A ray has a starting point, and extends indefinitely in one direction.
 
 
 
@@ -367,6 +352,9 @@ Learn how to invert a 3x3 matrix
 Do homework
 Print some slides
 Cheatsheet with all the annotations
+TODO - code an algorithm for Simplex?
+
+A simple tableau such that at least one of the right-hand side values is zero is called degenerate, and the corresponding BFS is degenerate. ???
 
 A BFS is degenerate when a basis variable is zero. What are the implications?
 
