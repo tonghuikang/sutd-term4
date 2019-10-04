@@ -4,6 +4,7 @@ For this, it is better to refer to the drawn diagram.
 
 ![simplex-matrices](assets/simplex-matrices.png)
 
+
 Actually learn how to read the sentivity report from the LP. And understand how it is derived.
 
 
