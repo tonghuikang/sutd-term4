@@ -90,7 +90,7 @@ $\vec{b}$ is a **nonnegative** vector.
 
 **All linear programs can be transformed to a standard linear program.** Please transform according to these steps.
 
-- If the objective function is to minimise, filp all the coefficients $\vec{c}$.
+- If the objective function is to minimise, filp all the coefficients $\vec{c}$ to get a maximising objective function instead.
 
 - If the constant of the equality or inequality is negative - please flip all the cofficients of the inequality:
 
@@ -217,6 +217,8 @@ The linear program finds the optimal values of $b_0$, $b_1$, $b_2$ and $r$(s) th
 Feasible solutions are solutions that are feasible (duh?) - the solution satisfies all the constrains in the question. It may not be basic.
 
 (Intuitively), basic solutions are a solution where two constraints intercept. It may not need to be feasible.
+
+Basic and feasible solution is usually not optimal.
 
 (Quite understand the following, but need to do homework to confirm.)
 
