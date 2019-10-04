@@ -1,11 +1,11 @@
 # SUTD ESD Term 4+6=10 notes
 
-For some reason, I am taking SUTD ESD Term 4 modules 
+For some reason, I am taking some SUTD ESD Term 4 modules 
 
 - [40.002 Optimisation](https://esd.sutd.edu.sg/courses/40002-optimisation/)
 - [40.011 Data and Business Analytics](https://esd.sutd.edu.sg/courses/40011-data-business-analytics/)
 
-and Term 6 ESD modules together
+and some Term 6 ESD modules together
 
 - [40.015 Simulation Modelling and Analysis](https://esd.sutd.edu.sg/courses/40015-simulation-modelling-analysis/)
 - [40.016 The Analytics Edge](https://esd.sutd.edu.sg/courses/40016-the-analytics-edge/)
