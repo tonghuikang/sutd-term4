@@ -22,9 +22,10 @@ Procedure of solving a problem with linear programming
 
 - Simplex II algorithm **[D]**. You might have many solutions - then you need to present all of them.
 
-**6) Conduct sensitivity analysis**
+**6) Conduct sensitivity analysis and consider edge cases.**
 
 - Interpret the matrices **[E]**, and calculate the allowable change **[F]**.
+- Consider edge cases as well **[G]**.
 
 <div style="page-break-after: always;"></div>
 ## [0] Definitions
@@ -121,7 +122,6 @@ From the slides (notice that $\epsilon_i$ is an expression).
 The linear program finds the optimal values of $b_0$, $b_1$, $b_2$ and $r$(s) that optimises the objective function. $L_i$ and $E_i$ are constants given by the data.
 
 <div style="page-break-after: always;"></div> 
-
 ## [B] Converting a linear program into a standard linear program
 
 **All linear programs can be transformed into a standard linear program.** Please transform according to these steps.
@@ -146,7 +146,6 @@ The linear program finds the optimal values of $b_0$, $b_1$, $b_2$ and $r$(s) th
   Also, add the inequality $x_f^+, x_f^- \geq 0$
 
 <div style="page-break-after: always;"></div> 
-
 ## [C] Simplex Phase I
 
 **PHASE I** - Transforming the **standard form** to the **canonical form**
@@ -171,7 +170,6 @@ Begin with a canonical form of the new LP problem by managing the objective func
 Remove the slack variables, and continue Phase II with the original objective function from the standard form.
 
 <div style="page-break-after: always;"></div> 
-
 ## [D] Simplex Phase II
 
 **PHASE II** - Obtaining the **optimal solution** from the **canonical form**
@@ -210,14 +208,16 @@ Then we pivot the basis variables. The LP problem should remain the same, and st
     - For each constraint - as the non-basis variable increase, the corresponding decrease of its term in the constraint LHS can be balanced by increasing the value of the basis variable.
 
 <div style="page-break-after: always;"></div> 
-
 ## [E] Interpretation of matrices
 
 ![simplex-matrices](assets/simplex-matrices-0374933.png)
 
 <div style="page-break-after: always;"></div>
-
 ## [F] Calculate allowable change
 
 ![sensitivity-report](assets/sensitivity-report.png)
 
+<div style="page-break-after: always;"></div>
+## [G] Consider edge cases
+
+![edge-cases](assets/edge-cases.png)
