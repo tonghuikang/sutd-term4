@@ -27,7 +27,6 @@ Procedure of solving a problem with linear programming
 - Interpret the matrices **[E]**, and calculate the allowable change **[F]**.
 
 <div style="page-break-after: always;"></div>
-
 ## [0] Definitions
 
 "**General**" linear program (one if the objective function is linear and the constraints are linear equalities or inequalities). 
@@ -57,7 +56,6 @@ max \quad c_N x_N   \\
 $$
 
 <div style="page-break-after: always;"></div>
-
 ## [A] Converting linear residuals into a linear program
 
 Please note that a linear program **does not allow strict inequalities**.
@@ -124,7 +122,6 @@ The linear program finds the optimal values of $b_0$, $b_1$, $b_2$ and $r$(s) th
 
 <div style="page-break-after: always;"></div> 
 
-
 ## [B] Converting a linear program into a standard linear program
 
 **All linear programs can be transformed into a standard linear program.** Please transform according to these steps.
@@ -150,7 +147,6 @@ The linear program finds the optimal values of $b_0$, $b_1$, $b_2$ and $r$(s) th
 
 <div style="page-break-after: always;"></div> 
 
-
 ## [C] Simplex Phase I
 
 **PHASE I** - Transforming the **standard form** to the **canonical form**
@@ -175,7 +171,6 @@ Begin with a canonical form of the new LP problem by managing the objective func
 Remove the slack variables, and continue Phase II with the original objective function from the standard form.
 
 <div style="page-break-after: always;"></div> 
-
 
 ## [D] Simplex Phase II
 
@@ -216,14 +211,13 @@ Then we pivot the basis variables. The LP problem should remain the same, and st
 
 <div style="page-break-after: always;"></div> 
 
-
 ## [E] Interpretation of matrices
 
 ![simplex-matrices](assets/simplex-matrices-0374933.png)
 
 <div style="page-break-after: always;"></div>
 
-
 ## [F] Calculate allowable change
 
-Todo
+![sensitivity-report](assets/sensitivity-report.png)
+
