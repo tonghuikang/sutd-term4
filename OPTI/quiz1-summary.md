@@ -26,7 +26,8 @@ Procedure of solving a problem with linear programming
 
 - Interpret the matrices **[E]**, and calculate the allowable change **[F]**.
 
-<div style="page-break-after: always;"></div> 
+<div style="page-break-after: always;"></div>
+
 ## [0] Definitions
 
 "**General**" linear program (one if the objective function is linear and the constraints are linear equalities or inequalities). 
@@ -55,7 +56,8 @@ max \quad c_N x_N   \\
 \end{array}
 $$
 
-<div style="page-break-after: always;"></div> 
+<div style="page-break-after: always;"></div>
+
 ## [A] Converting linear residuals into a linear program
 
 Please note that a linear program **does not allow strict inequalities**.
@@ -112,8 +114,6 @@ r &\geq -\epsilon_i
 \end{align}
 $$
 
-
-
 From the slides (notice that $\epsilon_i$ is an expression).
 
 ![Screenshot 2019-09-20 at 10.50.37 PM](assets/Screenshot 2019-09-20 at 10.50.37 PM.png)
@@ -122,8 +122,8 @@ From the slides (notice that $\epsilon_i$ is an expression).
 
 The linear program finds the optimal values of $b_0$, $b_1$, $b_2$ and $r$(s) that optimises the objective function. $L_i$ and $E_i$ are constants given by the data.
 
-
 <div style="page-break-after: always;"></div> 
+
 
 ## [B] Converting a linear program into a standard linear program
 
@@ -221,7 +221,9 @@ Then we pivot the basis variables. The LP problem should remain the same, and st
 
 ![simplex-matrices](assets/simplex-matrices-0374933.png)
 
-<div style="page-break-after: always;"></div> 
+<div style="page-break-after: always;"></div>
+
+
 ## [F] Calculate allowable change
 
 Todo
