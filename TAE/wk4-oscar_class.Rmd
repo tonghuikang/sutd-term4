@@ -5,6 +5,104 @@ output:
   html_notebook: default
 ---
 
+(scribbles for fun below)
+This is a discrete choice model. Multimodal choice model.
+
+Binary choice.
+
+$$
+y^* = \beta_0 + \beta_1 x_1 + ... + \beta_p x_p + \epsilon
+$$
+$Y$ is the random variable representing $y$.
+
+$$
+\begin{align}
+P(Y=1) 
+&= P(Y^* > 0) \\
+&= P(\beta_0 + \beta_1 x_1 + ... + \beta_p x_p + \epsilon > 0) \\ 
+&= P(\epsilon > -\beta^T x) \\
+&= P(\epsilon < \beta^T x)  \quad \text{assume symmetric}
+\end{align}
+$$
+
+$$
+\begin{align}
+F(x) &= \frac{e^x}{1+e^x} \\
+P(Y=1) 
+&= P(\epsilon < \beta^T x) \\
+&= \frac{exp(\beta^T x)}{1+exp(\beta^T x)} \\
+\end{align}
+$$
+
+$U_{ik}$ is the utility dervied by consumer $i$ for choice $k$. 
+
+$$
+\begin{align}
+U_{ik} 
+&= \beta_0 + \beta_1 x_{ik1} + ... 
+  + \beta_p x_{ikp} + \epsilon_{ik} \\
+&= \beta^T x_{ikp} + \epsilon_{ikp}
+\end{align}
+$$
+
+$\beta$ weights given to observable information $x_{ik}$.
+
+$$
+\begin{align}
+P(Y_i = k) 
+&= P(U_{ik} > U_{il}) \quad \forall i \neq k \\
+&= P(???) \\
+&= P(v_{ik} + \epsilon_{ik} > v_{il} + \epsilon_{il}, \forall i \neq k) 
+\end{align}
+$$
+
+Assuming $\epsilon_{ik}$ is a Gumbel distribution and is iid.
+
+CDF: $F(x) = exp(-exp(-x))$
+PDF: $f(x) = exp(-x) \cdot exp(-exp(-x))$
+
+$$
+\begin{align}
+P(Y_i = k) 
+&= P(\epsilon < v_{ik} - v_{il} + \epsilon_{ik} \quad \forall i \neq k) \\
+&= \int_{-\infty}^\infty P(\epsilon < v_{ik} - v_{il} + \epsilon_{ik} \quad \forall i \neq k | \epsilon_{ik} = y) \cdot f(y) \cdot dy \\
+&= \int_{-\infty}^\infty P(\epsilon < v_{ik} - v_{il} + \epsilon_{ik} \quad \forall i \neq k | \epsilon_{ik} = y) \cdot 
+    e^{-y} \cdot e^{-exp(-y)} \cdot dy \\
+&= \int_{-\infty}^\infty \Pi_{i \neq k}^k e^{-e^{-(v_{ik}-v_{il}+y)}} 
+    exp(-y) \cdot exp(-exp(-y)) \cdot dy \\
+&= \int_{-\infty}^\infty \Pi_{i=1}^k ??? \\
+&= \int_{-\infty}^\infty e^{-e^{-y}A} \cdot e^{-y} dy \\
+&= \frac{1}{A} \\
+&= \frac{1}{\Sigma_{i=1}^k e^{-v_{ik} - v_{il}}} \\
+&= \frac{e^{v_{ik}}}{\Sigma_{i=1}^k e^{v_{ik}}} \\
+&= \frac{e^{\beta^T x_{ik}}}{\Sigma_{i=1}^k e^{\beta^T x_{il}}}
+\end{align}
+$$
+where $A = \Sigma_{i=1}^k e^{-(v_{ik}-v_{il})}$
+
+This is the conditional logit model.
+
+### Multimodal logistic regression
+
+$$
+P(Y_i = k | x_i) =
+\frac{e^{\beta_k^T_x_i}}{\Sigma_{i=1}^k e^{\beta_k^T_x_i}}
+$$
+$\beta_k$ = vector of weights corresponding to the kth ???
+$x_i$ vector of independent variables.
+
+WC may also have
+
+$$
+U_{ik} = ASC_k + \beta^T x_{ik} + \epsilon_{ik}
+$$
+
+Likelihood of the data:
+
+$$
+P(Y_i=1)^{z_{i1}} P(Y_i=2)^{z_{i2}} ... P(Y_i=k)^{z_{ik}} = \\ P(Y_i=j)^{z_{ij}} \quad \text{when} \quad z_{ij} = 1 
+$$
+
 Analytics on Oscar Data: R
 
 Data Analysis
@@ -20,7 +118,7 @@ Data Analysis
 oscars<- read.csv("wk4-oscars.csv")
 str(oscars)
 #View(oscars)
-#summary(oscars)
+summary(oscars)
 ```
 
 Year: Movie year
@@ -101,7 +199,9 @@ For example, information on the number of nominations that a movie gets in the o
 For example, does the winner of the Best Picture have more nomination in Oscar categories as compared to the losing nominees?
 
 ```{r}
-tapply(...,...,mean)
+tapply(oscars$Nom[oscars$PP==1],
+       oscars$Ch[oscars$PP==1],
+       mean)
 ```
 In the data set, the winning movies on average have 9.526 nominations compared to the 6.78 for losing nominees.
 
@@ -112,7 +212,9 @@ Variance is comparable across observations.
 
 
 ```{r}
-t.test(..., alternative = c("greater"))
+t.test(oscars$Nom[oscars$PP==1 & oscars$Ch==1],
+       oscars$Nom[oscars$PP==1 & oscars$Ch==0],
+       alternative = c("greater"))
 ```
 P-value is very low. Therefore very significant that we can reject the null hypothesis that the winning picture has equal or lesser nominations than losing nominees.
 
@@ -130,7 +232,8 @@ Row 362.
 
 To find the name of the movie and the year
 ```{r}
-oscars[..., c("Year","Name")]
+oscars[which(oscars$Dir==0 & oscars$PP==1 & oscars$Ch==1),
+       c("Year","Name")]
 ```
 This movie is Driving Miss Daisy which did not get best director nomination but won best picture.
 
@@ -147,13 +250,13 @@ Out of 58 movies where the actress won the best actress award, 23 were not nomin
 Surprisingly there is one extra winner in the Best Actress category.
 
 ```{r}
-oscars$Year[...]
+oscars$Year[oscars$FF & oscars$Ch==1]
 ```
 
 We can see that in 1968 there are two awards.
 
 ```{r}
-subset(oscars, ...)
+subset(oscars, Year==1968 & FF==1)
 ```
 Katherine Hepburn for Lion in Winter and Barbara Streisand for Funny Girl shared the Best Actress award with 3030 votes each.
 
@@ -168,29 +271,30 @@ In the dataset, the DGA award is used till 1989 and then PGA for coding the Best
 Do the Golden Globe awards help predict the Oscars? Out of the 57 Best Picture Awards given between 1951 and 2006, 39 won the Best Golden Globe picture award.
 
 ```{r}
-table(oscars$Gdr[...] + oscars$Gmc[...])
+table(oscars$Gdr[oscars$PP==1 & oscars$Ch==1] + 
+      oscars$Gmc[oscars$PP==1 & oscars$Ch==1])
 ```
-
 Best Picture: 39/57 = 0.684
 
 
 What about Best director?
-
 ```{r}
 table(oscars$Gd[oscars$DD==1 & oscars$Ch==1])
 ```
-
 Best Director: 31/57 = 0.543
-```{r}
-table(oscars$Gm1[oscars$MM==1 & oscars$Ch==1]+oscars$Gm2[oscars$MM==1 & oscars$Ch==1]) 
-```
 
+
+```{r}
+table(oscars$Gm1[oscars$MM==1 & oscars$Ch==1]+
+      oscars$Gm2[oscars$MM==1 & oscars$Ch==1]) 
+```
 Best Male Actor: 42/57 = 0.736
 
-```{r}
-table(oscars$Gf1[oscars$FF==1 & oscars$Ch==1] + oscars$Gf2[oscars$FF==1 & oscars$Ch==1])
-```
 
+```{r}
+table(oscars$Gf1[oscars$FF==1 & oscars$Ch==1] + 
+      oscars$Gf2[oscars$FF==1 & oscars$Ch==1])
+```
 Best Female Actor: 40/58 = 0.689
 
 What is the effect of having won awards in the previous years for Oscars to winning in a current year?
@@ -208,6 +312,7 @@ About 20.4% of Best Actor nominees with one or more previous nominations won.
 
 ```{r}
 table(oscars$PrWl[oscars$MM==1], oscars$Ch[oscars$MM==1])
+table(oscars$PrWl[oscars$FF==1], oscars$Ch[oscars$FF==1])
 ```
 
 51/(176+51) = 0.224
@@ -222,8 +327,8 @@ __Use Discrete Choice Models to predict Oscar winners__
 
 Load the package from Multinomial Logit
 ```{r}
-#options(repos="https://cran.rstudio.com" )
-#install.packages("mlogit")
+options(repos="https://cran.rstudio.com" )
+install.packages("mlogit")
 ```
 
 
@@ -265,15 +370,22 @@ Days (Days between release and Oscars ceremony)
 Length (Run time of movie)
 
 ```{r}
-oscarsPP$GG <- ...
+oscarsPP$GG <- oscarsPP$Gmc + oscarsPP$Gdr
 ```
 We use this to define a new variable that captures if a movie won a Golden Globe for best picture.
 
 
 Say we use the data frame from 1944 to 2006 to develop the logit model.
+**To load in the logit model you need to reshape the data.**
 
 ```{r}
-D1 <- mlogit.data(subset(oscarsPP, Year <=2006), choice="Ch", shape="long", alt.var = "Mode")
+library(zoo)
+library(conflicted)
+base::as.Date(32768, origin = "1900-01-01")
+D1 <- mlogit.data(subset(oscarsPP, Year <=2006), 
+                  choice="Ch", 
+                  shape="long", 
+                  alt.var = "Mode")
 ```
 
 This creates a data set for applying the mlogit function where choice is a variable indicating the choice mode (here "Ch"). shape is the shape of the data frame (here "long" since each row is an alternative) and alt.var is the name of the variable containing the alternative index (here "Mode"). We use shape="wide" when there is one row for each choice simulation.
@@ -282,7 +394,7 @@ This creates a data set for applying the mlogit function where choice is a varia
 MPP1 <- mlogit(Ch~Nom+Dir+GG+Aml+Afl+PGA+Days+Length-1, data=D1)
 ```
 
-This fits a conditional logit model where Ch is the response. The -1 is used to address the fact that in this fit, we do not want the intercept to be estimated. Note that across the five alternatives in different years, it is not comparable and hence we should not introduce alternate specific estimates here.
+This fits a conditional logit model where Ch is the response. **The -1 is used to address the fact that in this fit, we do not want the intercept to be estimated.** Note that across the five alternatives in different years, it is not comparable and hence we should not introduce alternate specific estimates here.
 
 ```{r}
 summary(MPP1)
@@ -297,7 +409,7 @@ Nom (No, of Oscar nominations), Dir (Director nomination), GG (Golden Globe winn
 Output: Ch
 
 ```{r}
-MPP2 <- mlogit(Ch~..., data=D1)
+MPP2 <- mlogit(Ch~Nom+Dir+GG+PGA-1, data=D1)
 summary(MPP2)
 ```
 
@@ -322,7 +434,10 @@ Note that if we use the expanded model with variables Nom, Dir, GG, Aml, Afl, PG
 
 To predict the out of sample winners for year 2007:
 ```{r}
-D1_new <- mlogit.data(subset(oscarsPP, Year==2007), choice="Ch", shape="long", alt.var="Mode")
+D1_new <- mlogit.data(subset(oscarsPP, Year==2007), 
+                      choice="Ch", 
+                      shape="long", 
+                      alt.var="Mode")
 Predict2 <- predict(MPP2, newdata= D1_new)
 Predict2
 ```
@@ -358,12 +473,22 @@ PPwin=apply(P,1,which.max)
 PPyw=cbind(2007:1951,PPwin)
 lists=character(0)
 for (i in 1:57)
-  lists=rbind(lists,c(PPyw[i,1],as.character(oscarsPP[oscarsPP$Year==PPyw[i,1] & oscarsPP$Mode==PPyw[i,2],c("Name")]),round(P[i,PPyw[i,2]],digits=2),as.character(oscarsPP[oscarsPP$Year==PPyw[i,1] & oscarsPP$Ch==1,c("Name")])))
+  lists=rbind(lists,
+              c(PPyw[i,1],
+                as.character(oscarsPP[oscarsPP$Year
+                                      ==PPyw[i,1] & 
+                                      oscarsPP$Mode
+                                      ==PPyw[i,2],c("Name")]),
+                round(P[i,PPyw[i,2]],digits=2),
+                as.character(oscarsPP[oscarsPP$Year
+                                      ==PPyw[i,1] &
+                                      oscarsPP$Ch
+                                      ==1,c("Name")]))
+              )
 
 colnames(lists)=c("Year","Predicted","Probability","Winner")
 noquote(lists)
 ```
-
 
 
 Next we look at the male actors
