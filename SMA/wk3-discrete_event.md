@@ -36,12 +36,14 @@ These are some questions that are asked in the **exam**.
 
 
 
+
+
 **Schruben’s Event Graph language**
 
 Shape | Function| Rules 
 - | - | - 
-Diamonds | Condition | One condition for one diamond (i.e. yes/no condition in one diamond is NOT allowed, one input only)<br />Condition nodes trigger all outgoing arcs, if condition is true. 
-Circle | Event| There must be one event node that has no incoming arcs (triggers): this is the first event.<br />Events can be triggered only by other events, through condition nodes and delay nodes. 
+Circle | Event| Events can be triggered only by other events, through condition nodes and delay nodes.<br />There must be one event node that has no incoming arcs (triggers): this is the first event.<br />The state could only change at events. 
+Diamonds | Condition | One condition for one diamond (i.e. yes/no condition in one diamond is NOT allowed, one input only)<br />Condition nodes trigger all outgoing arcs, if condition is true.<br />You cannot change any variables inside the condition nodes.<br />(What is the dot arc for?) 
 Delay | ServiceTime| 
 
 
@@ -53,5 +55,18 @@ The model
 
 My solution for homework problem with two types of cookies. This requires an additional rule to understand which cookie is being processed.
 
-![cookie](assets/cookie.svg)
+![cookie](assets/cookie-0411968.svg)
 
+
+
+**How to use Excel Discrete Event Model**
+
+You are only expected to edit the code in Model User
+
+
+
+Name manager to debug solution.
+
+
+
+Homework requirement - show all variables on the cell.
