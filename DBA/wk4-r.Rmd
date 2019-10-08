@@ -1,0 +1,40 @@
+```{r}
+print("Q1")
+print("huikang")
+
+print("Q2")
+student_id = 1002705
+print(student_id)
+
+print("Q3")
+print(student_id%%10000)
+
+print("Q4")
+arr = c(1,0,0,2,7,0,5)
+print(arr)
+
+print("Q5")
+print(length(arr))
+
+
+print("Q6")
+if (student_id%%2) {
+  print("odd")
+} else {
+  print("even")
+}
+
+
+print("Q7")
+for (i in seq(0,length(arr)-1,1)){
+  print(arr[length(arr)-i])
+}
+
+
+print("Q8")
+function_name <- function(a, b) {
+   result <- a^2/b
+}
+
+print(function_name(5,1))
+```
