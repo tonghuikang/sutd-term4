@@ -60,6 +60,8 @@ The course timeline is organised into three themes - incept, develop, launch.
 | Co-founder Evaluation (mid term) | 5    |
 | Co-founder Evaluation (final)    | 5    |
 
+"Empathy with stakeholders" - Users, Suppliers, Partners (Development/Manufacturing), Investors, Public agencies, Media, 
+
 
 
 ### Project Details
@@ -71,3 +73,38 @@ Only some of the project gain some traction on Kickstarter. Of course, only a fe
 Now no longer a requirement for project to go onto Kickstarter. (Software oriented project do not need to go to Kickstarter)
 
 Some campaign is recommend, to engage stakeholders.
+
+
+
+**Week 4 Deliverables** 
+- Company Name
+- Company Logo
+-  Company Vision: Single Sentence Statement
+- Company Product: Short-Term
+- Comapny Products: Long-Term
+- Relationship of co-founders (and whether are you aware of the consequences)
+-  Roles: CEO, CTO, CFO, COO, Employee #1
+- Rewards system: percentage equity or a salary for each team member
+- Decision rationale for rewards system
+- Team uncertainty management meaures: flexible terms, e.g. vesting schedule, cliff, trigger, etc?
+
+
+
+**Week 9 Deliverables**
+
+MVP: Prototype, a pretotype that delivers realistic customer experience/value, and can "sell".
+
+Strong evidence on the voice of customers.
+
+Video (1-2 minutes) - an interesting one - to illustrate the innovation, value to users and use cases
+
+Company website - info of company, people, product (with clear values to users), missions statement, etc.
+
+An execution plan (and/or actual execution) for your customer/stakeholder development campaign.
+
+
+
+**Week 13 Report**
+
+Reports on the interaction with stakeholders - Users, Suppliers, Partners (Development/Manufacturing), Investors, Public agencies, Media
+
