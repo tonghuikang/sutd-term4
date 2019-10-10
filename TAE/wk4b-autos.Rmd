@@ -6,8 +6,48 @@ output:
     df_print: paged
 ---
 
+model MOR-dul
+
+
+
+The mathematics
+
+
+Shortcoming of Multinomial logit (MNL) model
+- Independence of irrelevant alternatives (IIA)
+
+This is fine for Oscars because movies cannot substitute each other.
+
+Blue Bus / Red Bus example
+- Your (reasonable) choice: Pr(C) = 0.5, Pr(R) = Pr(B) = 0.25.
+- MNL prediction: Pr(C) = Pr(R) = Pr(B) = 0.33
+
+Standard logit
+- Standard logit
+$$
+U_{ik} = \beta'x_{ik} + \epsilon_{ik}
+$$
+Standard multinomial logit
+$$
+Pr(Y_i = k) = \frac{e^{\beta' x_{ik}}}{\Sigma_{l=1}^K e^{\beta' x_{il}}}
+$$
+
+Mixed logit model
+- not necessarily concave, may not be maxima
+
+$$
+Pr(Y_i = k) = \int \frac{e^{\beta' x_{ik}}}{\Sigma_{l=1}^K e^{\beta' x_{il}}} f(\beta) d\beta
+$$
+
+
+From an estimation perspective
+- the goal is to find the parameters θ that define the density function $f(\beta|\theta)$ where the functional form f(.) is given but parameters θ are unknown.
+
+Need to keep beta the same within an individual - "panel data"
+
+
 ```{r, results='hide'}
-safety <- read.csv("safetydata.csv")
+safety <- read.csv("wk4b-autos.csv")
 #str(safety)
 #View(safety)
 #summary(safety)
@@ -28,43 +68,26 @@ Each customer has a choice among four packages in each choice task. (stated pref
 
 The variables are the following:
 
-CC -  Cruise control -        3 levels
-
-GN -  Go notifier  -         2 levels
-
-NS - Navigation system -    5 levels
-
-BU - Backup aids - 6 levels
-
-FA - Front park assist - 2 levels
-
-LD - Lane departure - 3 levels
-
-BZ - Blind zone alert - 3 levels
-
-FC - Front collision warning - 2 levels
-
-FP - Front collision protection - 4 levels
-
-RP - Rear collision protection - 4 levels
-
-PP - Parallel park aids - 3 levels
-
-KA - Knee air bags - 2 levels
-
-SC - Side air bags - 4 levels
-
-TS - Emergency notification - 3 levels
-
-NV - Night vision system - 3 levels
-
-MA - Driver assisted adjustment - 4 levels
-
-LB - Low speed breaking assist - 4 levels
-
-AF - Adaptive Front lighting - 3 levels
-
-HU - Head up display - 2 levels
+Acronym | Object | Levels
+CC |  Cruise control | 3 levels
+GN |  Go notifier | 2 levels
+NS | Navigation system | 5 levels
+BU | Backup aids | 6 levels
+FA | Front park assist | 2 levels
+LD | Lane departure | 3 levels
+BZ | Blind zone alert | 3 levels
+FC | Front collision warning | 2 levels
+FP | Front collision protection | 4 levels
+RP | Rear collision protection | 4 levels
+PP | Parallel park aids | 3 levels
+KA | Knee air bags | 2 levels
+SC | Side air bags | 4 levels
+TS | Emergency notification | 3 levels
+NV | Night vision system | 3 levels
+MA | Driver assisted adjustment | 4 levels
+LB | Low speed breaking assist  | 4 levels
+AF | Adaptive Front lighting    | 3 levels
+HU | Head up display            | 2 levels
 
 Price - Price - 11 levels (300, 1000, 1500, 2000, 2500, 3000, 4000, 5000, 7500, 10000, 12000)
 
@@ -82,7 +105,7 @@ Ch4 = 1 if package 4 is chosen, 0 otherwise
 Choice = Ch1 or Ch2 or Ch3 or Ch4 (depending on which option is chosen)
 
 ```{r}
-table(...)
+table(safety$year)
 ```
 
 segment = segment of car population that individual has
@@ -116,10 +139,20 @@ __Developing a logit model for the data__
 
 ```{r results='hide'}
 library(mlogit)
-#S <- mlogit.data(subset(safety, Task<=12), shape="wide", choice="Choice", varying =c(4:83), sep="", alt.levels=c("Ch1", "Ch2", "Ch3", "Ch4"), id.var="Case")
+S <- mlogit.data(subset(safety, Task<=12), 
+                 shape="wide",  # this is "wide"-form data, unlike Oscars
+                 choice="Choice", 
+                 varying=c(4:83), 
+                 sep="", 
+                 alt.levels=c("Ch1", "Ch2", "Ch3", "Ch4"), id.var="Case")
 ```
 
-This command takes the data frame where we use the first 12 choice tasks for each customer in our training set (12 out of 19), indicates that the shape of the data frame is wide (where each row is an observation), indicates that the variable indicating the choice made is defined by 'Choice', the separator of the variable name and the alternative name (this helps to guess the variables and the alternative name), varying =c(4:83) (helps indicate the variable indices that are alternative specific), alt.levels indicates the names of the alternatives and id.var indicates the name of the variable containing the individual index (here "Case")
+This command takes the data frame where we use the first 12 choice tasks for each customer in our training set (12 out of 19), 
+- indicates that the shape of the data frame is wide (where each row is an observation)
+- indicates that the variable indicating the choice made is defined by 'Choice'
+- the separator of the variable name and the alternative name (this helps to guess the variables and the alternative name), 
+- varying =c(4:83) (helps indicate the variable indices that are alternative specific)
+- alt.levels indicates the names of the alternatives and id.var indicates the name of the variable containing the individual index (here "Case")
 
 ```{r results='hide'}
 head(S)
@@ -130,7 +163,7 @@ This creates a data frame of the long format to which we can use the mlogit pack
 
 ```{r}
 M <- mlogit(Choice~CC+GN+NS+BU+FA+LD+BZ+FC+FP+RP+PP+KA+SC+TS+NV+MA+LB+AF+HU+Price-1, data=S)
-#summary(M)
+summary(M)
 ```
 
 Log-likelihood at optimality $LL(\hat{\beta}) = -7567.9$
@@ -148,7 +181,7 @@ The non price coefficients have positive signs indicating that these are valued 
 
 __Willingness to Pay__
 
-Ratio of $\beta_j$ coefficients can be used to estimate the willingness to pay for a particular attribute. 
+Ratio of $\beta_j$ coefficients can be used to estimate the willingness to pay for a particular attribute.
 
 Suppose $\beta_1$ is the coefficient for attribute 1 and $\beta_2$ is the coefficient of attribute 2 (Price). Note that $\beta_2$ will be typically negative since more the price, lesser the utility. Say $\beta_1$ is positive.
 
@@ -172,16 +205,16 @@ To check the correct predictions in a sample simply based on the maximum predict
 
 ```{r}
 ActualChoice <- subset(safety, Task<=12)[,"Choice"]
-#P <- predict(M, newdata=S)
-#PredictedChoice <- apply(P,1,which.max)
+P <- predict(M, newdata=S)
+PredictedChoice <- apply(P,1,which.max)
 ```
 
 ActualChoice keeps track of actual observed choice. P predicts the choice probability for the given dataset. The apply function applies to the matrix P, across rows (indexed by 1), the function of which.max (identifies index that is maximum).
 
 
 ```{r}
-#Tabtrain=table(PredictedChoice, ActualChoice)
-#Tabtrain
+Tabtrain=table(PredictedChoice, ActualChoice)
+Tabtrain
 ```
 
 Correct predictions = $\frac{616+647+629+700}{6000} = 0.432$
@@ -193,9 +226,8 @@ Test <- mlogit.data(subset(safety, Task>12), shape="wide", choice="Choice", vary
 TestPredict <- predict(M, newdata=Test)
 ActualChoice <- subset(safety, Task>12)[,"Choice"]
 PredictedChoice <- apply(TestPredict, 1, which.max)
-#Tabtest=table(PredictedChoice, ActualChoice)
-#Tabtrain
-#Tabtest
+Tabtest=table(PredictedChoice, ActualChoice)
+Tabtest
 ```
 
 Correct predictions = $\frac{376+436+356+517}{3500} = 0.481$
@@ -207,13 +239,18 @@ Correct predictions = $\frac{376+436+356+517}{3500} = 0.481$
 __Building more sophisticated models__
 
 ```{r results='hide'}
-M1 <- mlogit(Choice~CC+GN+NS+BU+FA+LD+BZ+FC+FP+RP+PP+KA+SC+TS+NV+MA+LB+AF+HU+Price-1, data=S, rpar=c(CC='n', GN='n', NS='n', BU='n',FA='n',LD='n',BZ='n',FC='n',FP='n',RP='n',PP='n',KA='n',SC='n',TS='n',NV='n',MA='n',LB='n',AF='n',HU='n',Price='n'), panel = TRUE, print.level=TRUE)
+M1 <- mlogit(Choice~CC+GN+NS+BU+FA+LD+BZ+FC+FP+RP+PP+KA+SC+TS+NV+MA+LB+AF+HU+Price-1,
+             data=S, 
+             rpar=c(CC='n',GN='n',NS='n',BU='n',FA='n',LD='n',BZ='n',FC='n',
+                    FP='n',RP='n',PP='n',KA='n',SC='n',TS='n',NV='n',MA='n',
+                    LB='n',AF='n',HU='n',Price='n'), 
+             panel = TRUE, print.level=TRUE)
 ```
 
 This fits a mixed logit model where the coefficients are treated as random variables. This is captured with rpar(random parameters) argument where 'n' indicates it is modeled as a normal random variable, panel data captures the fact that we have multiple observations per individual.
 
 ```{r}
-#summary(M1)
+summary(M1)
 ```
 
 This estimates for each random coefficient a mean value and a standard deviation.
@@ -221,11 +258,16 @@ This estimates for each random coefficient a mean value and a standard deviation
 Log-likelihood = -6531.3
 
 ```{r}
+M1$logLik
+M$logLik
+```
+
+```{r}
 P1 <- predict(M1, newdata=S)
 PredictedChoice1 <- apply(P1, 1, which.max)
 ActualChoice <- subset(safety, Task<=12)[,"Choice"]
-#Tabtrainmixed= table(PredictedChoice1, ActualChoice)
-#Tabtrainmixed
+Tabtrainmixed= table(PredictedChoice1, ActualChoice)
+Tabtrainmixed
 ```
 
 Correct predictions = $\frac{530+552+537+905}{6000}= 0.420$
@@ -236,11 +278,9 @@ Note that while the log-likelihood for the mixed logit model is better, in terms
 TestPredict1 <- predict(M1, newdata=Test)
 PredictedChoice1 <- apply(TestPredict1,1,which.max)
 ActualChoice1 <- subset(safety, Task>12)[,"Choice"]
-#Tabtestmixed= table(PredictedChoice1, ActualChoice1)
-#Tabtestmixed
-
-
-#Tabtest
+Tabtestmixed= table(PredictedChoice1, ActualChoice1)
+Tabtestmixed
+Tabtest
 ```
 
 Correct predictions = $\frac{331+377+316+644}{3500} = 0.4765$
