@@ -60,7 +60,7 @@ The course timeline is organised into three themes - incept, develop, launch.
 | Co-founder Evaluation (mid term) | 5    |
 | Co-founder Evaluation (final)    | 5    |
 
-"Empathy with stakeholders" - Users, Suppliers, Partners (Development/Manufacturing), Investors, Public agencies, Media, 
+"Empathy with stakeholders" - Users, Suppliers, Partners (Development/Manufacturing), Investors, Public agencies, Media
 
 
 

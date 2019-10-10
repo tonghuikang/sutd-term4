@@ -70,3 +70,29 @@ Name manager to debug solution.
 
 
 Homework requirement - show all variables on the cell.
+
+
+
+
+
+## Jaamsim installation guide
+
+
+Download Jaamsim https://jaamsim.com/downloads.html
+
+
+Install Java 8
+```bash
+brew cask install homebrew/cask-versions/adoptopenjdk8
+```
+
+Open Jaamsim
+```bash
+/Library/Java/JavaVirtualMachines/adoptopenjdk-8.jdk/Contents/Home/bin/java -jar JaamSim2019-10.jar
+```
+
+Open Jaamsim with loaded file 
+```bash
+/Library/Java/JavaVirtualMachines/adoptopenjdk-8.jdk/Contents/Home/bin/java -jar JaamSim2019-10.jar Cafe_Model_Example.cfg -tag
+```
+
