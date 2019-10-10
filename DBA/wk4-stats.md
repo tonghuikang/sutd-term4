@@ -60,3 +60,14 @@ y = \beta_0
   + \epsilon_i
 $$
 
+![Screenshot 2019-10-10 at 1.12.09 PM](assets/Screenshot 2019-10-10 at 1.12.09 PM.png)
+
+How do we drop terms to get the most combination with the best adjusted adjusted-R-squared?
+
+**Akaike Information Criterion**
+
+- Suppose that we have a statistical model of some data. Let $L$ be the maximum value of the likelihood function for the model; let $k$ be the number of estimated parameters in the model. Then the AIC value of the model is the following.
+$$
+AIC = 2k - 2ln(L)
+$$
+- Given a set of candidate models for the data, the preferred model is the one with the minimum AIC value. Hence AIC rewards goodness of fit (as assessed by the likelihood function), but it also includes a penalty that is an increasing function of the number of estimated parameters. The penalty discourages overfitting (increasing the number of parameters in the model almost always improves the goodness of the fit).

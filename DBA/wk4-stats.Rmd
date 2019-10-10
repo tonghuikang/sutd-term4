@@ -1,18 +1,24 @@
 
 ```{r}
+#install.packages("psych")
+library("psych")
 # Set the working directory to the location of your data file
 # Read in the data from a comma-separated file
 ccdata <-read.csv("wk4-data-cheese.csv")
 # Display the first few rows of the data
 head(ccdata)
-# Scatterplots of each pair of variables
-plot(ccdata)
 ```
 
 ```{r}
-# Try a model with just Acetic
-model <- Taste ~Acetic
+# Scatterplots of each pair of variables
+pairs.panels(ccdata, pch = 20, density = TRUE)
+```
+
+```{r}
+# Try a model with just everything
+model <- Taste~0+Case+H2S
 result <-lm(model,ccdata)
+AIC(result)
 summary(result)
 ```
 

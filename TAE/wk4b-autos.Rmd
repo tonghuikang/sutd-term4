@@ -1,0 +1,252 @@
+---
+title: 'Analytics on safety feature data: R'
+output:
+  pdf_document: default
+  html_document:
+    df_print: paged
+---
+
+```{r, results='hide'}
+safety <- read.csv("safetydata.csv")
+#str(safety)
+#View(safety)
+#summary(safety)
+#head(safety)
+```
+
+We have 9500 observations of 112 variables. Each customer performs 19 choice tasks with a total of 500 customers.
+
+Case: Customer number (1 to 500)
+
+No: Observation number (1 to 9500)
+
+Task: Task number for a customer (1 to 19)
+
+Each customer has a choice among four packages in each choice task. (stated preference data sheet). For example customer 1 in the first choice taks chooses Ch2.
+
+<img src=Autochoices.png width="500px">
+
+The variables are the following:
+
+CC -  Cruise control -        3 levels
+
+GN -  Go notifier  -         2 levels
+
+NS - Navigation system -    5 levels
+
+BU - Backup aids - 6 levels
+
+FA - Front park assist - 2 levels
+
+LD - Lane departure - 3 levels
+
+BZ - Blind zone alert - 3 levels
+
+FC - Front collision warning - 2 levels
+
+FP - Front collision protection - 4 levels
+
+RP - Rear collision protection - 4 levels
+
+PP - Parallel park aids - 3 levels
+
+KA - Knee air bags - 2 levels
+
+SC - Side air bags - 4 levels
+
+TS - Emergency notification - 3 levels
+
+NV - Night vision system - 3 levels
+
+MA - Driver assisted adjustment - 4 levels
+
+LB - Low speed breaking assist - 4 levels
+
+AF - Adaptive Front lighting - 3 levels
+
+HU - Head up display - 2 levels
+
+Price - Price - 11 levels (300, 1000, 1500, 2000, 2500, 3000, 4000, 5000, 7500, 10000, 12000)
+
+
+The variables from "segment" to "income" give demographic information
+
+Ch1 = 1 if package 1 is chosen, 0 otherwise
+
+Ch2 = 1 if package 2 is chosen, 0 otherwise
+
+Ch3 = 1 if package 3 is chosen, 0 otherwise
+
+Ch4 = 1 if package 4 is chosen, 0 otherwise
+
+Choice = Ch1 or Ch2 or Ch3 or Ch4 (depending on which option is chosen)
+
+```{r}
+table(...)
+```
+
+segment = segment of car population that individual has
+
+year = year
+
+miles = mileage
+
+night = % of time customer drives at night
+
+gender = gender(Female or Male)
+
+age = age bracket
+
+educ = Education level (college (4 years), Grade School, High School, Postgrad, college(1-3 yrs), vocational school)
+
+region = resident of region (MW, NE, SE, SW, W)
+
+Urb = resident of  Rural, Suburban, Urban
+
+income = income
+
+```{r}
+#which(colnames(safety)=="CC1")
+#which(colnames(safety)=="Price4")
+```
+
+Columns 4 to 83 of the safety data frame contains the attribute levels for each of the 4 alternatives (choices) indexed by 1,2,3 and 4 respectively. Note the zero level in all cases indicate the attribute is not available with the fourth choice being the NONE option. In general higher levels for attributes correspond to more technically advanced features. We can capture the variables either directly or by adding dummy variables that take a value of 1 or 0 depending on the level.
+
+__Developing a logit model for the data__
+
+```{r results='hide'}
+library(mlogit)
+#S <- mlogit.data(subset(safety, Task<=12), shape="wide", choice="Choice", varying =c(4:83), sep="", alt.levels=c("Ch1", "Ch2", "Ch3", "Ch4"), id.var="Case")
+```
+
+This command takes the data frame where we use the first 12 choice tasks for each customer in our training set (12 out of 19), indicates that the shape of the data frame is wide (where each row is an observation), indicates that the variable indicating the choice made is defined by 'Choice', the separator of the variable name and the alternative name (this helps to guess the variables and the alternative name), varying =c(4:83) (helps indicate the variable indices that are alternative specific), alt.levels indicates the names of the alternatives and id.var indicates the name of the variable containing the individual index (here "Case")
+
+```{r results='hide'}
+head(S)
+#str(S)
+```
+
+This creates a data frame of the long format to which we can use the mlogit package
+
+```{r}
+M <- mlogit(Choice~CC+GN+NS+BU+FA+LD+BZ+FC+FP+RP+PP+KA+SC+TS+NV+MA+LB+AF+HU+Price-1, data=S)
+#summary(M)
+```
+
+Log-likelihood at optimality $LL(\hat{\beta}) = -7567.9$
+
+$AIC = -2LL(\hat{\beta})+ 2(parameters) = 15175.8$
+
+Likelihood Ratio (McFadden Index) = $1-\frac{LL(\hat{\beta})}{LL(0)} = 1 - \frac{-7567.8}{6000 \log 1/4} = 1-\frac{-7567.9}{-8317.76} = 0.09$
+
+Results indicate that CC (cruise control), KA (knee air bags), TS (emerging notification), MA (driver adjusted assessment), Price are very significant at 0.001 level. As should be expected, Price has a negative co-efficient.
+
+LD (lane departure) and SC (side air bags) are significant at 0.01 level.
+
+The non price coefficients have positive signs indicating that these are valued (higher levels of safety features). 
+
+
+__Willingness to Pay__
+
+Ratio of $\beta_j$ coefficients can be used to estimate the willingness to pay for a particular attribute. 
+
+Suppose $\beta_1$ is the coefficient for attribute 1 and $\beta_2$ is the coefficient of attribute 2 (Price). Note that $\beta_2$ will be typically negative since more the price, lesser the utility. Say $\beta_1$ is positive.
+
+$U= \beta_1 x_1 + \beta_2 x_2 + \ldots$
+
+Assume unit change (increase) in attribute 1.
+
+$U  = \beta_1(x_1 +1) + \beta_2 (x_2 + \Delta)+ \ldots$
+
+Then $\Delta= \frac{-\beta_1}{\beta_2}$. $\Delta$ is the willingess to pay for unit increase in attribute.
+
+Example, willingness to pay for cruise control 
+
+$WTP = -\frac{0.1085}{-0.2036} = 0.5329$.
+
+-------
+
+
+
+To check the correct predictions in a sample simply based on the maximum predicted choice probability:
+
+```{r}
+ActualChoice <- subset(safety, Task<=12)[,"Choice"]
+#P <- predict(M, newdata=S)
+#PredictedChoice <- apply(P,1,which.max)
+```
+
+ActualChoice keeps track of actual observed choice. P predicts the choice probability for the given dataset. The apply function applies to the matrix P, across rows (indexed by 1), the function of which.max (identifies index that is maximum).
+
+
+```{r}
+#Tabtrain=table(PredictedChoice, ActualChoice)
+#Tabtrain
+```
+
+Correct predictions = $\frac{616+647+629+700}{6000} = 0.432$
+
+Assuming a complete random choice for predicting the choice would result in 0.25.
+
+```{r}
+Test <- mlogit.data(subset(safety, Task>12), shape="wide", choice="Choice", varying = c(4:83), sep="", alt.levels=c("Ch1","Ch2","Ch3","Ch4"), id.var="Case")
+TestPredict <- predict(M, newdata=Test)
+ActualChoice <- subset(safety, Task>12)[,"Choice"]
+PredictedChoice <- apply(TestPredict, 1, which.max)
+#Tabtest=table(PredictedChoice, ActualChoice)
+#Tabtrain
+#Tabtest
+```
+
+Correct predictions = $\frac{376+436+356+517}{3500} = 0.481$
+
+
+
+
+
+__Building more sophisticated models__
+
+```{r results='hide'}
+M1 <- mlogit(Choice~CC+GN+NS+BU+FA+LD+BZ+FC+FP+RP+PP+KA+SC+TS+NV+MA+LB+AF+HU+Price-1, data=S, rpar=c(CC='n', GN='n', NS='n', BU='n',FA='n',LD='n',BZ='n',FC='n',FP='n',RP='n',PP='n',KA='n',SC='n',TS='n',NV='n',MA='n',LB='n',AF='n',HU='n',Price='n'), panel = TRUE, print.level=TRUE)
+```
+
+This fits a mixed logit model where the coefficients are treated as random variables. This is captured with rpar(random parameters) argument where 'n' indicates it is modeled as a normal random variable, panel data captures the fact that we have multiple observations per individual.
+
+```{r}
+#summary(M1)
+```
+
+This estimates for each random coefficient a mean value and a standard deviation.
+
+Log-likelihood = -6531.3
+
+```{r}
+P1 <- predict(M1, newdata=S)
+PredictedChoice1 <- apply(P1, 1, which.max)
+ActualChoice <- subset(safety, Task<=12)[,"Choice"]
+#Tabtrainmixed= table(PredictedChoice1, ActualChoice)
+#Tabtrainmixed
+```
+
+Correct predictions = $\frac{530+552+537+905}{6000}= 0.420$
+
+Note that while the log-likelihood for the mixed logit model is better, in terms of predicting by simply looking at highest probability it is worse than MNL in this example.
+
+```{r}
+TestPredict1 <- predict(M1, newdata=Test)
+PredictedChoice1 <- apply(TestPredict1,1,which.max)
+ActualChoice1 <- subset(safety, Task>12)[,"Choice"]
+#Tabtestmixed= table(PredictedChoice1, ActualChoice1)
+#Tabtestmixed
+
+
+#Tabtest
+```
+
+Correct predictions = $\frac{331+377+316+644}{3500} = 0.4765$
+
+The mixed logit model does a better job of predicting customers who are not interested in choosing any of the offered options compared to MNL.
+
+
+
+
