@@ -5,11 +5,59 @@ output:
   html_notebook: default
 ---
 
+Bias variance tradeoff
+
+Bias of the model versus variance of the estimator.
+$$
+\begin{align}
+\text{Test MSE} 
+&= E(y_0 - \hat{f}(x_0)) \\
+&= E(y_0^2 - \hat{f}(x_0))^2 
+  - 2 y_0 \hat{f} (x_0)) \\
+&= Var(y_0)
+  + (E(y_0))^2
+  + Var(\hat{f}(x_0)) 
+  + E(\hat{f}(x_0))^2
+  - 2 E(y_0) E(\hat{f}(x_0)) \\
+&= Var(\epsilon) 
+  + Var(\hat{f}(x_0)) 
+  + E(f(x_0)-\hat{f}(x_0))^2 \\
+&= \sigma^2 
+  + Var(\hat{f}(x_0)) 
+  + Bias(\hat{f}(x_0)))^2
+\end{align}
+$$
+
+$\sigma$ is reducible, it is a tradeoff between minimising variance bias of model and minimising bias of model.
+We have $n$ observations and $p$ predictor variables. If $n > p$ you risk overfitting.
+You have to pick a selection of important explanatory variable from the p available.
+Solution space: $2^p$ subsets.
+
+Best subset selection selection problem.
+One way - try all different combinations and compute its cross validation, AIC or adjusted R-sq.
+Forward stepwise solution 
+- starting from a null model
+- try adding one of the remaining predictors, and measure its adjR/AIC
+- include the best remaining variable in the subset
+- repeat until it is no longer better to include more predictors
+
+Backward stepwise solution 
+- starting with a subset that incldue all predictors
+- try adding one of the predictors, and measure its adjR/AIC
+- take include the best remaining variable in the subset
+- repeat until it is no longer better to remove more predictors
+
+There is no guarantee that the forward stepwise solution and the backwise solution always find the optimal solution.
+
+Exhaustive selection.
+
 The hitters dataset consists of 322 observations of 21 variables with the following information - X (name), AtBat, Hits, HmRun (home runs), Runs, RBI, Walks, Years, CAtBat, CHits, CHmRun, CRuns, CRBI, CWalks, League, Division, PutOuts, Assists, Errors, Salary, New League. Here League, Division and NewLeagues are factor variabes with 2 categories. We drop rows with missing entries and are left with 263 observations.
+
 ```{r hide=T}
-hitters <- read.csv("hitters.csv")
-#str(hitters)
+hitters <- read.csv("wk5a-hitters.csv")
+str(hitters)
 #remove na's
+hitters = na.omit(hitters)
 ```
 The leaps package in R does subset selection with the regsubsets function. By default, the maximum number of subsets, this function uses is 8. We extend this to do a complete subset selection by changing the default value of nvmax argument in this function. Note that CRBI is in the model with 1 to 6 variables but not in the model with 7 and 8 variables.
 ```{r}
@@ -18,30 +66,36 @@ library(leaps)
 ?regsubsets
 
 #hitters <- hitters[,2:21]
-#model1 <- regsubsets(Salary~.,hitters)
-#summary(model1)
-#model2<-...
-#summary(model2)
+model1 <- regsubsets(Salary~.,hitters)
+summary(model1) # best model up till 8 predictors
+model2 <- regsubsets(Salary~.,hitters, nvmax = 19)
+summary(model2) # best model up till 19 predictors
 ```
 
 ```{r}
 names(summary(model2))
-#summary(model2)$rsq
-#plot(...)
-...
+summary(model2)$rsq
+
+plot(summary(model2)$rsq)
+plot(summary(model2)$adjr2)
 ```
+
 The figures indicate that R-squared increase as the number of variables in the subset increases and likewise the residual sum of squared (sum of squared errors) decreases as the size of the subsets increases. On the other hand the adjusted R-squared increases first and then decreases.
 
 Forward stepwise selection: In this example, the best model identified by the forward stepwise selection is the same as that obtained by the best subset selection. It is also possible to run this algorithm using a backward method where you drop variables one a time rather add. In general, the solutions from these two methods can be different.
+
 ```{r}
-model3<-regsubsets(Salary~.,data=hitters,nvmax=19,method=...)
-#which.max(summary(model3)$adjr2)
+model3<-regsubsets(Salary~.,data=hitters,nvmax=19,method="forward")
+which.max(summary(model3)$adjr2)
 
+model4<-regsubsets(Salary~.,data=hitters,nvmax=19,method="backward")
+which.max(summary(model4)$adjr2)
 
-#coef(model3,11)
+coef(model2,11)
+coef(model3,11)
+coef(model4,11)
+
+# both model gives use the same solution, will not happen for large datasets
 summary(model2)$adjr2-summary(model3)$adjr2
-plot(summary(model3)$adjr2)
-
-#...
-
+summary(model4)$adjr2-summary(model4)$adjr2
 ```
