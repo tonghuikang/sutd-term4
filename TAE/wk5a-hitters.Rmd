@@ -1,0 +1,47 @@
+---
+title: "Hitters Notebook"
+output:
+  pdf_document: default
+  html_notebook: default
+---
+
+The hitters dataset consists of 322 observations of 21 variables with the following information - X (name), AtBat, Hits, HmRun (home runs), Runs, RBI, Walks, Years, CAtBat, CHits, CHmRun, CRuns, CRBI, CWalks, League, Division, PutOuts, Assists, Errors, Salary, New League. Here League, Division and NewLeagues are factor variabes with 2 categories. We drop rows with missing entries and are left with 263 observations.
+```{r hide=T}
+hitters <- read.csv("hitters.csv")
+#str(hitters)
+#remove na's
+```
+The leaps package in R does subset selection with the regsubsets function. By default, the maximum number of subsets, this function uses is 8. We extend this to do a complete subset selection by changing the default value of nvmax argument in this function. Note that CRBI is in the model with 1 to 6 variables but not in the model with 7 and 8 variables.
+```{r}
+#install.packages("leaps")
+library(leaps)
+?regsubsets
+
+#hitters <- hitters[,2:21]
+#model1 <- regsubsets(Salary~.,hitters)
+#summary(model1)
+#model2<-...
+#summary(model2)
+```
+
+```{r}
+names(summary(model2))
+#summary(model2)$rsq
+#plot(...)
+...
+```
+The figures indicate that R-squared increase as the number of variables in the subset increases and likewise the residual sum of squared (sum of squared errors) decreases as the size of the subsets increases. On the other hand the adjusted R-squared increases first and then decreases.
+
+Forward stepwise selection: In this example, the best model identified by the forward stepwise selection is the same as that obtained by the best subset selection. It is also possible to run this algorithm using a backward method where you drop variables one a time rather add. In general, the solutions from these two methods can be different.
+```{r}
+model3<-regsubsets(Salary~.,data=hitters,nvmax=19,method=...)
+#which.max(summary(model3)$adjr2)
+
+
+#coef(model3,11)
+summary(model2)$adjr2-summary(model3)$adjr2
+plot(summary(model3)$adjr2)
+
+#...
+
+```
