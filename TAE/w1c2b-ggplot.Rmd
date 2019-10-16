@@ -58,6 +58,7 @@ bar <- ggplot(WHO) +
            show.legend = FALSE, width = 1) + 
   theme(aspect.ratio = 1) + 
   labs(x = NULL, y = NULL)
+bar
 bar + coord_flip()
 bar + coord_polar()
 ```

@@ -22,7 +22,6 @@ Refer to the the 'Run' option on the top right of this window to see the shortcu
 - Run line
 
 
-
 ### Other notes
 ?(command) for help
 
@@ -37,6 +36,7 @@ z <- c(0:9)
 z
 
 class(z)
+class(as.numeric(z))
 ```
 
 
@@ -83,8 +83,8 @@ r
 
 class(r)
 dim(r)
-r[2,2]
-r[5]
+r[1,1]
+r[6]
 ```
 
 r[5] reads the flatted array. (Different from Python)

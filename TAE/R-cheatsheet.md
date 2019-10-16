@@ -4,18 +4,6 @@
 
 This is a one-document reference of the use of R commands.
 
-## Basics
-
-Please refer to [R-basics](./R-basics.pdf) for the very basic operations on R.
-
-**Matrices**
-The matrix operations may require some explanation.
-- definition `x<-matrix(c(3,-1,2,-1),nrow=2, ncol=2)`
-- e-wise multiplication `x*x`, `x*2`
-- matrix multiplication `x%*%x`
-- transpose `t(x)`
-- ??? `solve(x)`
-
 ## Pre-flight checklist
 Make sure you can import these libraries. If you cannot, please panic.
 
@@ -23,6 +11,67 @@ Make sure you can import these libraries. If you cannot, please panic.
 library(ggplot2)
 library(leaps)
 ```
+
+## Helper functions
+
+Use `?` to read the offline documentation regarding the function.
+
+**For MacOS**
+Refer to the the 'Run' option on the top right of this window to see the shortcut related to running and restarting the cell.
+- Run line `Cmd + Enter`
+- Run chunk `Shift + Cmd + Enter`
+- Run all `Opt + Cmd + R`
+- New R Cell `Cmd + Opt + I`
+
+
+## Basics
+
+Please refer to [R-basics](./R-basics.pdf) for the very basic operations on R. 
+
+These are some commands not covered in the document
+```r
+sum(arr)
+prod(arr)
+exp(arr)
+var(arr)
+sd(arr)
+summary(arr)
+pmax(arr,arz)  # take maximum element-wise
+arr > 1  # element-wise logical check
+```
+
+**Type casting**
+```r
+z <- c(0:9)
+class(z)  # prints class
+as.numeric(z)  # casts into float?
+
+z1 <- c("a","b","d")
+w <- as.character(z1)
+as.integer(w)  # returns array of NA
+```
+
+**Matrices**
+The matrix operations may require some explanation.
+- definition `x<-matrix(c(3,-1,2,-1),nrow=2, ncol=2)`
+- e-wise multiplication `x*x`, `x*2`
+- matrix multiplication `x%*%x`
+- transpose `t(x)`
+- read element `r[2,2]`, `r[3]`, starts counting from one
+- ??? `solve(x)`
+- solving system of linear equations `a%*%solve(a)`
+- get eigenvectors `eigen(a)$vectors`
+
+**Dataframe**
+You are unlikely to do this, you are likely to load csv files.
+```r
+CELG <- data.frame(names=c("barack","serena"),
+                   ages=c(58,38),
+                   children=c(2,1))
+# append to dataframe
+CELG$spouse <- c("michelle","alexis")
+```
+
 
 ## Data management basics
 
@@ -86,7 +135,7 @@ stars(as.matrix(swiss[,c(2,3,5,6)]),
 
 
 **Plotting with ggplot**
-```
+```r
 library(ggplot2)
 
 # plot histogram
@@ -99,4 +148,105 @@ ggplot(data = Parole, aes(x = Age)) +
   geom_histogram(binwidth=5,
                  closed=c("left"),
                  center=17.5)
+                 
+# bar plot
+bar <- ggplot(WHO) + 
+  geom_bar(mapping = aes(x = Region, fill = Region), 
+           show.legend = FALSE, width = 1) + 
+  theme(aspect.ratio = 1) + 
+  labs(x = NULL, y = NULL)
+bar  # to show plot
+
+# plot with flipped coordinates, and polar plot
+bar + coord_flip()
+bar + coord_polar()
+
+# many scatter plot
+a <- ggplot(WHO, aes(x=GNI, y=FertilityRate))
+a + geom_point(na.rm=T) + facet_wrap(.~Region)
+
+# loess interpolation with confidence
+a + geom_point(na.rm=T) + geom_smooth(na.rm=T)
+
+# loess interpolation, continent represented with color
+acol <- ggplot(WHO,
+               aes(x=GNI, 
+                   y=FertilityRate, 
+                   color=Region))
+acol + geom_point(na.rm=T)
+acol + geom_point(na.rm=T) + geom_smooth(na.rm=T)
+
+# scatter plot with attributed represented with size
+acol <- ggplot(mtcars,aes(x=wt, 
+                          y=mpg, 
+                          color=cyl, 
+                          cex=disp))
+
 ```
+
+# Linear regression
+
+**Week 2**
+
+| Method         | Linear Regression                                            |
+| -------------- | ------------------------------------------------------------ |
+| Target         | Number                                                       |
+| Model          | $$y_i = \beta_0 + \beta_1 x_1 + \beta_2 x_2 + ... + \epsilon_i $$ |
+| Loss           | Mean square error                                            |
+| Quality of fit | R-square<br />Adjusted R-square<br />AIC                     |
+| Prediction     | Wine prices and quality<br />Baseball batting average        |
+| Comments       | Choose only the statistically significant variables<br />This cannot predict binary objectives. |
+
+
+
+```r
+# fitting linear model
+model1  <- lm(LPRICE~VINT,data=winetrain)
+```
+
+
+
+
+
+
+
+**Week 3**
+
+| Method         | Logistic Regression                                          |
+| -------------- | ------------------------------------------------------------ |
+| Target         | Binary, probability                                          |
+| Model          | $$P(y_i = 1) = \dfrac{1}{1+e^{-(\beta_0 + \beta_1 x_1 + \beta_2 x_2 + ...+ \epsilon_i )}}$$ |
+| Loss           | $$LL(\beta) \\ = \displaystyle \sum_{i=1}^n \sum_{k=1}^2 y_{ik} \log \left( P(y_{ik} = 1) \right)\\= \displaystyle \sum_{i=1}^n \sum_{k=1}^2 y_{ik} \log \left( \frac{e^{\beta' x_i}} {e^{1+\beta' x_i}} \right) $$ |
+| Explanation    | x log x', sum for x=1 and x=0 (elaborate)                    |
+| Quality of fit | $$AIC = -2LL(\hat{\beta}) + 2(p+1)$$<br />Confusion matrix<br />AUC-ROC |
+| Prediction     | Space shuttle failures<br />Risk of heart disease            |
+| Comment        |                                                              |
+
+
+
+**Week 4a**
+
+| Method         | Multinomial Logit                                            |
+| -------------- | ------------------------------------------------------------ |
+| Target         | n-choose-1, probabilities that sum to one                    |
+| Model          | $$P(y_{ik} = 1 | \{ \text{options} \}) = \dfrac{e^{\beta' x_{ik}}} {\sum_{l=1}^k e^{\beta' x_{il}}}$$ |
+| Loss           | $$LL(\beta) \\ = \displaystyle \sum_{i=1}^n \sum_{k=1}^K z_{ik} \log(P(y_{ik} = 1)) \\ = \displaystyle \sum_{i=1}^n \sum_{k=1}^K z_{ik} \log \dfrac{e^{\beta' x_{ik}}} {\sum_{l=1}^k e^{\beta' x_{il}}}$$ |
+| Explanation    | $z_{ik}$ is the training option from the dataset which is binary.<br />$x_{ik}$ is the characteristic of one training option considered. ($x_{il}$ is similar, but it includes the rest of the training option included in the choice).<br />You are tasked to provide $\beta'$ that maximises the log-likelihood.<br />The probability that option $k$ is chosen from a set of choices is $P(y_{ik} = 1)$, and this is a real number. |
+| Quality of fit | Confusion matrix<br />AIC<br />Likelihood ratio index $$1-\frac{LL(\beta)}{LL(0)}$$ |
+| Prediction     | Academy Award winners                                        |
+| Comment        | **Independence of Irrelevant Alternatives** - adding in a third alternative does not change the ratio of probabilities of two existing choxwices. (Probably it still does affect the training process?) |
+
+
+
+**Week 4b**
+
+| Method         | Mixed Logit                                                  |
+| -------------- | ------------------------------------------------------------ |
+| Target         | n-choose-1, probabilities that sum to one                    |
+| Model          | $$P(y_{ik} = 1 | \{ \text{options} \}) = ???$$               |
+| Loss           |                                                              |
+| Quality of fit |                                                              |
+| Prediction     | Preference of safety features                                |
+| Comment        | The data structure of the Academy Award is different from the safety feature options. (elaborate)<br />You can also evaluate how much people will pay for a certain extra feature, without directly getting their evaluation. (explore) |
+
+![Screen Shot 2019-10-14 at 03.23.48 AM](assets/Screen Shot 2019-10-14 at 03.23.48 AM.png)

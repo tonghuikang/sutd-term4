@@ -65,7 +65,7 @@ The leaps package in R does subset selection with the regsubsets function. By de
 library(leaps)
 ?regsubsets
 
-#hitters <- hitters[,2:21]
+hitters <- hitters[,2:21]
 model1 <- regsubsets(Salary~.,hitters)
 summary(model1) # best model up till 8 predictors
 model2 <- regsubsets(Salary~.,hitters, nvmax = 19)

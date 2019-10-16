@@ -50,6 +50,7 @@ sum(arr)
 prod(arr)
 var(arr)
 sd(arr)
+exp(arr)
 summary(arr)
 ```
 
