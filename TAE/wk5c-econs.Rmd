@@ -1,0 +1,78 @@
+---
+title: "Economic growth Notebook"
+output:
+  pdf_document: default
+  html_notebook: default
+---
+
+We will use a dataset that was used in the paper: I just ran two million regressions by Sala-I-Martin and Model uncertainty in cross country growth regression by Fernandez et. al. The dataset has 41 possible explanatory variables with 72 countries. The data consists of 43 columns with the Country, y (economic growth in per capita GDP) and 41 possible predictor variables.
+```{r results='hide'}
+rm(list=ls()) # remove all objects
+eg <- read.csv("wk5c-econs.csv")
+str(eg)
+eg1 <- subset(eg,select=-c(Country))
+str(eg1)
+```
+
+We now conduct model selection by exhaustive search. Note that we have 2^41 which is approximately 2 trillion possible regressions to run. The leaps package has some smart ways to search over this space by avoiding visiting parts of the space where the optimum cannnot exist. It employs a branch and bound algorithm to search more efficiently. This would take a few minutes to run on a laptop. The model shows the bias-variance tradeoff. We can also plot the variables identified using the plot command.
+
+```{r fig.height=7,fig.width=7}
+#library(leaps)
+# takes some time to run
+#model1 <- regsubsets(y~.,data=eg1,nvmax=41)
+
+plot(summary(model1)$rsq)
+plot(summary(model1)$adjr2)
+which.max(summary(model1)$adjr2)
+plot(model1,scale=c("adjr2"))
+# ...
+```
+We next use the forward stepwise selection method which runs much faster as should be expected. Note that the results are not identical to what we obtained with the exhaustive selection approach. 
+```{r fig.height=7,fig.width=7}
+model2 <- regsubsets(y~.,data=eg1,nvmax=41,method="forward")
+plot(summary(model2)$rsq)
+plot(summary(model2)$adjr2)
+plot(model2,scale=c("r2"))
+```
+
+Which variables are selected:
+
+```{r results='hide'}
+#summary(model1)$which
+#summary(model2)$which
+```
+
+The results indicate that with model 1, we have   
+  1) EquipInv,   
+  2) Confucian, EquipInv,   
+  3) Buddha, Confucian, EquipInv,   
+  4) YrsOpen, Confucian, Protestants, EquipInv   
+  while for model 2, we have  
+  1) EquipInv,   
+  2) Confucian, EquipInv,   
+  3) Buddha, Confucian, EquipInv,   
+  4) Buddha, Protestants, EquipInv, Confucian   
+         and so on. The results are different from the two models.
+
+-------------------------------------------------------
+
+LASSO model: The results indicate that for variables such as EquipInv, YrsOpen and Confucian for many values of lambda, these occur while some other variables such as Abslat do not show up as often. Such results help illustrate the reliabiltiy of possible predictors for economic growth and can also cast doubts on the robustness of the results for certain variables which might be proposed as being correlated with growth.
+```{r}
+library(glmnet)
+x <- as.matrix(eg1[,c(2:42)])
+grid<-10^seq(10,-2, length=100)
+model3 <- glmnet(x,eg1$y,lambda=grid)
+model3
+model4 <- glmnet(x,eg1$y)  # let the model choose the grid
+model4
+#model4$df
+#model4$beta["EquipInv",]
+#model4$beta["YrsOpen",]
+#model4$beta["Confucian",]
+#model4$beta["Abslat",]
+plot(model4)
+plot(model4,xvar="lambda")
+model4$beta !=0
+```
+
+

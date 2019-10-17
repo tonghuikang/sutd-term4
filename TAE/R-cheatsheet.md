@@ -16,6 +16,7 @@ library("caTools")
 library("mlogit")
 library("zoo")
 library("conflicted")
+library("glmnet")
 ```
 
 If you cannot, please panic.
@@ -46,6 +47,7 @@ exp(arr)
 var(arr)
 sd(arr)
 summary(arr)
+which.max(arr)
 pmax(arr,arz)  # take maximum element-wise
 arr > 1  # element-wise logical check
 ```
@@ -127,6 +129,9 @@ hitters = na.omit(hitters)
 
 # obtain a subset
 limited <- subset(poll, poll$Internet.Use == 1)
+
+# obtain a subset without a column
+eg1 <- subset(eg,select=-c(Country))
 
 # obtain a subset with 'or' logic operator
 limited <- subset(poll, poll$Internet.Use == 1|
@@ -422,5 +427,144 @@ Tabtrainmixed
 
 "The mixed logit model does a better job of predicting customers who are not interested in choosing any of the offered options compared to MNL."
 
+**Week 5a**
+
+Feature selection, based on the adjusted R-value from linear regression.
+
+```r
+# fitting linear model, exhaustive feature selection
+model2 <- regsubsets(Salary~.,
+                     hitters,
+                     nvmax=19)
+
+# fitting linear model, exhaustive feature selection
+model3 <- regsubsets(Salary~.,
+                     data=hitters,
+                     nvmax=19,
+                     method="forward")
+
+# fitting linear model, exhaustive feature selection
+model4 <- regsubsets(Salary~.,
+                     data=hitters,
+                     nvmax=19,
+                     method="backward")
+
+# getting the coefficient of the best model with n params 
+which.max(summary(model3)$adjr2)
+coef(model3,3)
+
+# heat map showing the best-n selected variables
+plot(model1,scale=c("adjr2"))
+```
 
 
+
+**Week 5b**
+
+Simpler models often tend to work better for out-of-sample predictions and so we will penalize models for excessive model complexity. 
+
+With the increase in computational power, we can partition the data set into training, validation and test sets and conduct model assessment and selection. 
+
+- The training set is used to estimate the model parameters. 
+- The validation set is used to do model selection. 
+- The test set is the evaluation set on which we will simply evaluate or check how the model performs.
+
+
+
+**Cross validation**
+
+- Simple validation set approach
+-  Leave out one cross validation (LOOCV)
+- k-fold cross validation
+
+
+
+
+
+
+
+**LASSO**
+
+Balance data fit (first term) with model complexity (second term)
+$$
+\underset{\beta}{min} 
+  \sum_{i=1}^{n} (y_i - \beta_0 - \beta_1 x_{î} - ... - 
+                  \beta_p + x_{ip})^2 +
+                  \lambda \sum_{j=1}^p |\beta_j|
+$$
+The objective coefficient in LASSO is convex and tries to roughly promote sparsity. 
+
+Advantage of LASSO is that since it is convex, the local optimum is the global optimum. 
+
+Unfortunately, objective function is not differentiable unlike standard linear regression. But there are efficient ways to solve the problem to optimality.
+
+
+Following is ridge regression. The issue with ridge regression is that it does not promote sparsity (i.e. reduce the number of variables in the model).
+
+$$
+\underset{\beta}{min} 
+  \sum_{i=1}^{n} (y_i - \beta_0 - \beta_1 x_{î} - ... - 
+                  \beta_p + x_{ip})^2 +
+                  \lambda \sum_{j=1}^p \beta_j^2
+$$
+
+Elastic Net combines both penalities.
+
+| Method         | LASSO                                                        |
+| -------------- | ------------------------------------------------------------ |
+| Target         | Number                                                       |
+| Model          | $$y_i = \beta_0 + \beta_1 x_1 + \beta_2 x_2 + ... + \epsilon_i $$ |
+| Loss           | $$ \underset{\beta}{min} \sum_{i=1}^{n} (y_i - \beta_0 - \beta_1 x_{î} - ... - \beta_p + x_{ip})^2 + \lambda \sum_{j=1}^p$$ |
+| Quality of fit | According to loss                                            |
+| Prediction     | Hitters                                                      |
+| Comments       | Choose only the statistically significant variables<br />This cannot predict binary objectives. |
+
+```r
+# loading the dataset
+library(glmnet)
+X <- model.matrix(Salary~.,hitters)
+y <- hitters$Salary
+
+# train-test split
+train <- sample(1:nrow(X),nrow(X)/2)
+test <- -train
+
+# fitting the lasso model with a specified schedule
+modellasso <- glmnet(X[train,],y[train],lambda=grid)
+
+# fitting the lasso model with a automatic grid
+modellasso <- glmnet(X[train,],y[train],lambda=grid)
+
+# show the plot of model lasso (please interpret)
+# shows the value of the coefficient against L1 norm
+plot(modellasso)           # plot against L1 Norm
+plot(model4,xvar="lambda") # plot against lambda
+model4$beta !=0            # plot with characters
+
+# prediction (what is the difference?)
+predictlasso1 <- predict(modellasso,
+                         newx=X[test,],
+                         s=100) 
+predictlasso1a <- predict(modellasso,
+                          newx=X[test,],
+                          s=100,
+                          exact=T,
+                          x=X[train,],
+                          y=y[train])
+
+# calculation of mean square error
+mean((predictlasso1-y[test])^2)
+
+# does k-fold cross-validation for glmnet, 
+# produces a plot
+# returns a value for lambda
+cvlasso <- cv.glmnet(X[train,],y[train])
+```
+
+
+
+
+
+# Misc
+
+Null deviance?

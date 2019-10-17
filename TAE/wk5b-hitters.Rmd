@@ -1,0 +1,88 @@
+---
+title: "Hitters Notebook"
+output:
+  pdf_document: default
+  html_notebook: default
+---
+
+The hitters dataset consists of 322 observations of 21 variables with the following information - X (name), AtBat, Hits, HmRun (home runs), Runs, RBI, Walks, Years, CAtBat, CHits, CHmRun, CRuns, CRBI, CWalks, League, Division, PutOuts, Assists, Errors, Salary, New League. Here League, Division and NewLeagues are factor variabes with 2 categories. We drop rows with missing entries and are left with 263 observations.
+```{r results='hide'}
+hitters <- read.csv("wk5a-hitters.csv")
+hitters<-na.omit(hitters)
+str(hitters)
+hitters <- hitters[,2:21]
+```
+
+LASSO: The generalized linear model with penalized maximum likelihood package glmnet in R implements the LASSO method. 
+
+It is an extremely efficient procedure for fitting the entire lasso or elastic-net regularization path for linear regression, logistic and multinomial regression models, Poisson regression and the Cox model.
+
+glmnet: generalized linear model via penalized maximum likelihood.
+
+To run the glmnet() function, we need to pass in the arguments as X (input matrix), y (output vector), rather than the y~X format that we used thus far. The model.matrix() function produces a matrix corresponding to the 19 predictors and the intercept and helps transform qualitative variables into dummy quantitative variables. This is important since glmnet() works only with quantitative variabes.
+```{r results='hide'}
+#install.packages("glmnet")
+library(glmnet)
+X <- model.matrix(Salary~.,hitters)
+y <- hitters$Salary
+str(X)
+```
+
+
+We now choose a range for the lambda parameters and create a training and test set. We then build the LASSO model on this data. The output from the model provides the Df (num of nonzeros betas), %Dev  and Lambda values. The deviance measure is given as 2(loglike_sat - loglike), where loglike_sat is the log-likelihood for the saturated model (a model with a free parameter per observation). Null deviance is defined to be
+2(loglike_sat - loglike(NULL)) where the NULL model refers to the intercept model only. The deviance ratio is dev.ratio=1-deviance/nulldev. As lambda decreases, the dev.ratio increases (more importance given to model fit than model complexity).
+
+
+
+```{r results='hide' }
+grid<- 10^seq(10, -2, length=100)
+grid
+set.seed(1)
+train <- sample(1:nrow(X),nrow(X)/2)
+test <- -train
+modellasso <- glmnet(X[train,],y[train],lambda=grid)
+summary(modellasso)
+modellasso
+deviance(modellasso)
+plot(modellasso)
+#plot(...)
+```
+We see from the plot that as lambda increases, many of the coefficients get close to zero. We can retrieve these coefficients as follows. Note that the number of non-zero coefficients does not change in a fully  monotonic way, as lambda increases or decreases.
+```{r results='hide'}
+modellasso$df
+#...beta
+coef(modellasso,s=5)
+```
+
+
+
+Predictions: We start with a prediction for the model fitted with lambda = 100. The test mean squared error for this model is 126478. Suppose, we change lambda to 50, we get 105908 and if we change lambda to 200, we get 177294. Note that by default if prediction is done at lambda values that are not tried in the fitting algorithm, it uses linear interpolation to make predictions. We can use exact=T in the argument to get the exact value by refitting. In addition, you need to then pass also the original training set data to the function. You get a test error of 115096 with the full model while 193253 with a very large value of lambda. Thus choosing lambda appropriately will be important in the quality of the fit. This can be done with cross-validation.
+```{r}
+modellasso$lambda
+predictlasso1 <- predict(modellasso,newx=X[test,],s=100) #s=50,200
+predictlasso1 <- predict(modellasso,newx=X[test,],s=200) #s=50,200
+mean((predictlasso1-y[test])^2)
+#?predict.glmnet
+predictlasso1a <- predict(modellasso,newx=X[test,],s=100,exact=T,x=X[train,],y=y[train])
+mean((predictlasso1a-y[test])^2)
+# s= 50, 200, 0, 10^10
+```
+
+Cross-validation: By default, you perform 10 fold cross validation. Note that glmnet uses randomization in choosing the folds which we should be able to control better by setting the seed to be the same. The optimal value of lambda found from cross validation is 22.18. 
+
+```{r results='hide'}
+set.seed(2)
+?cv.glmnet
+cvlasso <- cv.glmnet(X[train,],y[train])
+cvlasso$glmnet.fit
+cvlasso$cvm
+
+cvlasso$lambda
+```
+You can plot the lambda parameter with the cross-validated mean error (cvm). We see that the best fit from model with the optimal lambda gives a much smaller error on the test set than the model which is based on complete linear regression or the model with only an intercept. We can print out the coefficients to identify that 7 variables are chosen (excluding the intercept).
+```{r}
+plot(cvlasso$lambda,cvlasso$cvm)
+predictlassocv <- predict(modellasso,s=22.18,newx=X[test,])
+mean((predictlassocv-y[test])^2)
+coef(modellasso,s=22.18)
+```

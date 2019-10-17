@@ -7,6 +7,10 @@ output:
 
 Bias variance tradeoff
 
+Test MSE = Variance of Estimator + Squared Bias + Variance of Squared Term
+Complex model: typically high variance and low bias
+Simple model: Low variance but high bias
+
 Bias of the model versus variance of the estimator.
 $$
 \begin{align}
