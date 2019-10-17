@@ -2,7 +2,7 @@
 #The data are in an SQLite database file called "NewExtract". The product information has been disguised.
 
 ####################### Part I: Link R to SQL Starts ######################################
-
+```{r}
 #### Prep: Load R package; Set working directory; Load the database to R
 # Remove all variables from the R environment to create a fresh start
 rm(list=ls())
@@ -22,7 +22,10 @@ if(!require(stats)){
   install.packages("stats")
   library(stats)
 }
+```
 
+
+```{r}
 # Similarly, we need to change the working directory to the directory where we want to read and save data
 # Define a variable, wd, with a string describing the path to the directory where we want to read and save data
 # Change this to meet your needs.!!!!!!!!!
@@ -54,8 +57,10 @@ testRSQLite <- function(){
 # Run the next statement (without the comment #) if you want a quick test
 #testRSQLite()
 
+```
 
 
+```{r}
 #### Execute SQL queries in R
 # Let's create a function to grab data from our database according to a query we provide. This will be useful.
 getExtract <- function(query){
@@ -72,8 +77,10 @@ getExtract <- function(query){
 }
 # Run the next statement to test the getExtract function
 getExtract("SELECT * FROM NewExtract LIMIT 20")
+```
 
 
+```{r}
 #Execute Statements One at a Time
   # Define a query to aggregate actual sales by region
   query <- "select region,sum(actual) as TotalActual from NewExtract group by region order by sum(actual) desc"
@@ -92,9 +99,10 @@ getExtract("SELECT * FROM NewExtract LIMIT 20")
   # Which plot pattern do you like best?
 
 ####################### Part I: Link R to SQL Starts Ends######################################
+```
 
 
-
+```{r}
 ####################### Part II: Forecasting in R Starts ######################################
 # In part II, we will run different kinds of forecast for a specific product in the database
 
@@ -112,7 +120,10 @@ getExtractProduct <- function(region, segment, family, subfamily, beforepkg, aft
   #return the result
   result
 }
+```
 
+
+```{r}
 # call the function getExtractProduct to grab the data for a specific product
   # Let's focus on region R031 (Why?)
   region <- "R031"
@@ -125,7 +136,9 @@ getExtractProduct <- function(region, segment, family, subfamily, beforepkg, aft
   afterpkg <- "A001"
   # Grab all the data for this product using function getExtractProduct defined above
   result <- getExtractProduct(region, segment, family, subfamily, beforepkg, afterpkg)
-  
+```
+
+```{r}
 # Note that the database has provided the company's forecast in the column "forecast"
 # We first plot the actual demand against the company's forecast for comparison
 forecasts <- result$forecast
@@ -139,7 +152,11 @@ forecasts <- result$forecast
   # You could also plot the actual against forecast by uncomment the command below
   # plot(actuals,forecasts)
   # So, the forecasts are not good. 
-  
+```
+
+
+
+```{r}
 # Let's develop a quantitative measure of forecast accuracy.
   errors <- forecasts-actuals
   # Take the absolute difference of forecasts versus actuals.
@@ -161,8 +178,9 @@ forecasts <- result$forecast
   # And this is the largest selling product in the largest segment in the largest region!
   # The forecast errors for smaller selling products will likely be much worse.
 ####################### Grab data for a specific product Ends ###################################### 
+```
 
-
+```{r}
 # Next we try different forecasting methods in R
 ############################ Moving Average Forecasting Starts  ###################################################
   # The moving average technique takes a vector of weights over a certain number of periods. Let's do a moving average over three periods.
@@ -178,7 +196,9 @@ forecasts <- result$forecast
   class(maforecasts)
   forecasts <- as.numeric(maforecasts)
   str(forecasts)
-  
+```
+
+```{r}
 # Plot the data
   # Omit the first few entries in actuals which has not predictions
   actualsnew <- tail(actuals, length(forecasts))
@@ -188,7 +208,9 @@ forecasts <- result$forecast
   # Now add the corporate forecasts as red circles
   points(forecasts,col=c("red"))
   title("Moving Average 3")
+```
 
+```{r}
 # Calculate the quantitative measure of forecast accuracy.
   errors <- forecasts-actualsnew
   # Take the absolute difference of forecasts versus actuals.
@@ -208,7 +230,9 @@ forecasts <- result$forecast
   WAPE
   # So, the Weighted Average Percent Error is about 22%. That is much better.
 ############################  Moving Average Forecasting Ends ###################################################
+```
 
+```{r}
 # We try another powerful technique Holt-Winters method.
 ############################  Holt-Winters method Starts ###################################################
 
@@ -217,7 +241,9 @@ forecasts <- result$forecast
   tsactuals <- ts(actuals,frequency=12)
   str(tsactuals)
   plot(tsactuals)
+```
 
+```{r}
 # Here we try three Holt-Winters methods
 # We first try Holt-Winters with just exponential smoothing (beta=False,gamma=FALSE)
 ################# Holt-Winters with just exponential smoothing (beta=False,gamma=FALSE) #################
@@ -226,7 +252,33 @@ forecasts <- result$forecast
   hwfitted <- fitted(hw)[,1]
   # The fitted values are a time series so we convert it to numeric (and round them to whole numbers for simplicity).
   forecasts <- round(as.numeric(fitted(hw)[,1]))
-    
+```
+
+```{r}
+# Here we try three Holt-Winters methods
+# We first try Holt-Winters with just exponential smoothing (beta=False,gamma=FALSE)
+################# Holt-Winters with just exponential smoothing (beta=False,gamma=FALSE) #################
+  hw <- HoltWinters(tsactuals, beta=FALSE,gamma=FALSE)
+  # THe Holt Winters data structure is complicated. We want to extract the first column of the fitted values.
+  hwfitted <- fitted(hw)[,1]
+  # The fitted values are a time series so we convert it to numeric (and round them to whole numbers for simplicity).
+  forecasts <- round(as.numeric(fitted(hw)[,1]))
+```
+
+
+
+```{r}
+# Here we try three Holt-Winters methods
+# We first try Holt-Winters with just exponential smoothing (beta=False,gamma=FALSE)
+################# Holt-Winters with just exponential smoothing (beta=False,gamma=FALSE) #################
+  hw <- HoltWinters(tsactuals, beta=FALSE,gamma=FALSE)
+  # THe Holt Winters data structure is complicated. We want to extract the first column of the fitted values.
+  hwfitted <- fitted(hw)[,1]
+  # The fitted values are a time series so we convert it to numeric (and round them to whole numbers for simplicity).
+  forecasts <- round(as.numeric(fitted(hw)[,1]))
+```
+
+```{r}
 # Plot the Holt-Winters forecasts
 # The fitted values are missing the first entry, so we the first entries in actuals which has not predictions
   actualsnew <- tail(actuals, length(forecasts))
@@ -236,7 +288,9 @@ forecasts <- result$forecast
   # Now add the corporate forecasts as red circles
   points(forecasts,col=c("red"))
   title("Exponential Smoothing")
+```
 
+```{r}
 # Calculate the quantitative measure of forecast accuracy.
   errors <- forecasts-actualsnew
   # Take the absolute difference of forecasts versus actuals.
@@ -254,8 +308,10 @@ forecasts <- result$forecast
   # Practitioners multiply the relative absolute error this by 100 to get what they call the WAPE (Weighted Average Percent Error)
   WAPE <- relativeabsoluteerror*100
   WAPE
+```
 
 
+```{r}
 # We secondly try Holt-Winters without seasonality (double exponential smoothing (gamma=FALSE)
 ################# Holt-Winters without seasonality (gamma=FALSE) #################
   # Now call the Holt-Winters function without seasonality (gamma=FALSE). This is equivalent to double exponential smoothing.
@@ -266,9 +322,9 @@ forecasts <- result$forecast
   forecasts <- round(as.numeric(fitted(hw)[,1]))
 
 ####################Input your code for plotting and calculating WAPE ##########
+```
 
-
-
+```{r}
 # Finally we try the full Holt-Winters
 ################# Holt-Winters Forecasting #################
 ####################Input your code for forecasting using Holt-Winters ##############
@@ -287,4 +343,26 @@ forecasts <- result$forecast
 ############################  Holt-Winters method Ends ###################################################
 
 ####################### Part II: Forecasting in R Ends ######################################
+```
+
+
+  
+
+
+
+
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
 
