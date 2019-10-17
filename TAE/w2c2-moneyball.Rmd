@@ -49,7 +49,7 @@ The dataset consists of 420 observations of 17 variables consisting of:
 - RankPlayoffs (Rank in playoffs) 
 
 ```{r}
-baseball <- read.csv("w2c2-baseball.csv")
+baseball <- read.csv("w2c2-moneyball.csv")
 str(baseball)
 summary(baseball)
 ```

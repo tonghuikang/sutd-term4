@@ -178,7 +178,9 @@ The ROCR package is useful for visualizing the performance of classifier. The pr
 ```{r}
 #install.packages("ROCR")
 library(ROCR)
+?prediction
 ROCRpred <- prediction(Pred[1:138],orings$Field[1:138])
+ROCRpred
 
 ?performance
 ROCRperf <- performance(ROCRpred,x.measure="fpr",measure="tpr")

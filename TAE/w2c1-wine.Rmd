@@ -46,7 +46,12 @@ The scatter plot indicates a negative relationship but there is considerable var
 Use plot() or ggplot()
     pairs.panels() or pairs()
 ```{r}
-ggplot(wine, aes(VINT,LPRICE)) + pairs.panels(wine, ellipses=F, lm =T, breaks=10, hist.col="blue")
+ggplot(wine, aes(VINT,LPRICE)) + 
+  pairs.panels(wine, 
+               ellipses=F, 
+               lm =T, 
+               breaks=10, 
+               hist.col="blue")
 ```
 
 Split the data set into a training dataset from 1952 to 1978 (drop 1954 and 1956 since prices are not observable) and we use the test set from 1979 onwards. Note that for the test set however we only have prices till 1980 (so in this case we can only use 1979 and 1980) to test the model.
@@ -104,7 +109,6 @@ summary(model4)
 Two variables - The effect of DEGREES and HRAIN on LPRICE.
 ```{r}
 br<-mean(winetrain$LPRICE)
-
 ggplot(winetrain,aes(DEGREES,HRAIN,color=cut(LPRICE,c(-Inf,-1.42,Inf)))) + 
   geom_point(na.rm=T) + 
   scale_color_discrete(name = "LPRICE",
@@ -147,6 +151,7 @@ We can run the model by dropping VINT but this decreases R^2 to 0.75 and adjuste
 
 We can obtain confidence intervals for the estimates using the confint command.
 ```{r}
+attributes(model7)
 model7$coefficients
 model7$residuals
 confint(model7)

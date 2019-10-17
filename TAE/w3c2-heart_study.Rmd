@@ -71,7 +71,8 @@ library(caTools)
 ?sample.split
 set.seed(1)
 split <- sample.split(framing1$TENCHD,SplitRatio=0.65)  # 50% to 80%
-#split
+split
+?sample.split
 training <- subset(framing1,split==TRUE)
 test <- subset(framing1,split==FALSE)
 mean(training$TENCHD)
@@ -107,7 +108,7 @@ CM
 Accuracy = (CM[1,1]+CM[2,2])/sum(CM)
 Accuracy
 
-BaseAccuracy =  (sum(CM[1:2,1]))/sum(CM)
+BaseAccuracy = (sum(CM[1:2,1]))/sum(CM)
 BaseAccuracy
 
 Sensitivity = (CM[1,1])/sum(CM[1:2,1])

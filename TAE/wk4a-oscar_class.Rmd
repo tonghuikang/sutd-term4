@@ -115,7 +115,7 @@ Data Analysis
 
 
 ```{r}
-oscars<- read.csv("wk4-oscars.csv")
+oscars<- read.csv("wk4a-oscars.csv")
 str(oscars)
 #View(oscars)
 summary(oscars)
@@ -328,7 +328,7 @@ __Use Discrete Choice Models to predict Oscar winners__
 Load the package from Multinomial Logit
 ```{r}
 options(repos="https://cran.rstudio.com" )
-install.packages("mlogit")
+# install.packages("mlogit")
 ```
 
 
@@ -380,8 +380,9 @@ Say we use the data frame from 1944 to 2006 to develop the logit model.
 
 ```{r}
 library(zoo)
-library(conflicted)
+# library(conflicted)
 base::as.Date(32768, origin = "1900-01-01")
+subset(oscarsPP, Year <=2006)
 D1 <- mlogit.data(subset(oscarsPP, Year <=2006), 
                   choice="Ch", 
                   shape="long", 
@@ -438,7 +439,7 @@ D1_new <- mlogit.data(subset(oscarsPP, Year==2007),
                       choice="Ch", 
                       shape="long", 
                       alt.var="Mode")
-Predict2 <- predict(MPP2, newdata= D1_new)
+Predict2 <- predict(MPP2, newdata=D1_new)
 Predict2
 ```
 
@@ -508,8 +509,6 @@ for(i in 1960:2006){
 }
 Predict
 Fail
-
-
 ```
 
 
