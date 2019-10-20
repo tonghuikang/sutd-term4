@@ -64,6 +64,22 @@ The course timeline is organised into three themes - incept, develop, launch.
 
 
 
+### Readings
+| Week                    | Title | Intention    |
+| -------------------------------- | ---- | -------------------------------- |
+| 3    | Lean startup | Introduction |
+| 4    | Bigbelly | Product |
+| 5    | Zipcar | Service |
+| 6    | Dropbox | Software |
+| 8    |    |    |
+| 9    |    |    |
+| 10   |     |     |
+| 11   |     |     |
+| 12   |  |  |
+
+
+
+
 ### Project Details
 
 https://www.tech-entrepreneurship.com/projects

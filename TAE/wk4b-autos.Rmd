@@ -48,6 +48,7 @@ Need to keep beta the same within an individual - "panel data"
 
 ```{r, results='hide'}
 safety <- read.csv("wk4b-autos.csv")
+safety
 #str(safety)
 #View(safety)
 #summary(safety)

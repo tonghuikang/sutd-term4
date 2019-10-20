@@ -2,6 +2,8 @@
 
 Design innovation fellow. Studied prototyping process.
 
+## FIrst session
+
 **Overview of sharing**
 
 - Value of prototypes 
@@ -124,3 +126,40 @@ Acccumulate evidence of the voice of customers
 
 Examples of vanity metrics - Facebook likes
 
+
+
+## Second session
+
+Key challenges faced in entrepreneurship - resource constraint and uncertainty.
+
+**Flexibility to address uncertainty**
+Increase the number of options to explore and capture value, limit potential. 
+
+However options has a price. You need to build coherence between options - for example the mechanical parts.
+
+Potential platform (made up of low-uncertainty compontent) and product family. Different combinations of components create many options (?).
+
+Consider the difference between iOS and Andriod. Closed platform and small product family vs open platform and large product family.
+
+The capability of a product to be redesigned 
+
+Determinants of whether a design is flexible enough for future evolution.
+- how components are connected with each other
+- the interface between them
+- the form of the components themselves
+
+Guidelines to increase modularity (to allow alternative designs, it is modular when there is a one-to-one mapping between function elements to component)
+- use separate modules to carry out function that are not closely related
+- confine functions to single modules
+- confine functions to as few unique components as possible
+- divide modules to multiple smaller identical modules
+- collect parts which are not anticipated
+
+Guidelines to decouple features (you might want to do that when everything is facing uncertainty)
+- ???
+
+Guidelines to reduces parts
+- use repeating parts (e.g. Dell blade servers for rapid response)
+
+Guidelines for spatial consideration
+- create room

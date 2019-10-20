@@ -34,7 +34,7 @@ Refer to the the 'Run' option on the top right of this window to see the shortcu
 - Run all `Opt + Cmd + R`
 - New R Cell `Cmd + Opt + I`
 
-
+<div style="page-break-after: always;"></div> 
 ## Basics
 
 Please refer to [R-basics](./R-basics.pdf) for the very basic operations on R. 
@@ -63,8 +63,10 @@ w <- as.character(z1)
 as.integer(w)  # returns array of NA
 ```
 
+<div style="page-break-after: always;"></div> 
 **Matrices**
 The matrix operations may require some explanation.
+
 - definition `x<-matrix(c(3,-1,2,-1),nrow=2, ncol=2)`
 - e-wise multiplication `x*x`, `x*2`
 - matrix multiplication `x%*%x`
@@ -94,8 +96,7 @@ base::as.Date(32768, origin = "1900-01-01")
 MPP2 <- mlogit(Ch~Nom+Dir+GG+PGA-1, data=D1)
 ```
 
-
-
+<div style="page-break-after: always;"></div> 
 ## Data management basics
 
 Obtained from R-basics.
@@ -121,6 +122,7 @@ tapply(limited$Info.On.Internet,
 sum(is.na(poll$Internet.Use))
 ```
 
+<div style="page-break-after: always;"></div> 
 **Data manipulation**
 ```r
 # remove rows with any (?) NA variables
@@ -144,7 +146,6 @@ test <- subset(framing1,split==FALSE)
 ```
 
 **Data plotting**
-
 ```r
 # plot a histogram
 hist(limited$Age)
@@ -165,7 +166,7 @@ stars(as.matrix(swiss[,c(2,3,5,6)]),
       axes = T)
 ```
 
-
+<div style="page-break-after: always;"></div> 
 **Plotting with ggplot**
 ```r
 library(ggplot2)
@@ -250,6 +251,8 @@ t.test(oscars$Nom[oscars$PP==1 & oscars$Ch==1],
        oscars$Nom[oscars$PP==1 & oscars$Ch==0],
        alternative = c("greater"))
 ```
+
+<div style="page-break-after: always;"></div> 
 # Linear regression
 
 **Week 2**
@@ -276,8 +279,7 @@ pred <- predict(model1,
                 type="response")  # not sure if correct
 ```
 
-
-
+<div style="page-break-after: always;"></div> 
 **Week 3**
 
 | Method         | Logistic Regression                                          |
@@ -290,6 +292,7 @@ pred <- predict(model1,
 | Prediction     | Space shuttle failures<br />Risk of heart disease            |
 | Comment        |                                                              |
 
+<div style="page-break-after: always;"></div> 
 ```r
 # fitting logisitic model (family = binomial)
 model3 <- glm(Field~Temp+Pres,
@@ -317,8 +320,7 @@ plot(ROCRperf,
 as.numeric(performance(ROCRpred,measure="auc")@y.values)
 ```
 
-
-
+<div style="page-break-after: always;"></div> 
 **Week 4a**
 
 | Method         | Multinomial Logit                                            |
@@ -331,6 +333,7 @@ as.numeric(performance(ROCRpred,measure="auc")@y.values)
 | Prediction     | Academy Award winners                                        |
 | Comment        | **Independence of Irrelevant Alternatives** - adding in a third alternative does not change the ratio of probabilities of two existing choxwices. (Probably it still does affect the training process?) |
 
+<div style="page-break-after: always;"></div> 
 ```r
 # (on data with the multiple choices over different rows)
 library("mlogit")
@@ -351,6 +354,7 @@ D1_new <- mlogit.data(subset(oscarsPP, Year==2007),
 Predict2 <- predict(MPP2, newdata=D1_new)
 ```
 
+<div style="page-break-after: always;"></div> 
 ```r
 # (on data with the multiple choices on one row)
 library(mlogit)
@@ -384,8 +388,7 @@ Tabtrain
 
 The willingness to pay can be observed from the survey, even though we do not directly ask the customers' valuation. When the model is fitted, the price has a negative coefficient while the safety features usually have a positive coefficient. The ratio of the coefficients is the price that customers on the average is willing the pay. The deviation can be observed the from standard error.
 
-
-
+<div style="page-break-after: always;"></div> 
 **Week 4b**
 
 | Method         | Mixed Logit                                                  |
@@ -395,12 +398,13 @@ The willingness to pay can be observed from the survey, even though we do not di
 | Loss           | `???`                                                        |
 | Quality of fit | Log-likelihood<br />Confusion matrix<br />Likelihood ratio index $$=1-\frac{LL(\beta)}{LL(0)}$$<br />AIC $=-2LL(\beta) + 2p$ (number of paramters is now double) |
 | Prediction     | Preference of safety features                                |
-| Comment        | The data structure of the Academy Award is different from the safety feature options. (elaborate)<br />You can also evaluate how much people will pay for a certain extra feature, without directly getting their evaluation. (explore) |
+| Comment        | The data structure of safety feature options is different from the Academy Award. (elaborate)<br />You can also evaluate how much people will pay for a certain extra feature, without directly getting their evaluation. (explore) |
 
 ![Screen Shot 2019-10-14 at 03.23.48 AM](assets/Screen Shot 2019-10-14 at 03.23.48 AM.png)
 
+<div style="page-break-after: always;"></div> 
 ```r
-#(please prepare S, the mlogit.data)
+#(please prepare S, the mlogit.data as per 4a second part)
 
 # fitting mixed logistic model
 M1 <- mlogit(Choice~CC+GN+NS+BU+FA+LD+
@@ -427,6 +431,7 @@ Tabtrainmixed
 
 "The mixed logit model does a better job of predicting customers who are not interested in choosing any of the offered options compared to MNL."
 
+<div style="page-break-after: always;"></div> 
 **Week 5a**
 
 Feature selection, based on the adjusted R-value from linear regression.
@@ -457,8 +462,7 @@ coef(model3,3)
 plot(model1,scale=c("adjr2"))
 ```
 
-
-
+<div style="page-break-after: always;"></div> 
 **Week 5b**
 
 Simpler models often tend to work better for out-of-sample predictions and so we will penalize models for excessive model complexity. 
@@ -474,15 +478,10 @@ With the increase in computational power, we can partition the data set into tra
 **Cross validation**
 
 - Simple validation set approach
--  Leave out one cross validation (LOOCV)
+- Leave out one cross validation (LOOCV)
 - k-fold cross validation
 
-
-
-
-
-
-
+<div style="page-break-after: always;"></div> 
 **LASSO**
 
 Balance data fit (first term) with model complexity (second term)
@@ -492,9 +491,9 @@ $$
                   \beta_p + x_{ip})^2 +
                   \lambda \sum_{j=1}^p |\beta_j|
 $$
-The objective coefficient in LASSO is convex and tries to roughly promote sparsity. 
+The objective coefficient in LASSO is convex and tries to roughly promote sparsity.
 
-Advantage of LASSO is that since it is convex, the local optimum is the global optimum. 
+Advantage of LASSO is that since it is convex, the local optimum is the global optimum.
 
 Unfortunately, objective function is not differentiable unlike standard linear regression. But there are efficient ways to solve the problem to optimality.
 
@@ -519,6 +518,7 @@ Elastic Net combines both penalities.
 | Prediction     | Hitters                                                      |
 | Comments       | Choose only the statistically significant variables<br />This cannot predict binary objectives. |
 
+<div style="page-break-after: always;"></div> 
 ```r
 # loading the dataset
 library(glmnet)

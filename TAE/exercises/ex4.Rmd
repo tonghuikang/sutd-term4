@@ -1,0 +1,94 @@
+QUESTION 1
+---------------------------------------
+
+```{r}
+heating <- read.csv("heating.csv")
+heating
+
+library("mlogit")
+```
+
+```{r}
+S <- mlogit.data(heating, shape="wide", choice="depvar", 
+                 varying=c(3:12), alt.levels = c("gc", "gr", "ec", "er", "hp"), 
+                 id.var = "idcase")
+S
+M <- mlogit(depvar~ic+oc-1, data = S)
+summary(M)
+```
+
+```{r}
+0.00458008/0.00623187
+
+S$lcc <- S$ic + S$oc/0.12
+S
+
+M1 <- mlogit(depvar~lcc-1, data = S)
+summary(M1)
+
+library(lmtest)
+lrtest(M, M1)
+```
+
+
+```{r}
+S$iic <- S$ic/S$income
+M3 <- mlogit(depvar ~ oc + iic, data=S)
+summary(M3)
+```
+
+```{r} 
+summary(mlogit(depvar ~ oc + ic | income, data=S, reflevel = "hp"))
+```
+
+```{r}
+summary(mlogit(depvar ~ oc + ic | income, data=S))
+```
+
+QUESTION 2
+---------------------------------------
+
+```{r}
+electricity <- read.csv("electricity.csv")
+electricity
+```
+
+```{r}
+S <- mlogit.data(electricity, 
+                 shape="wide", 
+                 choice="choice", 
+                 varying=c(3:26),
+                 sep="",
+                 id.var="id")
+S
+```
+
+```{r}
+?mlogit
+Ma <- mlogit(choice~pf+cl+loc+wk+tod+seas-1, 
+             rpar = c(pf='n',cl='n',loc='n',wk='n',tod='n',seas='n'),
+             data=S, panel=TRUE,
+             print.level=TRUE)
+summary(Ma)
+```
+
+```{r}
+0.1800805/0.8486024
+```
+```{r}
+?pnorm
+pnorm(0, Ma$coefficients["cl"], Ma$coefficients["sd.cl"])
+pnorm(0, Ma$coefficients["pf"], Ma$coefficients["sd.pf"])
+```
+```{r}
+Mb <- mlogit(choice~pf+cl+loc+wk+tod+seas-1, 
+             rpar = c(cl='n',loc='n',wk='n',tod='n',seas='n'),
+             data=S, panel=TRUE,
+             print.level=TRUE)
+summary(Mb)
+```
+
+```{r}
+
+```
+
