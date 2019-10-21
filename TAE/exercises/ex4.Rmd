@@ -88,7 +88,5 @@ Mb <- mlogit(choice~pf+cl+loc+wk+tod+seas-1,
 summary(Mb)
 ```
 
-```{r}
 
-```
 
