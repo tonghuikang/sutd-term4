@@ -1,31 +1,33 @@
 # Question 1
+
+a
 ```{r}
 UScrime <- read.csv("UScrime.csv")
 UScrime
 UScrime$States[which.min(UScrime$Crime)]
 UScrime$States[which.max(UScrime$Crime)]
 ```
-
+b
 ```{r}
 mean(subset(UScrime, UScrime$Po1 > 8)$Crime)
 mean(subset(UScrime, UScrime$Po1 <= 8)$Crime)
 ```
-
+c,d
 ```{r}
 ?t.test
 t.test(subset(UScrime, UScrime$Po1 > 8)$Crime, 
        subset(UScrime, UScrime$Po1 <= 8)$Crime, 
        alternative="two.sided")
 ```
-
+e
 ```{r}
 UStrain <- subset(UScrime[1:42,], select=-States)
-m1e = lm(Crime~Po1, data=UScrime)
+UStest <- subset(UScrime[43:47,], select=-States)
+m1e = lm(Crime~Po1, data=UStrain)
 summary(m1e)
 ```
-
+f
 ```{r}
-UStest <- subset(UScrime[43:47,], select=-States)
 preds <- predict(m1e, 
                 newdata = UStest, 
                 type="response", 
@@ -34,18 +36,20 @@ preds <- predict(m1e,
 
 UScrime[43:47,]$States
 preds
-UScrime[44,]$Crime
-UScrime[46,]$Crime
+UStest[2,]$Crime
+UStest[4,]$Crime
 ```
-
+h
 ```{r}
 m1h = lm(Crime~., data=UStrain)
 summary(m1h)
 ```
+i,j
 ```{r}
 m1i = lm(Crime~M+Ed+Ineq, data=UStrain)
 summary(m1i)
 ```
+k
 ```{r}
 library(leaps)
 m1k <- regsubsets(Crime~., UStrain)
@@ -55,16 +59,13 @@ max(summary(m1k)$adjr2)
 which.max(summary(m1k)$adjr2)
 coef(m1k,which.max(summary(m1k)$adjr2))
 ```
-
+l
 ```{r}
 max(summary(m1k)$bic)
 which.max(summary(m1k)$bic)
 coef(m1k,which.max(summary(m1k)$bic))
 ```
-
-
-
-          
+m
 ```{r}
 m1m <- regsubsets(Crime~., UStrain, method="forward")
 summary(m1m)
@@ -72,7 +73,7 @@ max(summary(m1k)$bic)
 which.max(summary(m1k)$bic)
 coef(m1k,which.max(summary(m1k)$bic))
 ```
-
+n
 ```{r}
 # https://stackoverflow.com/questions/37314192/error-in-r-no-applicable-method-for-predict-applied-to-an-object-of-class-re
 # loaded before exam, told TA on Wednesday
@@ -88,14 +89,14 @@ pred <- predict(m1k, id=which.max(summary(m1k)$adjr2),
                 type="response")
 sum((pred - UStest$Crime)**2)
 ```
-
+o
 ```{r}
 pred <- predict(m1k, id=which.max(summary(m1k)$bic),
                 newdata=UStest,
                 type="response")
 sum((pred - UStest$Crime)**2)
 ```
-
+p
 ```{r}
 pred <- predict(m1m, id=which.max(summary(m1k)$bic),
                 newdata=UStest,
@@ -109,21 +110,22 @@ sum((pred - UStest$Crime)**2)
 songs <- read.csv("songs.csv")
 songs
 ```
-
+a
 ```{r}
 subset(songs, songs$artistname=="Michael Jackson")
 subset(songs, songs$artistname=="Michael Jackson" & songs$Top10==1)
 ```
-
+b
 ```{r}
 table(songs$timesignature)
 ```
-
+c
 ```{r}
 SongsTrain <- subset(songs, songs$year<=2008)
 SongsTest <- subset(songs, songs$year==2009 | songs$year==2010)
+dim(SongsTest)
 ```
-
+d,e
 ```{r}
 nonvars = c("year", "songtitle", "artistname", "songID", "artistID")
 SongsTrain = SongsTrain[,!(names(SongsTrain)%in%nonvars)]
@@ -131,26 +133,27 @@ SongsTrain = SongsTest[,!(names(SongsTest)%in%nonvars)]
 
 m2d <- glm(Top10~., data=SongsTrain, family=binomial)
 summary(m2d)
+summary(m2d)$aic
 ```
-
+f
 ```{r}
 cor(SongsTrain$loudness, SongsTrain$energy)
 ```
-
+g
 ```{r}
 m2g <- glm(Top10~., 
            data=subset(SongsTrain, select=-loudness), 
            family=binomial)
 summary(m2g)
 ```
-
+h
 ```{r}
 m2h <- glm(Top10~., 
            data=subset(SongsTrain, select=-energy), 
            family=binomial)
 summary(m2h)
 ```
-
+i
 ```{r}
 preds <- predict(m2h, 
                  newdata=SongsTest, 
@@ -159,18 +162,18 @@ plot(preds)
 preds_bin = as.integer(preds>0.4)
 sum(preds_bin)
 table(preds_bin, SongsTest$Top10)
-(710 + 57) / (710 + 57 + 30 + 59)
+(710 + 57) / length(SongsTest$Top10)
 
 sum(SongsTest$Top10)
 length(SongsTest$Top10)
 1 - sum(SongsTest$Top10)/length(SongsTest$Top10)
 ```
-
+j
 ```{r}
 57/(57+59)
 710/(710+30)
 ```
-
+k
 ```{r}
 library(ROCR)
 ROCRpred <- prediction(preds, SongsTest$Top10)
@@ -178,11 +181,11 @@ ROCRpref <- performance(ROCRpred, x.measure="fpr", measure="tpr")
 plot(ROCRpref)
 as.numeric(performance(ROCRpred, measure = "auc")@y.values)
 ```
-
+(display)
 ```{r}
 summary(m2h)
 ```
-
+l
 ```{r}
 m2l <- glm(Top10~pitch + timbre_0_min + timbre_0_max + 
              timbre_3_min + timbre_3_max +
@@ -194,17 +197,15 @@ summary(m2l)
 preds2 <- predict(m2l, 
                  newdata=SongsTest, 
                  type="response")
-plot(preds2)
 preds_bin2 = as.integer(preds2>0.4)
 sum(preds_bin2)
 table(preds_bin2, SongsTest$Top10)
 (712+53)/length(preds_bin2)
 ```
-
-
+m
 ```{r}
-53/(28+53)
-712/(63+712)
+53/(63+53)
+712/(28+712)
 ```
 
 ```{r}
