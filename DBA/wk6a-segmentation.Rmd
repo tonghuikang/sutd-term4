@@ -1,0 +1,42 @@
+```{r}
+credit_data <- read.csv("wk6a-credit.csv")
+credit_data
+```
+```{r}
+pairs(credit_data[,c(5,9:14)], 
+      pch = 19, 
+      cex = 0.5,
+      col=credit_data$Status)
+```
+
+```{r}
+library(psych)
+pairs.panels(credit_data[,c(5,9:14)], 
+             density = TRUE,
+             pch = 19, 
+             cex = 0.1,
+             col=credit_data$Status)
+```
+      
+```{r}
+cor(credit_data[,c(5,9:14)])
+```
+
+```{r}
+#install.packages("tree")
+library(tree)
+```
+
+
+Use the function tree to create a decision tree.
+
+```{r}
+tree.credit = tree(Status~., data = credit_data)
+summary(tree.credit)
+```
+
+Plot the decision tree.
+
+```{r}
+plot(tree.credit); text(tree.credit, pretty=0)
+```
