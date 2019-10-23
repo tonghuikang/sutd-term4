@@ -1,0 +1,189 @@
+```{r}
+df_1 <- read.csv("baseballlarge.csv")
+df_1
+```
+
+
+```{r}
+length(table(df_1$Year))
+```
+
+
+```{r}
+df_1a3 = subset(df_1, df_1$Playoffs==1)
+df_1a3
+```
+```{r}
+table(df_1a3$Year)
+```
+```{r}
+NumCompetitors = table(df_1a3$Year)
+NumCompetitors
+df_1a3$NumCompetitors <- table(df_1a3$Year)[as.character(df_1a3$Year)]
+df_1a3
+```
+
+```{r}
+df_1a3$WorldSeries = as.integer(df_1a3$RankPlayoffs == 1)
+```
+
+```{r}
+m1d <- glm(WorldSeries~Year+RS+RA+W+OBP+SLG+BA+RankSeason+NumCompetitors-1, 
+           data=df_1a3, family=binomial)
+summary(m1d)
+```
+
+# Question 2
+
+```{r}
+Parole <- read.csv("Parole.csv")
+Parole
+sum(Parole$Violator)
+```
+
+```{r}
+pairs(Parole)
+```
+
+```{r}
+set.seed(144)
+library(caTools)
+split <- sample.split(Parole$Violator, SplitRatio = 0.7)
+train <- subset(Parole, split == TRUE)
+test <- subset(Parole, split == FALSE)
+```
+
+```{r}
+m2e <- glm(Violator~., data=train, family= binomial)
+summary(m2e)
+```
+
+
+```{r}
+test_new = test[0:1,]
+test_new[1,] = list(1,
+                1, 
+                50.0, 
+                "Kentucky", 
+                as.double(3), 
+                as.integer(12), 
+                as.integer(0), 
+                "Larceny", 
+                0)
+test[0:1,]
+preds = predict(m2e, newdata = test_new, type = "response")
+
+max(preds)
+```
+
+```{r}
+preds = predict(m2e, newdata = test, type = "response")
+preds
+pred_bin = as.integer(preds > 0.5)
+pred_bin
+table(pred_bin, test$Violator)
+```
+
+```{r}
+library(ROCR)
+ROCRpred <- prediction(preds, test$Violator)
+ROCRperf <- performance(ROCRpred,x.measure="fpr",measure="tpr")
+plot(ROCRperf)
+
+as.numeric(performance(ROCRpred, measure="auc")@y.values)
+```
+
+# Question 3
+
+```{r}
+germancredit <- read.csv("germancredit.csv")
+set.seed(2019)
+library(caTools)
+spl <- sample.split(germancredit$resp, 0.75)
+training <- subset(germancredit, spl==TRUE)
+test <- subset(germancredit, spl==FALSE)
+germancredit
+```
+
+```{r}
+M3b <- glm(resp~1, data=germancredit, family=binomial)
+sum(germancredit$resp)
+M3b
+```
+
+```{r}
+M3d <- glm(resp~., data=training, family=binomial)
+summary(M3d)
+logLik(M3d)
+p_val_3 <- summary(M3d)$coefficients[,4]
+p_val_3
+sig_vars_3 <- names(p_val_3[p_val_3 <= 0.01])
+sig_vars_3
+```
+```{r}
+M3dh <- glm(as.formula(paste0("resp ~ ",
+                        paste0(sig_vars_3, collapse = " + "),
+                        "- 1")), 
+            data=training, family=binomial)
+summary(M3dh)
+logLik(M3dh)
+```
+
+Skipped the rest of the questions because I did not obtain the correct values.
+
+# Question 4
+
+```{r}
+closeAllConnections()
+rm(list=ls())
+pres <- read.csv("presidential.csv")
+pres
+```
+
+```{r}
+table(pres$WIN)
+table(pres$REP)
+table(pres$DEM)
+```
+```{r}
+t.test(pres$WIN, pres$GOOD)
+```
+```{r}
+pres$WININC = as.integer(pres$INC == pres$WIN)
+pres
+```
+
+```{r}
+table(pres$WININC)
+```
+
+```{r}
+m4f <- glm(WININC~GROWTH, data = pres, family=binomial)
+summary(m4f)
+logLik(m4f)
+```
+
+```{r}
+
+pres$WIN = as.integer(pres$WIN == -1)
+pres$GROWTH = pres$GROWTH*pres$INC
+pres$GOOD = pres$GOOD*pres$INC
+pres
+```
+
+```{r}
+M4i = glm(WIN~INC+RUN+DUR+GROWTH+GOOD, data=pres, family=binomial)
+summary(M4i)
+```
+
+```{r}
+M4k = glm(WIN~RUN+DUR+GROWTH-1, data=pres, family=binomial)
+summary(M4k)
+```
+
+
+```{r}
+colname = setNames(list(0,1,1), c("RUN", "DUR", "GROWTH"))
+
+1-predict(M4k, newdata=colname, type="response")
+```

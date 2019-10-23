@@ -1,0 +1,40 @@
+```{r}
+df1 = read.csv("Auto.csv")
+df1$horsepower = as.numeric(as.character(df1$horsepower))
+df1
+```
+
+```{r}
+pairs(df1)
+```
+
+```{r}
+m1b = lm(mpg~horsepower, data=df1)
+summary(m1b)
+```
+
+
+```{r}
+predict(m1b, newdata = data.frame(horsepower=98), 
+        interval=c("confidence"),
+        level=.99)
+```
+
+```{r}
+cor(df1$mpg, df1$horsepower, use = "pairwise.complete.obs")^2
+```
+
+```{r}
+library("ggplot2")
+ggplot(df1,aes(horsepower,mpg)) +
+  geom_point(na.rm=T) +
+  geom_smooth(method="lm",na.rm=T,se=F)
+```
+```{r}
+library(ggfortify)
+autoplot(m1b)
+```
+
+```{r}
+cor(subset(df1,select=-c(name)))
+```

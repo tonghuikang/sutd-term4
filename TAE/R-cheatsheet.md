@@ -270,7 +270,7 @@ t.test(oscars$Nom[oscars$PP==1 & oscars$Ch==1],
 # fitting linear model
 model1  <- lm(LPRICE~VINT+HRAIN,
               data=winetrain)
-summary(model1)
+summary(model1)w
 confint(model7, level=0.99)  # see confidence interval
 
 # predicting values with model
@@ -286,11 +286,33 @@ pred <- predict(model1,
 | -------------- | ------------------------------------------------------------ |
 | Target         | Binary, probability                                          |
 | Model          | $$P(y_i = 1) = \dfrac{1}{1+e^{-(\beta_0 + \beta_1 x_1 + \beta_2 x_2 + ...+ \epsilon_i )}}$$ |
-| Loss           | $$LL(\beta) \\ = \displaystyle \sum_{i=1}^n \sum_{k=1}^2 y_{ik} \log \left( P(y_{ik} = 1) \right)\\= \displaystyle \sum_{i=1}^n \sum_{k=1}^2 y_{ik} \log \left( \frac{e^{\beta' x_i}} {e^{1+\beta' x_i}} \right) $$ |
-| Explanation    | x log x', sum for x=1 and x=0 (elaborate)                    |
+| Loss           | $$LL(\beta) \\ = \displaystyle \sum_{i=1}^n \sum_{k=1}^2 y_{ik} \log \left( P(y_{ik} = 1) \right)\\= \displaystyle \sum_{i=1}^n \sum_{k=1}^2 y_{ik} \log \left( \dfrac{e^{\beta' x_{ik}}} {\sum_{l=1}^k e^{\beta' x_{il}}} \right) $$ |
+| Explanation    | $x \log (x')$, sum over $x=1$ and $x=0$ (elaborate)          |
 | Quality of fit | $$AIC = -2LL(\hat{\beta}) + 2(p+1)$$<br />Confusion matrix<br />AUC-ROC |
 | Prediction     | Space shuttle failures<br />Risk of heart disease            |
 | Comment        |                                                              |
+<div style="page-break-after: always;"></div> 
+
+**Confusion matrices**
+
+Names  | Predict = 0 | Predict = 1 
+--------------- | ------------------- | ------------------- 
+**Actual = 1** | False Negative (FN) | True Positive (TP)  
+**Actual = 0** | True Negative (TN)  | False Positive (FP) 
+
+<img src="assets/confusion_on_logistic.png" alt="confusion_on_logistic" style="zoom:50%;" />
+
+
+ Name                  | Alt Name             | Formula                           
+ --------------------- | -------------------- | --------------------------------- 
+ False Positive Rate   | Type I error         | $\frac{FP}{FP+TN}$                
+ True Negative Rate    | Specificity          | $\frac{TN}{FP+TN}$                
+ True Positive Rate    | Sensitivity, Recall  | $\frac{TP}{TP+FN}$                
+ False Negative Rate   | Type II error        | $\frac{FN}{TP+FN}$                
+ Precision             |                      | $\frac{TP}{TP + FP}$              
+ **Compiled measures** |                      |                                   
+ Overall Accuracy      |                      | $\frac{TP+TN}{FP + FN + TP + TN}$ 
+ ROC Curve             | Plot TPR against FPR |                                    
 
 <div style="page-break-after: always;"></div> 
 ```r

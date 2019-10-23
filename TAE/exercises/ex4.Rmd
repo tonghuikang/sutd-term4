@@ -89,4 +89,63 @@ summary(Mb)
 ```
 
 
+# Question 4
+
+```{r}
+df_4 <- read.csv("College.csv")
+df_4
+```
+```{r}
+set.seed(1)
+trainid_4 <- sample(1:nrow(df_4), 0.8*nrow(df_4))
+testid_4 <- -trainid_4
+train_4 <- df_4[trainid_4,]
+test_4 <- df_4[testid_4,]
+```
+
+```{r}
+M4b <- lm(Apps~., data=train_4)
+summary(M4b)
+pred <- predict(M4b,
+                newdata = test_4,
+                type = "response")
+mean(M4b$residuals^2)  # SSE
+mean((pred - test_4$Apps)**2)
+```
+
+```{r}
+library(leaps)
+M4c <- regsubsets(Apps~., data=train_4, nvmax=19, method="backward")
+summary(M4c)
+```
+
+
+```{r}
+plot(summary(M4c)$adjr2)
+which.max(summary(M4c)$adjr2)
+coef(M4c,13)
+```
+
+```{r}
+# https://stackoverflow.com/questions/37314192/error-in-r-no-applicable-method-for-predict-applied-to-an-object-of-class-re
+predict.regsubsets = function(object, newdata, id, ...) {
+    form = as.formula(object$call[[2]])
+    mat = model.matrix(form, newdata)
+    coefi = coef(object, id = id)
+    mat[, names(coefi)] %*% coefi
+}
+
+pred <- predict(M4c, id=13,
+                newdata=test_4,
+                type="response")
+pred - test_4$Apps
+
+
+```
+
+
+```{r}
+plot(M4c, scale=c("adjr2"))
+```
+
 
