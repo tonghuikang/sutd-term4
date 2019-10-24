@@ -62,6 +62,7 @@ rm(list=ls())
 AirPassengers
 plot(AirPassengers)
 plot(HoltWinters(AirPassengers))
+plot(HoltWinters(AirPassengers, beta=FALSE))
 plot(HoltWinters(AirPassengers, gamma=FALSE))
 plot(HoltWinters(AirPassengers, gamma=FALSE, beta=FALSE))
 ```

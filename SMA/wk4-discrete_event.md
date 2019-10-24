@@ -93,7 +93,7 @@ Open Jaamsim
 
 Open Jaamsim with loaded file 
 ```bash
-/Library/Java/JavaVirtualMachines/adoptopenjdk-8.jdk/Contents/Home/bin/java -jar JaamSim2019-10.jar Cafe_Model_Example.cfg -tag
+/Library/Java/JavaVirtualMachines/adoptopenjdk-8.jdk/Contents/Home/bin/java -jar JaamSim2019-10.jar Cafe_Model_Example.cfg
 ```
 
 

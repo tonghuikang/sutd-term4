@@ -260,6 +260,7 @@ t.test(oscars$Nom[oscars$PP==1 & oscars$Ch==1],
 | Method         | Linear Regression                                            |
 | -------------- | ------------------------------------------------------------ |
 | Target         | Number                                                       |
+| Predicts       | Number                                                       |
 | Model          | $$y_i = \beta_0 + \beta_1 x_1 + \beta_2 x_2 + ... + \epsilon_i $$ |
 | Loss           | Mean square error                                            |
 | Quality of fit | R-square<br />Adjusted R-square<br />AIC                     |
@@ -284,7 +285,8 @@ pred <- predict(model1,
 
 | Method         | Logistic Regression                                          |
 | -------------- | ------------------------------------------------------------ |
-| Target         | Binary, probability                                          |
+| Target         | Binary                                                       |
+| Predicts       | Probability                                                  |
 | Model          | $$P(y_i = 1) = \dfrac{1}{1+e^{-(\beta_0 + \beta_1 x_1 + \beta_2 x_2 + ...+ \epsilon_i )}}$$ |
 | Loss           | $$LL(\beta) \\ = \displaystyle \sum_{i=1}^n \sum_{k=1}^2 y_{ik} \log \left( P(y_{ik} = 1) \right)\\= \displaystyle \sum_{i=1}^n \sum_{k=1}^2 y_{ik} \log \left( \dfrac{e^{\beta' x_{ik}}} {\sum_{l=1}^k e^{\beta' x_{il}}} \right) $$ |
 | Explanation    | $x \log (x')$, sum over $x=1$ and $x=0$ (elaborate)          |
@@ -292,7 +294,6 @@ pred <- predict(model1,
 | Prediction     | Space shuttle failures<br />Risk of heart disease            |
 | Comment        |                                                              |
 <div style="page-break-after: always;"></div> 
-
 **Confusion matrices**
 
 Names  | Predict = 0 | Predict = 1 
