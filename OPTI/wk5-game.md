@@ -32,9 +32,7 @@ When the game only have one outcome each player would not choose any other outco
 
 **Mixed strategy** 
 
-Made up of a set of probailities. The row player can play different rows with a probability that does not change.
-Objective - to **maximise guaranteed payoff**.
-Intuition - the opponent will detect the strategy, and the guaranteed payoff will converge.
+Instead of always choosing an option, choose a set of options randomly at a specified probability. As we consider the long-term payoff of the game, any strategy is assumed to known by the opponent who will play optimally.
 
 ![Screenshot 2019-10-14 at 11.40.48 AM](assets/Screenshot 2019-10-14 at 11.40.48 AM.png)
 
@@ -42,7 +40,7 @@ Intuition - the opponent will detect the strategy, and the guaranteed payoff wil
 
 **The linear programming problem for row player**
 
-maximise guaranteed payoff
+Objective: maximise guaranteed payoff of the row player
 
 $$
 \begin{align}
@@ -85,7 +83,7 @@ z = 1/9$$
 
 **The linear programming problem for column player**
 
-Minimising the guaranteed payoff of column player
+Objective: minimise the guaranteed payoff of column player
 $$
 \begin{align}
 \min \max\{E(R_1),E(R_2),E(R_3)\} \\ 
