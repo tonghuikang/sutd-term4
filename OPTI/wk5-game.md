@@ -1,10 +1,12 @@
-# Strategy game
+# Strategy Games
 
-Zero sum game.
+**Two-player zero-sum game**
 
 ![Screenshot 2019-10-14 at 11.12.43 AM](assets/Screenshot 2019-10-14 at 11.12.43 AM.png)
 
 
+
+**Guaranteed payoff**
 
 To maximise guaranteed payoff, row player would play row 3.
 
@@ -12,7 +14,7 @@ To maximise guaranteed payoff, row player would play row 3.
 
 
 
-Dominating strategies
+**Dominating strategies**
 
 ![Screenshot 2019-10-14 at 11.17.29 AM](assets/Screenshot 2019-10-14 at 11.17.29 AM.png)
 
@@ -20,13 +22,17 @@ Dominating strategies
 
 
 
-Saddle point - when the game only have one outcome each player would not choose any other outcome.
+**Saddle point**
+
+When the game only have one outcome each player would not choose any other outcome.
 
 ![Screenshot 2019-10-14 at 11.22.48 AM](assets/Screenshot 2019-10-14 at 11.22.48 AM.png)
 
 
 
-Mixed strategy - made up of a set of probailities. The row player can play different rows with a probability that does not change. 
+**Mixed strategy** 
+
+Made up of a set of probailities. The row player can play different rows with a probability that does not change.
 Objective - to **maximise guaranteed payoff**.
 Intuition - the opponent will detect the strategy, and the guaranteed payoff will converge.
 
@@ -154,3 +160,11 @@ $$
 \min \max &\qquad \{3p - 2(1-p), 2p + 1(1-p)\}
 \end{align}
 $$
+
+(please add?)
+
+
+
+**Formulating games as LP problems**
+
+Each player can decide on a combination of decisions before the games commence. (Example from cohort - combinations of decisions of whether to pass or bet on head and tails). The strategy is to assign a probability to each combination.

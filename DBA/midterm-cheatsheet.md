@@ -79,12 +79,14 @@ There are two types of join `INNER JOIN` and `LEFT JOIN`.
 Which employee serves the most number of customers?
 
 ```SQL
-  SELECT Employee.FirstName, 
-         Employee.LastName,
-         COUNT(Customer.CustomerId) AS CustomerNo
-    FROM Employee INNER JOIN Customer
-      ON Employee.EmployeeId = Customer.SupportRepId
-GROUP BY Employee.EmployeeId
+  SELECT ee.FirstName, 
+         ee.LastName,
+         COUNT(cs.CustomerId) AS CustomerNo
+    FROM Employee as ee
+         INNER JOIN 
+         Customer as cs
+      ON ee.EmployeeId = cs.SupportRepId
+GROUP BY ee.EmployeeId
 ORDER BY CustomerNo DESC
 ```
 
@@ -100,24 +102,22 @@ SELECT Artist.Name,
                Track ON InvoiceLine.TrackId = Track.TrackId
            )
            INNER JOIN
-           Album ON Track.AlbumId = Album.AlbumId
+           Album 
+        ON Track.AlbumId = Album.AlbumId
        )
        INNER JOIN
-       Artist ON Album.ArtistId = Artist.ArtistId
+       Artist 
+    ON Album.ArtistId = Artist.ArtistId
  GROUP BY Artist.Name
  ORDER BY ArtistSales DESC;
 ```
 
 **Common errors**
-Forgetting a comma in the middle of an array.
-Please create a new table first, if you want to modify data.
+- Forgetting a comma in the middle of an array.
+- Please create a new table first, if you want to modify data.
 
 <div style="page-break-after: always;"></div>
 # Regression with R (10-20m)
-
-Correlation is not causation.
-
-**Week 2**
 
 | Method         | Linear Regression                                            |
 | -------------- | ------------------------------------------------------------ |
@@ -127,8 +127,6 @@ Correlation is not causation.
 | Loss           | Mean square error                                            |
 | Quality of fit | R-square<br />Adjusted R-square<br />AIC                     |
 | Comments       | Choose only the statistically significant variables<br />This cannot predict binary objectives |
-
-**Week 3**
 
 | Method         | Logistic Regression                                          |
 | -------------- | ------------------------------------------------------------ |
@@ -165,8 +163,8 @@ Pretty obvious, just take the average of last $n$ elements.
 A | B | Forecast $\hat{x}_n$ | Actual $x_n$ 
 -------------------------------------------- | ---------------------------------------------- | -------------------- | ------------ 
 -| - | - | 700    
- 700                                          | 50 (asmp)                                      | 750                  | 760          
- $(1-\alpha) \cdot 750 \\+  \alpha \cdot 760$ | $(1-\beta) \cdot 50 \\+ \beta \cdot a_n$       | 802.2                | 800          
+ 700                                          | 50 (asmp, default 0)                  | 750                  | 760          
+ $(1-\alpha) \cdot 750 \\+  \alpha \cdot 760$ | $(1-\beta) \cdot 50 \\+ \beta \cdot (a_n - a_{n-1})$ | 802.2                | 800          
                                               |                                                |                      |              
  $A_2$                                        | $B_2$                                          | $F$                  | $X$          
  $A_3 = (1-\alpha) F \\ \qquad + \alpha X$    | $B_3 = (1-\beta)B_2 \\ \qquad +\beta(A_2-A_3)$ | $A_3 + B_3$          | - 
@@ -179,7 +177,7 @@ plot(HoltWinters(AirPassengers, gamma=FALSE, beta=TRUE))
 ```
 
 <div style="page-break-after: always;"></div>
-# Throughput Analysis (10-20m)
+# Process Analysis (10-20m)
 
 ### Performance measures
 
@@ -223,18 +221,32 @@ It slows down the whole process, limits the process capacity, leads to low utili
 <div style="page-break-after: always;"></div>
 # Parallel Coordinates (10-15m)
 
-Follow the instructions get the parallel coordinates plot. The visualisation is written with d3.js.
+**Standard operating procedures**
 
-Use the brushing co-ordinates to filter.
+- "high Y is associated with high/low X1, X2, X3"
+- "low Y is associated with low/high X1, X2, X3"
+- "the converse is not true: low Y have both high and low X2"
+- "with the exception of the first year of the study..."
 
-- To select a random sample, choose a selection of IDs. 
-  - This assumes that the IDs is random.
-- Sometimes two variables when combined provides a strong outcome
-- Any way to automate the search process?
+
+
+**Common talking points**
+
+- answer the question "with a focus on understanding what may cause enrollments to increase"
+- causation is not correlation
+- consider causation in the other direction
+- "the fact that many of the variables are correlated with time makes drawing conclusions difficult" - inflation, income growth
+- irrelevant factors should be ignored
+- "the data are consistent with many different theories"
+- sometimes two variables when combined provides a strong outcome
+
+
 
 
 # GIS (0-5m)
 Geographical decisions - point, line, area/polygon. Polygon layer should be at the bottom, so that it will not cover the line or point layer.
+
+**X is longitude, Y is latitude**
 
 **Layers and Features**
 
@@ -248,29 +260,28 @@ Geographical decisions - point, line, area/polygon. Polygon layer should be at t
 
 
 <div style="page-break-after: always;"></div>
-# Functional modelling (15-20m)
-![Screenshot 2019-09-26 at 1.38.52 PM](assets/Screenshot 2019-09-26 at 1.38.52 PM.png)
+# Miscellaneous 
 
-Function needs to be a **verb phrase** expressing capability the system must process. A function is in a box.
+**Correlation**
 
-Every arrow needs to be labelled with a **noun phrase**.
+Pearson’s Correlation Coefficient 
+$$
+r = \frac{
+\sum_{i=1}^n (x_i-\bar{x})(y_i-\bar{y})
+}{
+\sqrt{\sum_{i=1}^n (x_i-\bar{x})^2}
+\sqrt{\sum_{i=1}^n (y_i-\bar{y})^2}
+} \qquad
+-1 \leq r \leq 1
+$$
 
-Classification of ICOR
+**Decision Tree**
 
-- "input" vs "control".
-- "resource" vs "output" 
-
-Examples
-
-- You will take X as an "input".
-- You will "control" Y
-- You will "use" an algorithm - resource/mechanism.
-
-Formatting rules (also what Prof PJ likes)
-
-- flowchart lines with rounded corners
-- line segments must be vertical or horizontal
-- closed arrowheads
-- no more than six functions per page
-- arrange in a waterfall (not necessarily a waterfall process?)
-- each page contains a diagram and a title
+Which tree to select - one that classifies at least one category perfectly.
+```r
+credit_data <- read.csv("wk6a-credit.csv")
+plot(creditdata[,c(5,9:14)])  # scatterplot matrix
+library(tree)
+tree.credit = tree(Status~., data = credit_data)
+plot(tree.credit); text(tree.credit, pretty=0);
+```

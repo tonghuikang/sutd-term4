@@ -10,4 +10,37 @@
 - Bivariate relationships are summarized by the correlation coefficient
 
 
-Which tree to select - select one that classifies at least one category perfectly.
+
+Motivation: Too many subjects in your data (i.e. customers, products) 
+
+ABC analysis: a method of analysis that divides the subject up into three categories: A, B and C. 
+- A: The top categories which together account for 80% of the data 
+- B: The next 15% 
+- C: The bottom 5% (there can be a lot of these) 
+- Example: A-products are your fastest selling, C-products move the slowest.
+
+
+
+**Correlation**
+
+Pearson’s Correlation Coefficient 
+$$
+r = \frac{
+\sum_{i=1}^n (x_i-\bar{x})(y_i-\bar{y})
+}{
+\sqrt{\sum_{i=1}^n (x_i-\bar{x})^2}
+\sqrt{\sum_{i=1}^n (y_i-\bar{y})^2}
+} \qquad
+-1 \leq r \leq 1
+$$
+
+**Decision Tree**
+
+Which tree to select - one that classifies at least one category perfectly.
+```r
+credit_data <- read.csv("wk6a-credit.csv")
+plot(creditdata[,c(5,9:14)])  # scatterplot matrix
+library(tree)
+tree.credit = tree(Status~., data = credit_data)
+plot(tree.credit); text(tree.credit, pretty=0);
+```
