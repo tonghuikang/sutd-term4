@@ -287,8 +287,8 @@ This applies for all constraint-solution pair, and solution-constraint pair.
 
 <div style="page-break-after: always;"></div> 
 **Weak Duality Theorem**
-Condition
 
+Condition
 - $\bar{x}$ is a feasible solution to the primal 
 - $\bar{y}$ is a feasible solution to the dual
 
@@ -371,7 +371,13 @@ Made up of a set of probailities. The row player can play different rows with a 
 Objective - to **maximise guaranteed payoff**.
 Intuition - the opponent will detect the strategy, and the guaranteed payoff will converge.
 
-![Screenshot 2019-10-14 at 11.40.48 AM](assets/Screenshot 2019-10-14 at 11.40.48 AM.png)
+<img src="assets/Screenshot 2019-10-14 at 11.40.48 AM.png" alt="Screenshot 2019-10-14 at 11.40.48 AM" style="zoom: 67%;" />
+
+Solution: $$
+p_1 = 7/18, \enspace 
+p_2 = 5/8, \enspace 
+p_3 = 1/3, \enspace
+z = 1/9$$
 
 <div style="page-break-after: always;"></div> 
 **The linear programming problem for row player**
@@ -388,12 +394,13 @@ $$
 
 where
 $$
-\begin{align}
-E(C_1) &= -2p_1 + 2p_2 +  p_3& \\
-E(C_2) &=  2p_1 -  p_2       & \\
-E(C_3) &=   p_1        - 2p_3&
-\end{align}
+\begin{alignat*}{4}
+E(C_1) & {}={} &-2p_1 & {}+{} &2p_2 &{}+{} &p_3 \\
+E(C_2) & {}={} &  p_1 & {}-{} & p_2 &{} {}       \\
+E(C_3) & {}={} & 2p_1 & {} {} &     &{}-{} &2p_3
+\end{alignat*}
 $$
+
 
 Formulating as a linear programming problem
 $$
@@ -409,14 +416,6 @@ $$
 
 (This is a relaxation because they are not exactly equivalent, because $z$ could be any value besides $E(C_1), E(C_2), E(C_3)$)
 
-Solution: $$
-p_1 = 7/18, \enspace 
-p_2 = 5/8, \enspace 
-p_3 = 1/3, \enspace
-z = 1/9$$
-
-
-
 **The linear programming problem for column player**
 
 Objective: minimise the guaranteed payoff of column player
@@ -429,12 +428,14 @@ q_1, q_2, q_3 &\geq 0
 $$
 
 where
+
+
 $$
-\begin{align}
-E(C_1) &= -2q_1 + q_2 +  2q_3& \\
-E(C_2) &=  2q_1 - q_2       & \\
-E(C_3) &=  2q_1        - 2q_3&
-\end{align}
+\begin{alignat*}{4}
+E(R_1) & {}={} &-2q_1 & {}+{} &q_2 &{}+{} &2q_3 \\
+E(R_2) & {}={} & 2q_1 & {}-{} &q_2 &{} {}       \\
+E(R_3) & {}={} & 2q_1 & {} {} &    &{}-{} &2q_3
+\end{alignat*}
 $$
 
 Formulating as a linear programming problem

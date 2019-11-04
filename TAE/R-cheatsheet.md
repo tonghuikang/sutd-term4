@@ -584,10 +584,67 @@ mean((predictlasso1-y[test])^2)
 cvlasso <- cv.glmnet(X[train,],y[train])
 ```
 
+<div style="page-break-after: always;"></div> 
+**Week 8**
 
+| Method         | CART |
+| -------------- | ---- |
+| Target         | ?    |
+| Model          | ?    |
+| Loss           | ?    |
+| Quality of fit | ?    |
+| Prediction     | ?    |
+| Comments       | ?    |
 
+<div style="page-break-after: always;"></div> 
+**Week 9**
 
+| Method         | Random Forests    |
+| -------------- | ---- |
+| Target         | ?    |
+| Model          | ?    |
+| Loss           | ?    |
+| Quality of fit | ?    |
+| Prediction     | ?    |
+| Comments       | ?    |
 
-# Misc
+<div style="page-break-after: always;"></div> 
+**Week 10**
 
-Null deviance?
+| Method         | Clustering    |
+| -------------- | ---- |
+| Target         | ?    |
+| Model          | ?    |
+| Loss           | ?    |
+| Quality of fit | ?    |
+| Prediction     | ?    |
+| Comments       | ?    |
+
+<div style="page-break-after: always;"></div> 
+**Week 11**
+
+| Method         | Filtering    |
+| -------------- | ---- |
+| Target         | ?    |
+| Model          | ?    |
+| Loss           | ?    |
+| Quality of fit | ?    |
+| Prediction     | ?    |
+| Comments       | ?    |
+
+<div style="page-break-after: always;"></div> 
+**Week 11**
+
+| Method         | SVD    |
+| -------------- | ---- |
+| Target         | ?    |
+| Model          | ?    |
+| Loss           | ?    |
+| Quality of fit | ?    |
+| Prediction     | ?    |
+| Comments       | ?    |
+
+<div style="page-break-after: always;"></div> 
+Week 12. Optimisiation with Julia. Prescriptive analysis rather than descriptive.
+
+For competition in week 13, please form your groups.
