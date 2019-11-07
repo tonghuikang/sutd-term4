@@ -37,7 +37,7 @@ Week 8 in consultation
 
 No mid-term exam, some lesson during that time instead.
 
-
+In the final exam - one or two problems will be from part I - on event graph simulation.
 
 Tutorials and Assignments (15%) 
 

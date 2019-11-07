@@ -1,0 +1,19 @@
+```{r}
+GenInverseTransform <- function(inv.f, n){
+  U = runif(n,0,1)
+  sample <- inv.f(U)
+  return(sample)
+}
+
+inv.f <- function(u) - log(1-u)
+sample <- GenInverseTransform(inv.f, 1e5)
+
+hist(sample, breaks=50, freq=FALSE)
+```
+
+```{r}
+inv.f <- function(u) ifelse(u<0.5, sqrt(2*u), 2-sqrt(2-2*u))
+sample <- GenInverseTransform(inv.f, 1e5)
+hist(sample, breaks=50, freq=FALSE)
+```
+

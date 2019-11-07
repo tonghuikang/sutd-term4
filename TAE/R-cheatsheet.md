@@ -1,4 +1,4 @@
-# R cheatsheet
+R cheatsheet
 
 (Please refer to DBA on the reasons to use R)
 
@@ -17,6 +17,8 @@ library("mlogit")
 library("zoo")
 library("conflicted")
 library("glmnet")
+library("rpart")
+library("rpart.plot")
 ```
 
 If you cannot, please panic.
@@ -271,7 +273,7 @@ t.test(oscars$Nom[oscars$PP==1 & oscars$Ch==1],
 # fitting linear model
 model1  <- lm(LPRICE~VINT+HRAIN,
               data=winetrain)
-summary(model1)w
+summary(model1)
 confint(model7, level=0.99)  # see confidence interval
 
 # predicting values with model
@@ -587,14 +589,46 @@ cvlasso <- cv.glmnet(X[train,],y[train])
 <div style="page-break-after: always;"></div> 
 **Week 8**
 
-| Method         | CART |
-| -------------- | ---- |
-| Target         | ?    |
-| Model          | ?    |
-| Loss           | ?    |
-| Quality of fit | ?    |
-| Prediction     | ?    |
-| Comments       | ?    |
+| Method         | CART                                    |
+| -------------- | --------------------------------------- |
+| Target         |                                         |
+| Model          |                                         |
+| Loss           | Does not attempt to find global minimum |
+| Quality of fit | ?                                       |
+| Prediction     | Supreme Court decision?                 |
+| Comments       | ?                                       |
+
+As the optimisation for global minimum is not computationally feasible, we use a heuristic approach instead.
+$$
+\underset{\{R\}}{\min} \sum_{m=1}^M \sum_{i \in R_m} (y_i - \hat{y}_{R_M})^2
+$$
+
+Start with all observations in one region.
+
+Choose predictor and cut-point such that
+$$
+\underset{\{p\}}{\min} \underset{S}{\min}
+\left[
+\sum_{i: x_{is} \leq S} (y_i - \hat{y}_{R_1})^2
++
+\sum_{i: x_{is} > S} (y_i - \hat{y}_{R_1})^2
+\right]
+$$
+
+or other metric of performance such as entropy.
+
+Solve a sequence of locally optimal problems with exhaustive search. The cut point is one of the the data points, along one of the dimensions.
+
+Repeat each branch iteratively. Exit the branch when one exit condition is met.
+- For example, each prescribed bucket of leaves reached the prescribed minimum size. 
+
+Note that all observations belong to a single sub-region beyond which greedy splits are made at each step without looking necessarily at the best split that might lead to a better tree in future steps (greedy strategy) - in other words, local optimum at each step may not provide the global optimum.
+
+
+
+There is a trade-off between the model interpretability and performance on the training set - interpretability and fit on the training set. 
+
+To control the bias-variance trade-off (or, simply, the model complexity), CARTs use prepruning and pruning.
 
 <div style="page-break-after: always;"></div> 
 **Week 9**
@@ -605,31 +639,19 @@ cvlasso <- cv.glmnet(X[train,],y[train])
 | Model          | ?    |
 | Loss           | ?    |
 | Quality of fit | ?    |
-| Prediction     | ?    |
+| Prediction     | Social media |
 | Comments       | ?    |
 
 <div style="page-break-after: always;"></div> 
 **Week 10**
 
-| Method         | Clustering    |
+| Method         | Clustering/Filtering |
 | -------------- | ---- |
 | Target         | ?    |
 | Model          | ?    |
 | Loss           | ?    |
 | Quality of fit | ?    |
-| Prediction     | ?    |
-| Comments       | ?    |
-
-<div style="page-break-after: always;"></div> 
-**Week 11**
-
-| Method         | Filtering    |
-| -------------- | ---- |
-| Target         | ?    |
-| Model          | ?    |
-| Loss           | ?    |
-| Quality of fit | ?    |
-| Prediction     | ?    |
+| Prediction     | Recommmender Systems |
 | Comments       | ?    |
 
 <div style="page-break-after: always;"></div> 
@@ -641,7 +663,7 @@ cvlasso <- cv.glmnet(X[train,],y[train])
 | Model          | ?    |
 | Loss           | ?    |
 | Quality of fit | ?    |
-| Prediction     | ?    |
+| Prediction     | Images |
 | Comments       | ?    |
 
 <div style="page-break-after: always;"></div> 

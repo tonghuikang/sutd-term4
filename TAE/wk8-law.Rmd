@@ -1,50 +1,95 @@
+# Script for Week 8a
 
-# Script for Week 8 -- session 1 (in-class activity)
+Lesson notes
+- Parametric and non-parametric models
+
+Parametric - the mathematical functions relating predictors and output.
+Non-parametric - divide the predictors space into small regions and then use simple models.
+
+Terminologies in decision tree
+- Root node
+- Branch
+- Leaf, bucket, terminal
+- Decisions, made with one variable and one cut-point
+
+The regions are non-overlapping (divide into small regions),  
+Classification - majority vote.
+Regression - take average.
+
+Benefits of a decision tree
+- (Small) decision trees are relatively easy to interpret.
+- Flexible - can be used to predict continuous, binary and multiclass. 
+- Computationally efficient for the preformance.
 
 
-######## Set the working environemnt
+Start with all observations in one region.
+Choose predictor and cut-point such that
 
-# Remove all variables from the R environment to create a fresh start
-rm(list=ls())
+$$
+\underset{\{p\}}{\min} \underset{S}{\min}
+\left[
+\sum_{i: x_{is} \leq S} (y_i - \hat{y}_{R_1})
++
+\sum_{i: x_{is} > S} (y_i - \hat{y}_{R_1})
+\right]
+$$
 
-# Set the working folder
-# getwd()
-# setwd("...")
+Solve a sequence of locally optimal problems with exhaustive search. The cut point is one of the the data points, along one of the dimensions.
 
+Repeat until one exit condition is met.
+- For example, the minimum size of the bucket of leaves
 
-######## Data Preparation
+$$
+\underset{\{R\}}{\min} \sum_{m=1}^M \sum_{i \in R_m} (y_i - \hat{y}_{R_M})^2
+$$
 
+## Data Preparation
+```{r}
 # Load the data on the supreme court
-supreme <- read.csv("supreme.csv") # We have 623 observations and 20 variables
+supreme <- read.csv("wk8-law.csv") # We have 623 observations and 20 variables
 head(supreme) # First part of the dataframe
 # str(supreme) # Internal structure of the dataframe 
-# summary(supreme) # Summary of the data
+summary(supreme) # Summary of the data
+```
 
-# A few comments on the data:
-# docket: case number
-# term: year the case was discussed
-# party_1 and party_2: parties involved in the case
-# rehndir stevdir ocondir scaldir kendir soutdir thomdir gindir brydir: direction of the judgement of the 9 judges
-# (i.e., Rehquist, Stevens, O'Connor, Scalia, Kennedy, Souter, Thomor, Ginsburg, Breyen). 0 means liberal, 1 conservative. 
-# 9 indicates that the vote is not available for the case.
-# petit: petitioner type
-# respon: respondant type
-# circuit: circuit of origin
-# uncost: binary number indicating if the petitioner argued constitutionality of a law or practice
-# lctdir: lower court direction of results (liberal or conservative)
-# issue: area of issue
-# result: 0 means liberal, 1 conservative.
+0 if a liberal decision was made, 1 if a conservative decision was made.
 
+A few comments on the data:
+- docket: case number
+- term: year the case was discussed
+- party_1 and party_2: parties involved in the case
+- rehndir stevdir ocondir scaldir kendir soutdir thomdir gindir brydir: direction of the judgement of the 9 judges
+- (i.e., Rehquist, Stevens, O'Connor, Scalia, Kennedy, Souter, Thomor, Ginsburg, Breyen). 0 means liberal, 1 conservative. 
+- 9 indicates that the vote is not available for the case.
+- petit: petitioner type
+- respon: respondant type
+- circuit: circuit of origin
+- uncost: binary number indicating if the petitioner argued constitutionality of a law or practice
+- lctdir: lower court direction of results (liberal or conservative)
+- issue: area of issue
+- result: 0 means liberal, 1 conservative.
+
+
+```{r}
 # Let's now focus on a specific judge, say Stevens (we remove data with no entry from Stevens--Stevens was present)
-stevens <- subset(supreme[,c("docket","term","stevdir","petit","respon","circuit","unconst","lctdir","issue","result")],supreme$stevdir!=9)
+stevens <- subset(supreme[,c("docket","term","stevdir","petit",
+                            "respon","circuit","unconst",
+                            "lctdir","issue","result")],
+                  supreme$stevdir!=9)
+```
 
+# This creates a new variable ($rev) in the dataframe that takes a value of 
+- 1 if Stevens decision reverses the lower court decision
+- 0 if the judge affirms the lower court decision. 
+Note that a similar analysis can be done for the other judges or for the overall case result.
+```{r}
 # Processing the output result to affirm or reverse for judge Stevens
 stevens$rev <- as.integer((stevens$lctdir=="conser" & stevens$stevdir==0) | (stevens$lctdir=="liberal" & stevens$stevdir==1))
-# This creates a new variable ($rev) in the dataframe that takes a value of 1 if Stevens decision reverses the lower court decision
-# and 0 if the judge affirms the lower court decision. Note that a similar analysis can be done for the other judges or for the overall case result.
 table(stevens$rev)
+```
 
 
+```{r}
 ######## Modelling exercise: logistic regression
 
 # Let's prepare the data for our modelling exercise
@@ -62,14 +107,36 @@ test <- subset(stevens,spl==FALSE); # table(test$rev)
 # There is only one realization of the IR value (Interstate Relations), which does not
 # appear in the training dataset. Let's thus modify the test dataset as follows:
 test <- subset(test,test$issue!="IR")
+test
+```
 
-# Logistic regression
-# We predict judge Stevens' decision 
-m1 <- ...
+
+We predict judge Stevens' decision based on logistic regression
+```{r}
+m1 <- glm(rev~unconst+rev+petit+circuit+lctdir+issue,
+          data=train,
+          family="binomial")
 summary(m1)
 # let's now try to make a prediction on the test data
-p1 <- ...
+p1 <- predict(m1,
+              newdata=test,
+              type="response")
 
+t <- table(p1 >= 0.5, test$rev)
+t
+(t[1,1] + t[2,2]) / sum(t)
+
+library(ROCR)
+ROCRpred <- prediction(p1,test$rev)
+ROCRperf <- performance(ROCRpred,x.measure="fpr",measure="tpr")
+plot(ROCRperf,
+     colorize=T,
+     print.cutoffs.at=c(0,0.2,0.4,0.6,0.8,1.0),
+     text.adj=c(-0.2,1.7))
+as.numeric(performance(ROCRpred,measure="auc")@y.values)
+```
+
+```{r}
 # How does the model perform?
 table(p1>=0.5,test$rev)
 # Confusion matrix
@@ -87,10 +154,10 @@ pred <- ...
 perf <- ...
 plot(perf) 
 performance(pred,measure="auc")
+```
 
-
-######## Classification And Regression Trees (CARTs)
-
+### Classification And Regression Trees (CARTs)
+```{r}
 # rpart is for CART
 if(!require(rpart)){
   install.packages("rpart")
@@ -105,5 +172,5 @@ if(!require(rpart.plot)){
 # # This will not work, because rpart will build a regression tree by default
 # cart1 <- rpart(rev~petit+respon+circuit+lctdir+issue+unconst,data=train)
 # summary(cart1)
- 
+```
 
