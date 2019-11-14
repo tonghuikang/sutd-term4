@@ -1,7 +1,7 @@
 ######## Data Preparation
 ```{r}
 # Load the data on the supreme court
-supreme <- read.csv("supreme.csv") # We have 623 observations and 20 variables
+supreme <- read.csv("wk8-law.csv") # We have 623 observations and 20 variables
 head(supreme) # First part of the dataframe
 # str(supreme) # Internal structure of the dataframe 
 # summary(supreme) # Summary of the data
@@ -26,13 +26,17 @@ stevens <- subset(supreme[,c("docket","term","stevdir","petit","respon","circuit
 
 # Processing the output result to affirm or reverse for judge Stevens
 stevens$rev <- as.integer((stevens$lctdir=="conser" & stevens$stevdir==0) | (stevens$lctdir=="liberal" & stevens$stevdir==1))
+```
+
+
+```{r}
 # This creates a new variable ($rev) in the dataframe that takes a value of 1 if Stevens decision reverses the lower court decision
 # and 0 if the judge affirms the lower court decision. Note that a similar analysis can be done for the other judges or for the overall case result.
 table(stevens$rev)
-
+```
 
 ######## Modelling exercise: logistic regression
-
+```{r}
 # Let's prepare the data for our modelling exercise
 # Load the caTools package (basic utility functions)
 if(!require(caTools)){
@@ -76,7 +80,9 @@ performance(pred,measure="auc") # 0.7404352
 
 
 ######## Classification And Regression Trees (CARTs)
+```
 
+```{r}
 # rpart is for CART
 if(!require(rpart)){
   install.packages("rpart")
@@ -97,12 +103,18 @@ if(!require(RColorBrewer)){
   install.packages("RColorBrewer")
   library(RColorBrewer)
 }
+```
 
+```{r}
 # Learning the tree (when building the tree for classification, rpart uses the Gini index)
 #
 # Correct command
-cart1 <- rpart(...)
+cart1 <- rpart(rev~petit+respon+circuit+lctdir+issue+unconst,
+               data=train, 
+               method="class")
+```
 
+```{r}
 # More details on the tree structure
 #
 # With this command, we get information on: split criteria, no. rows (observations) in this node, no. of misclassified, predicted class,
@@ -110,60 +122,106 @@ cart1 <- rpart(...)
 # node), split, n, loss, yval, (yprob)
 #      * denotes terminal node
 print(cart1)
+```
 
+```{r}
 # Tree visualization
 # 
 # Let's first use the default function implemented in the rpart package
 plot(cart1); text(cart1)
 #
 # Let's use a more advanced function from the rpart.plot package
+```
+
+```{r}
 prp(cart1) 
 prp(cart1,type=1) # labels all nodes (not just the leaves)
-#
+```
+
+```{r}
 # There many other visualization options: see an example with the fancyRpartPlot() function, which requires rpart.plot, rattle, and RColorBrewer.
 fancyRpartPlot(cart1)
+```
 
+```{r}
 # Predictions
 #
 # The function predict uses cart1 and the data test to carry out the predictions.
 # The function chooses the class with the highest probability.
-predictcart1 <- predict(...)
+predictcart1 <- predict(cart1, newdata = test)
 #
 # Confusion matrix
-...
+# with a certain defined cut-off
+#...
 
 # The accuracy is ...
 # We can see that this model has performance similar to that achieved by the logistic regression
 #
 
 # We can also use the Area Under the Curve
-predictcart1_prob <- ...
-pred_cart1 <- ...
-perf_cart1 <- ...
+predictcart1_prob <- predictcart1
+pred_cart1 <- prediction(predictcart1[,2], test$rev)
+perf_cart1 <- performance(pred_cart1,x.measure="fpr",measure="tpr")
 plot(perf_cart1)
-performance(pred_cart1,measure="auc") 
-
+as.numeric(performance(pred_cart1,measure="auc")@y.values)
+```
 
 
 ######## Pruning
-
+```{r}
 # Display the cp table for model cart1
 printcp(cart1)
 
 # We can also plot the relation between cp and error
 plotcp(cart1)
+```
 
+```{r}
 # We are now ready for pruning
 
 # Pruning. Which value of pruning would you use?
-cart2 <- prune(cart1,cp=...)
+cart2 <- prune(cart1,cp=0.01)
 fancyRpartPlot(cart2)
 predictcart2 <- predict(cart2,newdata=test,type="class")
 table(test$rev,predictcart2)
+```
 
 
 ######## Random Forests
 
+**Intuition of ensemble training** - each person have different knowledge, and different logical framework. Individual trees may not be accurate (and are faster to train), but make the ensembled prediction is more accurate. (Analogy - Who Wants to be a Millionaire)
+
+Sample the training dataset with replacement (boosting or bagging)
+- Build a classification or regression tree
+- When splitting a node
+- Randomly choose $m$ parameters
+- Find the best cut-point by exhasutive search
+- Stop when the exit condition is met
+
+Training a tree in a forest is faster than training a CART because only a subset of predictors are used.
+
+
+
+**Meta-parameters**
+
+The training does not optimise the meta-parameters.
+
+- $T^*$ number of tree in the ensemble `ntree` (recommended 100 to 1000)
+- $m$ = number of predictors chosen when creating a split `mtry` (recommended sqrt(p) for classification, p/r for regression)
+- $n_{min}$ minimum number of nodes in each leaf `nodesize` (recommended 2 to 20)
+
+
+
+Downsides (compart to CART)
+
+- slower (though parallelizable across cores)
+- less interpretable
+
+
+
+
+
+```{r}
 # Load the randomForest package (it can be used for both classification and regression)
 if(!require(randomForest)){
   install.packages("randomForest")
@@ -173,15 +231,15 @@ if(!require(randomForest)){
 set.seed(1)
 #
 # Build a forest of 200 trees, with leaves 5 observations in the terminal nodes
-forest <- randomForest(...)
+forest <- randomForest(as.factor(rev)~petit+respon+circuit+unconst+lctdir+issue,
+                       data=train, nodesize=5, ntree=200)
 forest
 # The prediction is carried out through majority vote (across all trees)
-predictforest <- predict(...)
-table(test$rev,predictforest)
+predictforest <- predict(forest, newdata = test, type="class")
+table(predictforest, test$rev)
 
 # Variable importance
 varImpPlot(forest)
 # forest$importance
- 
 
 ```

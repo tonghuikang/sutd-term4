@@ -1,0 +1,336 @@
+```{r}
+# Script for Week 9 -- session 1 (in-class activity)
+
+
+######## Set the working environemnt
+
+# Remove all variables from the R environment to create a fresh start
+rm(list=ls())
+
+# Set the working folder
+# getwd()
+# setwd("...")
+
+
+######## Load the data
+```
+
+
+```{r}
+# Load the twitter data
+twitter <- read.csv("wk9a-text.csv") 
+str(twitter) # Internal structure of the dataframe
+# With the option stringsAsFactors=FALSE we make sure that character vectors are 
+# NOT converted into factors.
+twitter <- read.csv("wk9a-text.csv",stringsAsFactors=FALSE)
+str(twitter)  # 2664 observations of 2 variables
+head(twitter) # First part of the dataframe
+tail(twitter) # Last part of the dataframe
+summary(twitter) # Summary of the data
+
+# A few comments about the data:
+# The sentiment takes value 1, 2, 4, and 5, where 1 = very negative, 
+# 2 = slightly negative, 4 = slightly positive, and 5 = very positive.
+# The tweets were classified by the contributors.
+# The data come from https://www.figure-eight.com/data-for-everyone/
+# CrowdFlower is a crowdsourcing data management company which allows users 
+# to access online workforce of million of people to clean, label, and enrich data.
+```
+
+
+```{r}
+
+# Let's take a look at the negative and very negative tweets
+twitter$Neg <- as.factor(twitter$sentiment<=2)
+table(twitter$Neg)
+# FALSE  TRUE 
+# 1889   775
+# So, we have 29.09% (775/(775+1889)) of tweets with negative sentiment
+
+
+######## Pre-processing
+
+# Load the text mining package
+if(!require(tm)){
+  install.packages("tm")
+  library(tm)
+}
+# Note that this is a development package, so there could be some variations based on the system you run
+# (e.g., different R versions or different operating systems).
+
+# A corpus represents a collection of documents (tweets, in our case)
+?Corpus
+# The VectorSource helps interpret each element of the twitter$tweet object as a document,
+# while the Corpus command helps represent it as a corpus.
+?VectorSource
+corpus <- Corpus(VectorSource(twitter$tweet))
+corpus
+```
+
+```{r}
+# <<SimpleCorpus>>
+# Metadata:  corpus specific: 1, document level (indexed): 0
+# Content:  documents: 2664
+corpus[[1]]
+as.character(corpus[[1]])
+# each line is a document
+corpus[[2664]]
+as.character(corpus[[2664]])
+
+# With the function tm_map, we apply mappings (transformations) to the corpus. 
+?tm_map
+# There is a variety of transformations that we can apply
+getTransformations()
+
+# 1. The first goal is to convert all text to lower case (since R is case sensitive).
+# Although there is a tolower transformation, it is not a part of the standard tm transformations 
+# (see the output of getTransformations() in the previous section). For this reason, 
+# we have to convert tolower into a transformation that can handle a corpus object properly. 
+# This is done with the help of the function content_transformer.
+# corpus <- tm_map(corpus,content_transformer(tolower))
+# Alternative command:
+
+# corpus <- tm_map(corpus,tolower)
+#
+# If the command does not work, try this trick:
+# (https://stackoverflow.com/questions/27756693/fun-error-after-running-tolower-while-making-twitter-wordcloud)
+
+corpus <- tm_map(corpus, function(x) iconv(enc2utf8(x), sub = "byte"))
+corpus<- tm_map(corpus, content_transformer(function(x)    iconv(enc2utf8(x), sub = "bytes")))
+corpus <- tm_map(corpus,content_transformer(tolower))
+#
+# Let's now check a couple of documents
+as.character(corpus[[2664]])
+as.character(corpus[[1]])
+```
+
+
+```{r}
+
+# 2a. Then, we move on to the stopwords.
+# Here is the list of english stopwords in the tm package
+stopwords("english")
+# let's then remove the stopwords from the corpus
+corpus <- tm_map(corpus,removeWords,stopwords("english"))
+# And ... Let's check a couple of documents
+as.character(corpus[[1]])
+as.character(corpus[[2664]])
+#
+# 2b. We now remove the following words: 
+# 'drive', 'driving', 'driver', 'self-driving', 'car', and 'cars'.
+# The reason is that many tweets contain these words,
+# which are probably not going to be a predictor of the polarity of the tweets.
+corpus <- tm_map(corpus,removeWords,c("drive","driving","driver","self-driving","car","cars"))
+# And ... Let's check a couple of documents
+as.character(corpus[[1]])
+as.character(corpus[[2664]])
+```
+
+
+```{r}
+
+# 3. Remove punctuation
+corpus <- tm_map(corpus,removePunctuation)
+# And ... Let's check a couple of documents
+as.character(corpus[[1]])
+as.character(corpus[[2664]])
+
+# 4. Finally, we stem the words using Porter's stemming algorithm. 
+# Note that you may need to load the SnowballC package to use this functionality
+# (R interface to the C libstemmer library that implements Porter's word stemming algorithm).
+if(!require(SnowballC)){
+  install.packages("SnowballC")
+  library(SnowballC)
+}
+# Stemming
+corpus <- tm_map(corpus,stemDocument)
+# And ... Let's check a couple of documents
+as.character(corpus[[1]])
+as.character(corpus[[2664]])
+# Let's compare the raw information with the post-processed one
+twitter$tweet[3]
+as.character(corpus[[3]])
+```
+
+
+```{r}
+
+# 5. We can now create a document-term matrix from the original corpus. 
+# In particular, we have 2664 documents (rows) and 5834 terms (columns). 
+# Out of the 2664*5834 terms, 23879 terms are nonzero while the remaining ones are zero.
+# So, sparisty is close to 100%.
+?DocumentTermMatrix
+dtm <- DocumentTermMatrix(corpus)
+dtm
+# <<DocumentTermMatrix (documents: 2664, terms: 5649)>>
+# Non-/sparse entries: 22176/15026760
+# Sparsity           : 100%
+# Maximal term length: 41
+# Weighting          : term frequency (tf)
+#
+# Let's check the first document
+dtm[1,]
+# <<DocumentTermMatrix (documents: 1, terms: 5649)>>
+# Non-/sparse entries: 5/5644
+# Sparsity           : 100%
+# Maximal term length: 41
+# Weighting          : term frequency (tf)
+# 
+inspect(dtm[1,]) # The non-zero eterms are Docs, invest, money, place, print, self, and two.
+# We can do this for any documnet, such as no. 2664
+inspect(dtm[2664,])
+```
+
+
+```{r}
+
+# 6. An important information we can get is the frequency with which terms appear
+?findFreqTerms
+# With this function, we find term appearing with frequency lower than 50%
+findFreqTerms(dtm,lowfreq=50)
+# We can also check the frequency of specific words
+#dtm[,"nine"]
+#dtm[,"awesome"]
+# This part of the analysis is aimed to remove terms that do not appear frequently
+?removeSparseTerms
+# In this specific case, we remove all terms with at least 99.5% empty entries
+dtm <- removeSparseTerms(dtm,0.995)
+dtm # dtm is now a term-document matrix with 2664 documents and 265 terms. 
+# <<DocumentTermMatrix (documents: 2664, terms: 265)>>
+# Non-/sparse entries: 11924/694036
+# Sparsity           : 98%
+# Maximal term length: 10
+# Weighting          : term frequency (tf)
+
+
+######## Mining the Document-Term matrix + Preparing it for model learning
+```
+
+
+```{r}
+
+# We transform the term-document matrix into a matrix and, then, into a dataframe
+twittersparse <- as.data.frame(as.matrix(dtm))
+str(twittersparse)
+colnames(twittersparse)
+# This helps ensure that columns have valid names. 
+# For example, names starting with numbers are modified (e.g., 300k -> X300k).
+colnames(twittersparse) <- make.names(colnames(twittersparse))
+colnames(twittersparse)
+
+# Basic visualization with wordcloud
+#
+# Load the wordcloud package 
+if(!require(wordcloud)){
+  install.packages("wordcloud")
+  library(wordcloud)
+}
+# Get word counts in decreasing order
+word_freqs = sort(colSums(twittersparse), decreasing=TRUE) 
+# Create data frame with words and their frequencies
+dm = data.frame(word=names(word_freqs), freq=unname(word_freqs))
+# Plot wordcloud
+#wordcloud(dm$word, dm$freq, random.order=FALSE, colors=brewer.pal(8, "Dark2"))
+```
+
+
+```{r}
+
+# Last step, we add the output variable (polarity of tweets) to the twittersparse dataframe
+twittersparse$Neg <- twitter$Neg
+str(twittersparse)
+# This is something we'll need to make predictions
+
+
+######## Predictions
+```
+
+
+```{r}
+
+# Let's prepare the data for our modelling exercise
+# Load the caTools package and set the seed
+if(!require(caTools)){
+  install.packages("caTools")
+  library(caTools)
+}
+set.seed(1)
+# Create train and test sets (with balanced response)
+spl <- sample.split(twittersparse$Neg,SplitRatio=0.7)
+train <- subset(twittersparse,spl==TRUE)
+test <- subset(twittersparse,spl==FALSE)
+
+# 0. Baseline model, which predicts the most occuring case in the training set 
+table(train$Neg)
+# FALSE  TRUE 
+# 1322   542 
+# The majority of tweets in the training dataset have positive polarity. Accuracy = 1322/(1322+542) = 0.709.
+# This is not surprising, since we created the dataset to be balanced!
+#
+# What happens on the test dataset?
+table(test$Neg)
+# FALSE  TRUE 
+# 567   233 
+# Here we get a similar accuracy --> 567/(567+233) = 0.708
+
+# 1. Logistc regression
+model1 <- glm(Neg~., data=train, family=binomial)
+summary(model1)
+#
+# Let's now try to make a prediction on the test data
+predict1 <- predict(model1, newdata=test, type="response")
+# How does the model perform?
+table(predict1>=0.5,test$Neg)
+```
+
+
+```{r}
+
+# 2. Classification And Regresstion Trees (CARTs)
+#
+# Load libraries
+library(rpart)
+library(rpart.plot)
+set.seed(1)
+#
+# Build the model
+model2 <- ...
+summary(model2)
+# Tree visualization
+prp(...) 
+# Prediction
+predict2 <- ...
+table(predict2,test$Neg)
+#
+# Let's try to build a deeper tree
+model2a <-  
+printcp(model2a)
+# Now, let's try to prune it
+model2b <- ...
+prp(model2b,type=4,extra=4) 
+# Prediction
+predict2b <- ...
+table(predict2b,test$Neg)
+```
+
+
+```{r}
+
+# 3. Random Forests
+#
+# libraries
+library(randomForest)
+set.seed(1)
+# Build model: we use the default parameters to fit the model (500 trees). 
+# ... this is going to take more time than glm and rpart
+model3 <- ...
+summary(model3)
+# Prediction
+predict3 <- ...
+table(predict3,train$Neg)
+#
+# Prediction (test dataset) 
+predict3 <- ...
+table(predict3,test$Neg)
+```
+

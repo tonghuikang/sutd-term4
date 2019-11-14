@@ -1,8 +1,10 @@
-R cheatsheet
+# R cheatsheet
 
 (Please refer to DBA on the reasons to use R)
 
 This is a one-document reference of the use of R commands.
+
+Todo - collate all common procedures - train-test split, confusion matrix, ROC
 
 ## Pre-flight checklist
 Make sure you can import these libraries in R notebook. 
@@ -19,6 +21,10 @@ library("conflicted")
 library("glmnet")
 library("rpart")
 library("rpart.plot")
+library(tm)
+library(randomForest)
+library(SnowballC)
+library(wordcloud)
 ```
 
 If you cannot, please panic.
@@ -598,6 +604,32 @@ cvlasso <- cv.glmnet(X[train,],y[train])
 | Prediction     | Supreme Court decision?                 |
 | Comments       | ?                                       |
 
+
+```r
+# fitting with CART
+cart1 <- rpart(rev~petit+respon+circuit+lctdir+issue+unconst,
+               data=train, 
+               method="class")
+print(cart1)
+
+# pruning the tree
+cart2 <- prune(cart1,cp=0.01)
+fancyRpartPlot(cart2)
+predictcart2 <- predict(cart2,newdata=test,type="class")
+table(test$rev,predictcart2)
+
+# to understand the options of rpart
+?rpart.control
+
+# predicting with CART
+predictcart1_prob <- predict(cart1, newdata = test)
+pred_cart1 <- prediction(predictcart1[,2], test$rev)
+perf_cart1 <- performance(pred_cart1,
+                          x.measure="fpr",measure="tpr")
+plot(perf_cart1)
+as.numeric(performance(pred_cart1,measure="auc")@y.values)
+```
+
 As the optimisation for global minimum is not computationally feasible, we use a heuristic approach instead.
 $$
 \underset{\{R\}}{\min} \sum_{m=1}^M \sum_{i \in R_m} (y_i - \hat{y}_{R_M})^2
@@ -620,15 +652,50 @@ or other metric of performance such as entropy.
 Solve a sequence of locally optimal problems with exhaustive search. The cut point is one of the the data points, along one of the dimensions.
 
 Repeat each branch iteratively. Exit the branch when one exit condition is met.
-- For example, each prescribed bucket of leaves reached the prescribed minimum size. 
+- For example, each prescribed bucket of leaves reached the prescribed minimum size.
 
-Note that all observations belong to a single sub-region beyond which greedy splits are made at each step without looking necessarily at the best split that might lead to a better tree in future steps (greedy strategy) - in other words, local optimum at each step may not provide the global optimum.
+>  Note that all observations belong to a single sub-region beyond which greedy splits are made at each step without looking necessarily at the best split that might lead to a better tree in future steps (greedy strategy) - in other words, local optimum at each step may not provide the global optimum.
 
 
 
-There is a trade-off between the model interpretability and performance on the training set - interpretability and fit on the training set. 
+**Bias variance trade-off**
+
+There is a trade-off between the model interpretability and performance on the training set. 
 
 To control the bias-variance trade-off (or, simply, the model complexity), CARTs use prepruning and pruning.
+
+![Screenshot 2019-11-07 at 4.23.06 PM](assets/Screenshot 2019-11-07 at 4.23.06 PM.png)
+
+**Breaking down the CART**
+
+When you print the `cart` you get this guide
+
+```
+node), split, n, loss, yval, (yprob)
+      * denotes terminal node
+```
+
+Following is the root node, with 434 points. If the leaf terminates here the absolute error is 195 points by predicting all 1s. 
+
+```
+  1) root 434 195 1 (0.44930876 0.55069124) 
+```
+After the first split (lctdir=liberal) there are 205 points that belongs to this split. 
+
+If the leaf terminates there, the absolute error is 82 points by predicting all 0s.
+
+```
+     2) lctdir=liberal 205  82 0 (0.60000000 0.40000000)
+```
+After the first split (lctdir=conser) there are 229 points that belongs to this split.
+
+If the leaf terminates there, the absolute error is 72 points by predicting all 1s.
+
+```
+     3) lctdir=conser  229  72 1 (0.31441048 0.68558952)  
+```
+
+
 
 <div style="page-break-after: always;"></div> 
 **Week 9**
@@ -642,6 +709,57 @@ To control the bias-variance trade-off (or, simply, the model complexity), CARTs
 | Prediction     | Social media |
 | Comments       | ?    |
 
+**Intuition of ensemble training** - each person have different knowledge, and different logical framework. Individual trees may not be accurate (and are faster to train), but make the ensembled prediction is more accurate. (Analogy - Who Wants to be a Millionaire)
+
+Sample the training dataset with replacement (boosting or bagging)
+- Build a classification or regression tree
+- When splitting a node
+- Randomly choose $m$ parameters
+- Find the best cut-point by exhasutive search
+- Stop when the exit condition is met
+
+Training a tree in a forest is faster than training a CART because only a subset of predictors are used.
+
+
+
+**Meta-parameters**
+
+The training does not optimise the meta-parameters.
+
+- $T^*$ number of tree in the ensemble `ntree` (recommended 100 to 1000)
+- $m$ = number of predictors chosen when creating a split `mtry` (recommended sqrt(p) for classification, p/r for regression)
+- $n_{min}$ minimum number of nodes in each leaf `nodesize` (recommended 2 to 20)
+
+
+
+Downsides (compart to CART)
+
+- slower (though parallelizable across cores)
+- less interpretable
+
+
+
+
+
+```r
+library(randomForest)
+
+# set seed
+#
+# Build a forest of 200 trees, with leaves 5 observations in the terminal nodes
+
+forest <- randomForest(as.factor(rev)~petit+respon+circuit+unconst+lctdir+issue, data=train, nodesize=5, ntree=200)
+forest
+
+# The prediction is carried out through majority vote (across all trees)
+predictforest <- predict(forest, newdata = test, type="class")
+table(predictforest, test$rev)
+
+# Variable importance
+varImpPlot(forest)
+# forest$importance
+```
+
 <div style="page-break-after: always;"></div> 
 **Week 10**
 
@@ -653,6 +771,57 @@ To control the bias-variance trade-off (or, simply, the model complexity), CARTs
 | Quality of fit | ?    |
 | Prediction     | Recommmender Systems |
 | Comments       | ?    |
+
+Each entry of the dataset is a 'document'. Transformation 
+
+```r
+library(tm)
+library(SnowballC)
+library(wordcloud)
+
+twitter <- read.csv("wk9a-text.csv",stringsAsFactors=FALSE)
+corpus <- Corpus(VectorSource(twitter$tweet))
+getTransformations()
+
+# transformation into lower case
+corpus <- tm_map(corpus, function(x) iconv(enc2utf8(x), sub = "byte"))
+corpus<- tm_map(corpus, content_transformer(function(x)    iconv(enc2utf8(x), sub = "bytes")))
+corpus <- tm_map(corpus,content_transformer(tolower))
+
+# remove stop words
+corpus <- tm_map(corpus,removeWords,
+stopwords("english"))
+corpus <- tm_map(corpus,removeWords,
+c("drive","driving","driver","self-driving","car","cars"))  # remove specific words
+
+# remove punctuation 
+corpus <- tm_map(corpus,removePunctuation)
+
+# stemming words
+corpus <- tm_map(corpus,stemDocument)
+
+# convert into freqlist of words
+# this will be a sparse matrix
+dtm <- DocumentTermMatrix(corpus)
+dtm <- removeSparseTerms(dtm,0.995)
+
+# converting into dataframe                                            
+twittersparse <- as.data.frame(as.matrix(dtm))
+word_freqs = sort(colSums(twittersparse), decreasing=TRUE) 
+
+# you will use this dataframe to train and test                                            
+twittersparse$Neg <- twitter$Neg
+                                            
+# plot wordcloud                                
+colnames(twittersparse) <- make.names(colnames(twittersparse))
+colnames(twittersparse)
+word_freqs = sort(colSums(twittersparse), decreasing=TRUE) 
+# Create dataframe with words and their frequencies
+dm = data.frame(word=names(word_freqs), freq=unname(word_freqs))
+# Plot wordcloud
+wordcloud(dm$word, dm$freq, random.order=FALSE, colors=brewer.pal(8, "Dark2"))
+```
+
 
 <div style="page-break-after: always;"></div> 
 **Week 11**
@@ -667,6 +836,41 @@ To control the bias-variance trade-off (or, simply, the model complexity), CARTs
 | Comments       | ?    |
 
 <div style="page-break-after: always;"></div> 
-Week 12. Optimisiation with Julia. Prescriptive analysis rather than descriptive.
+**Week 12**
+
+Optimisiation with Julia. Prescriptive analysis rather than descriptive.
 
 For competition in week 13, please form your groups.
+
+
+
+**Misc**
+
+Bias-variance trade-off.
+
+
+
+How to label data - manual labelling, centralised workplace, use emotions
+
+Challenges - spelling, grammar, ambiguity
+
+
+
+Code for confustion matrices
+
+```r
+CM = table(predictforest,test$rev)
+CM
+# predictforest  0  1
+#             0 47 21
+#             1 35 81
+Accuracy = (CM[1,1]+CM[2,2])/sum(CM)
+Accuracy # 0.6956522 vs 0.7119565
+BaseAccuracy =  (sum(CM[1:2,1]))/sum(CM)
+BaseAccuracy # or flip it
+Sensitivity = (CM[1,1])/sum(CM[1:2,1])
+Specificity = (CM[2,2])/sum(CM[1:2,2])
+Sensitivity
+Specificity
+```
+
