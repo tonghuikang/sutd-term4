@@ -7,7 +7,7 @@
 # With the option stringsAsFactors=FALSE we make sure that character vectors are 
 # not converted into factors.
 energy <- read.csv("wk9b-text.csv",stringsAsFactors=FALSE)
-str(energy)
+# str(energy)
 head(energy)
 # The dataframe contains a total of 851 emails, where energy$email is the email content, 
 # and energy$responsive is 1 if the email was responsive (to a query about energy bids and schedules) 
@@ -15,22 +15,29 @@ head(energy)
 ```
 
 
+
 ```{r}
 # Let's take a look to a few emails
-energy$email[1] # list out the entire email (but this is hard to read). 
+# energy$email[1] # list out the entire email (but this is hard to read). 
 # Let's try with the function strwrap, which wraps character strings 
 # to format paragraphs to be easy to read.
 ?strwrap
-strwrap(energy$email[1])
-energy$responsive[1] # This takes value 0 since the email is not responsive to energy bid and schedule.
+# strwrap(energy$email[1])
+energy$responsive[1] 
+# This takes value 0 since the email is not responsive to energy bid and schedule.
+
 strwrap(energy$email[4])
-energy$responsive[4] # The fourth email deals with the search on the energy bids and schedules. hence, the responsive variable takes a value of 1.
+energy$responsive[4] 
+# The fourth email deals with the search on the energy bids and schedules. hence, the responsive variable takes a value of 1.
 
 # How many emails are responsvive?
 table(energy$responsive)
 137/(137+714) # That's about 16%
+```
 
 
+
+```{r}
 ######## Pre-processing
 
 # Load the text mining and SnowballC package
@@ -45,34 +52,56 @@ if(!require(SnowballC)){
 
 # Create a corpus (a collection of emails, in our case)
 corpus <- Corpus(VectorSource(energy$email))
-as.character(corpus[[1]]) # We check the first entry
-strwrap(as.character(corpus[[1]])) # Read the email in the corpus
+as.character(corpus[[4]]) # We check the first entry
+# strwrap(as.character(corpus[[1]])) # Read the email in the corpus
+```
 
+
+
+```{r}
 # 1. Make lower case, remove english stopwords, remove punctuation, remove numbers, and stem.
-corpus <- tm_map(..)
-corpus <- tm_map(..)
-corpus <- tm_map(..)
-corpus <- tm_map(..)
-corpus <- tm_map(..)
+# transformation into lower case
+corpus <- tm_map(corpus, function(x) iconv(enc2utf8(x), sub = "byte"))
+corpus <- tm_map(corpus, content_transformer(function(x) iconv(enc2utf8(x), sub = "bytes")))
+corpus <- tm_map(corpus,content_transformer(tolower))
+
+# remove stop words
+corpus <- tm_map(corpus,removeWords,
+stopwords("english"))
+corpus <- tm_map(corpus,removeWords,
+c("drive","driving","driver","self-driving","car","cars"))  # remove specific words
+
+# remove punctuation 
+corpus <- tm_map(corpus,removePunctuation)
+
+# stemming words
+corpus <- tm_map(corpus,stemDocument)
 #
 # Let's check the fourth email: note that it is much harder to read ... 
 # ... but it is mnore suitable to apply analytics!
 strwrap(energy$email[4]) 
 strwrap(as.character(corpus[[4]]))
+```
 
+
+
+```{r}
 # 2. We create a document-term matrix from the text corpus: 
 # we will have 851 documents (rows) and 13798 terms (columns). 
-dtm <- ..
+dtm <- DocumentTermMatrix(corpus)
 dtm
 #
 # Let's inspect the fourth email and see which are the non-zero terms
 inspect(dtm[4,])
 #
 # Finally, we remove all terms that do not occur in at least 3% of documents. 
-dtm <- ..
+dtm <- removeSparseTerms(dtm,0.995)
 dtm
+```
 
 
+
+```{r}
 ######## Mining the Document-Term matrix + Preparing it for model learning
 
 # We transform the term-document matrix into a matrix and, then, into a dataframe
@@ -80,7 +109,9 @@ energysparse <- as.data.frame(as.matrix(dtm))
 # This helps ensure that columns have valid names
 colnames(energysparse) <- make.names(colnames(energysparse))
 str(energysparse)
+```
 
+```{r}
 # Basic visualization with wordcloud
 #
 # Load the wordcloud package 
@@ -93,14 +124,18 @@ word_freqs = sort(colSums(energysparse), decreasing=TRUE)
 # Create data frame with words and their frequencies
 dm = data.frame(word=names(word_freqs), freq=unname(word_freqs))
 # Plot wordcloud
-wordcloud(dm$word, dm$freq, random.order=FALSE, colors=brewer.pal(8, "Dark2"))
+wordcloud(dm$word, dm$freq, random.order=FALSE, max.words=70, colors=brewer.pal(8, "Dark2"), min.freq=2)
 
 # Last step, we add the output variable (response) to the energysparse dataframe
 energysparse$responsive <- energy$responsive
 str(energysparse)
+?wordcloud
 # This is something we'll need to make predictions
+```
 
 
+
+```{r}
 ######## Predictions
 
 # Let's prepare the data for our modelling exercise
@@ -127,20 +162,34 @@ table(test$responsive)
 # 0   1 
 # 214 41
 # The accuracy is 214/(214+41)=0.83
+```
 
+```{r}
 # 1. Classification And Regresstion Trees (CARTs)
 # Libraries
 library(rpart)
 library(rpart.plot)
+library(ROCR)
 set.seed(1)
 #
 # Build the model and visualize it
-model1 <- ..
-prp(..)
+model1 <- rpart(responsive~.,
+               data=train, 
+               method="class")
+prp(model1, type=4, extra=2)
 # Prediction
-predict1 <- ..
-table(predict1,test$responsive)
+predict1 <- predict(model1, newdata = test)
+pred_cart1 <- prediction(predict1[,2], test$responsive)
+perf_cart1 <- performance(pred_cart1,
+                          x.measure="fpr",measure="tpr")
+plot(perf_cart1)
+as.numeric(performance(pred_cart1,measure="auc")@y.values)
+```
 
+
+
+
+```{r}
 # 2. Random Forests
 #
 # libraries
@@ -148,13 +197,13 @@ library(randomForest)
 set.seed(1)
 #
 # Build model
-model2 <- ..
+model2 <- randomForest(as.factor(responsive)~., data=train)
 summary(model2)
 # Variable importance
 varImpPlot(model2)
 #
 # Prediction
-predict2 <- ..
+predict2 <- predict(model2, newdata = test, type="prob")
 table(predict2,test$responsive)
 #
 # Find out which predictor variables are actually used in the random forest.
@@ -164,6 +213,18 @@ order2 <- sort(varUsed(model2),index.return=TRUE) # Return sorted frequency and 
 tail(order2$ix)
 names(test[,tail(order2$ix)]) # we can see which words are important!
 
+# Prediction
+pred_cart1 <- prediction(predict2[,2], test$responsive) 
+perf_cart1 <- performance(pred_cart1,
+                          x.measure="fpr",measure="tpr")
+plot(perf_cart1)
+as.numeric(performance(pred_cart1,measure="auc")@y.values)
+```
+
+
+
+
+```{r}
 # 3. Comparison between CART and RF
 #
 # libraries
@@ -175,10 +236,13 @@ predictprob2 <- predict(model2,newdata=test,type="prob")
 pred1 <- prediction(predictprob1[,2],test$responsive)
 pred2 <- prediction(predictprob2[,2],test$responsive)
 performance(pred1,measure="auc") # 0.6776271
-performance(pred2,measure="auc") # 0.0.864543
+performance(pred2,measure="auc") # 0.864543
 plot(performance(pred1,measure="tpr",x.measure="fpr"))
 plot(performance(pred2,measure="tpr",x.measure="fpr"))
+```
 
+
+```{r}
 # 4. Naive Bayes classifiers
 #
 # libraries
@@ -199,7 +263,7 @@ model3$apriori
 # 500  96 
 #
 # List tables for each predictor. For each numeric variable, it gives target class, mean and standard deviation.
-model3$tables
+model3$tables[5]
 # Prediction
 predict3 <- predict(model3,newdata=test,type="class")
 table(predict3,test$responsive)

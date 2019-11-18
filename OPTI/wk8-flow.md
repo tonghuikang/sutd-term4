@@ -1,6 +1,6 @@
 # Network flow
 
-**Taxonomy of network problems**
+### **Taxonomy of network problems**
 
 - Linear programming 
 
@@ -25,6 +25,10 @@
 
     - Shortest path problem
       (You are transferring a unit supply from the source to the tap at minimum cost)
+
+
+
+### The max-flow problem
 
 Given a directed network $G = (V,E)$ and a source node $s$, a sink node $t$, and a possibly infinite capacity $u_{ij}$ for each arc $(i,j)$
 
@@ -94,9 +98,9 @@ Initialise the current flow value as zero.
   - If a directed edge from the source is zero, remove.
   - If a directed edge to the tap is zero, remove.
 
-Terminate the algorithm when there are no more directed path from the source to the tap. The complexity of the algorithm depends on the choice of augmenting paths.
+Terminate the algorithm when there are no more directed paths from the source to the tap. The complexity of the algorithm depends on the choice of augmenting paths.
 
-Add $n$ to the current flow value and update the path. The backflow capacity needs to be decreased if used (from 10 to 9 in the example below). 
+The backflow capacity needs to be decreased if used (from 10 to 9 in the example below). 
 
 <img src="assets/Screenshot 2019-11-04 at 12.52.50 PM.png" alt="Screenshot 2019-11-04 at 12.52.50 PM" style="zoom:50%;" />
 
@@ -104,9 +108,11 @@ My understanding of the intuition
 - when you assign the flow you also assign flexibility with the backflow values
 - progress is made when the edges from the source and tap is removed, eventually leaving no directed node from the source to the tap
 
+![Screenshot 2019-11-17 at 9.57.46 PM](assets/Screenshot 2019-11-17 at 9.57.46 PM.png)
 
 
-**Primal and dual pair for max-flow problem**
+
+### **Primal and dual pair for max-flow problem**
 
 ![Screen Shot 2019-11-04 at 14.48.15 PM](assets/Screen Shot 2019-11-04 at 14.48.15 PM.png)
 
@@ -149,3 +155,15 @@ In the min-cost problem total demand should be equal to the total supply $\sum_i
 Every max-flow problem can be converted into a min-cost problem (refer to taxonomy of linear programming problems).
 
 Add an arc from the sink to the source with infinite capacity. The objective function is to minimise the negative of the flow of the new sink-source arc. The cost of the rest of the arcs are zero.
+
+**Assignment problem**
+
+![Screenshot 2019-11-17 at 10.48.33 PM](assets/Screenshot 2019-11-17 at 10.48.33 PM.png)
+
+**Transportation problem**
+
+![Screenshot 2019-11-17 at 10.48.41 PM](assets/Screenshot 2019-11-17 at 10.48.41 PM.png)
+
+**Baseball elimination problem**
+
+![Screenshot 2019-11-17 at 10.48.56 PM](assets/Screenshot 2019-11-17 at 10.48.56 PM.png)

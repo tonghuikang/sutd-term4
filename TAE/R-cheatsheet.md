@@ -4,7 +4,7 @@
 
 This is a one-document reference of the use of R commands.
 
-Todo - collate all common procedures - train-test split, confusion matrix, ROC
+Todo - collate all common procedures - train-test split, confusion matrix and sensitivity-specificity, ROC
 
 ## Pre-flight checklist
 Make sure you can import these libraries in R notebook. 
@@ -25,9 +25,17 @@ library(tm)
 library(randomForest)
 library(SnowballC)
 library(wordcloud)
+library(e1071) # Naive Bayes
 ```
 
 If you cannot, please panic.
+
+# Common errors
+
+Please remember the `.` when you are training against the rest of the data. `responsive~.,`
+
+GLM requires you to put `family='binomial'`
+
 
 ## Helper functions
 
@@ -110,6 +118,7 @@ MPP2 <- mlogit(Ch~Nom+Dir+GG+PGA-1, data=D1)
 Obtained from R-basics.
 
 **Data preliminary analysis**
+
 ```r
 poll <- read.csv("AnonymityPoll.csv")
 summary(poll)  # 7-figure summary of every column
@@ -628,6 +637,9 @@ perf_cart1 <- performance(pred_cart1,
                           x.measure="fpr",measure="tpr")
 plot(perf_cart1)
 as.numeric(performance(pred_cart1,measure="auc")@y.values)
+
+# interpret the prediction model
+prp(model1, type=4, extra=2)
 ```
 
 As the optimisation for global minimum is not computationally feasible, we use a heuristic approach instead.
@@ -737,10 +749,6 @@ Downsides (compart to CART)
 - slower (though parallelizable across cores)
 - less interpretable
 
-
-
-
-
 ```r
 library(randomForest)
 
@@ -760,19 +768,21 @@ varImpPlot(forest)
 # forest$importance
 ```
 
+Remember to convert the target variable into a factor.
+
 <div style="page-break-after: always;"></div> 
 **Week 10**
 
-| Method         | Clustering/Filtering |
+| Method         | Text-ming    |
 | -------------- | ---- |
-| Target         | ?    |
+| Target         | Not a method |
 | Model          | ?    |
 | Loss           | ?    |
 | Quality of fit | ?    |
 | Prediction     | Recommmender Systems |
 | Comments       | ?    |
 
-Each entry of the dataset is a 'document'. Transformation 
+Read the dataset. Each entry of the dataset is a 'document'. A corpus is a set of documents
 
 ```r
 library(tm)
@@ -781,37 +791,58 @@ library(wordcloud)
 
 twitter <- read.csv("wk9a-text.csv",stringsAsFactors=FALSE)
 corpus <- Corpus(VectorSource(twitter$tweet))
+```
+
+Conduct text transformations to simplify the dataset.
+```r
+# list of text transfomrations
 getTransformations()
 
 # transformation into lower case
 corpus <- tm_map(corpus, function(x) iconv(enc2utf8(x), sub = "byte"))
-corpus<- tm_map(corpus, content_transformer(function(x)    iconv(enc2utf8(x), sub = "bytes")))
+corpus <- tm_map(corpus, content_transformer(function(x) iconv(enc2utf8(x), sub = "bytes")))
 corpus <- tm_map(corpus,content_transformer(tolower))
 
 # remove stop words
 corpus <- tm_map(corpus,removeWords,
 stopwords("english"))
+                                            
+# remove specific words because they confuse the objective
 corpus <- tm_map(corpus,removeWords,
-c("drive","driving","driver","self-driving","car","cars"))  # remove specific words
+c("drive","driving","driver","self-driving","car","cars"))  
 
 # remove punctuation 
 corpus <- tm_map(corpus,removePunctuation)
 
-# stemming words
+# stemming words (get root word)
 corpus <- tm_map(corpus,stemDocument)
+```
 
-# convert into freqlist of words
-# this will be a sparse matrix
+Convert into a document term matrix. 
+This is a freqlist of every document in the corpus.
+
+```r
+# convert into freqlist of words this will be a sparse matrix
 dtm <- DocumentTermMatrix(corpus)
 dtm <- removeSparseTerms(dtm,0.995)
+```
 
-# converting into dataframe                                            
+Transforming into a dataframe to train and test
+
+```r
+# converting DTM into dataframe                                            
 twittersparse <- as.data.frame(as.matrix(dtm))
-word_freqs = sort(colSums(twittersparse), decreasing=TRUE) 
 
-# you will use this dataframe to train and test                                            
+# make sure column names start with a character
+colnames(twittersparse) <- make.names(colnames(twittersparse))
+
+# assign labels to dataframe                                            
 twittersparse$Neg <- twitter$Neg
-                                            
+```
+
+Visualise the dataset with a wordcloud.
+
+```r
 # plot wordcloud                                
 colnames(twittersparse) <- make.names(colnames(twittersparse))
 colnames(twittersparse)
@@ -819,16 +850,71 @@ word_freqs = sort(colSums(twittersparse), decreasing=TRUE)
 # Create dataframe with words and their frequencies
 dm = data.frame(word=names(word_freqs), freq=unname(word_freqs))
 # Plot wordcloud
-wordcloud(dm$word, dm$freq, random.order=FALSE, colors=brewer.pal(8, "Dark2"))
+wordcloud(dm$word, dm$freq, random.order=FALSE, max.words=100, colors=brewer.pal(8, "Dark2"), min.freq=2)
 ```
 
+Then carry out your model based on their mdoels.
+
+<div style="page-break-after: always;"></div> 
+**Week 10**
+
+| Method         | Naive Bayes' Method |
+| -------------- | ---- |
+| Target         | ? |
+| Model          | ?    |
+| Loss           | ?    |
+| Quality of fit | ?    |
+| Prediction     | ? |
+| Comments       | ?    |
+
+**Bayes Theorem**
+
+$$
+P(A|B) \cdot P(B) = P(B|A) \cdot P(A) 
+$$
+
+> We now make a (naive) hypothesis of **conditional independence** of the features, that is, $x_i$ is conditionally independent of every other feature $x_j$ (with $i \neq j$).
+
+![Screenshot 2019-11-14 at 4.42.58 PM](assets/Screenshot 2019-11-14 at 4.42.58 PM.png)
+
+
+```{r}
+# train the model
+model3 <- naiveBayes(as.factor(responsive)~.,data=train)
+summary(model3)
+
+# ???
+model3$apriori
+# Y
+# 0   1 
+# 500  96 
+
+# List tables for each predictor. For each numeric variable, it gives target class, mean and standard deviation.
+model3$tables[5]
+
+# predict with model
+predict3 <- predict(model3,newdata=test,type="class")
+table(predict3,test$responsive) 
+```
+
+<div style="page-break-after: always;"></div> 
+**Week 10**
+
+| Method         | Clustering/Filtering |
+| -------------- | ---- |
+| Target         |  |
+| Model          | ?    |
+| Loss           | ?    |
+| Quality of fit | ?    |
+| Prediction     | Recommendation Systems |
+| Comments       | ?    |
 
 <div style="page-break-after: always;"></div> 
 **Week 11**
 
-| Method         | SVD    |
+| Method         | SVD  |
 | -------------- | ---- |
-| Target         | ?    |
+| Target         | ? |
 | Model          | ?    |
 | Loss           | ?    |
 | Quality of fit | ?    |

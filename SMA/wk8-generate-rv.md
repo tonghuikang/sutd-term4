@@ -20,9 +20,15 @@ Given the probability distribution (**PDF**, **PMF**, **CDF**) of a random varia
 
 $U \sim \text{Uniform}[0,1] $ 
 
-**Obtaining the CDF from the PDF**
+
+
+## Inverse transform method
+
+Given the PDF or CDF or a random variable, define a method to generate the random variable. Following are the steps for a **continouous random variable**.
+
+**Obtaining the CDF $F(x)$ from the PDF $f(x)$**
 $$
-\text{CDF}(v) = \int_{-\infty}^v \text{PDF}(x) \enspace dx
+\text{F}(v) = \int_{-\infty}^v \text{f}(x) \enspace dx
 $$
 
 If the PDF is **defined piecewise**, the CDF needs to be defined piecewise as well. The constant of integration for each piece is one that such that the limits of each piece match each other.
@@ -52,6 +58,8 @@ If the CDF is **defined piecewise**, the inverse function is defined piecewise t
 You need to know how to **invert a function** (example: triangular function - you need to be able to complete the square).
 
 
+
+Following are the steps for a **discrete random variable**.
 
 **Obtaining the CDF from the PMF**
 
@@ -94,4 +102,72 @@ F^{-1}(x)
 $$
 
 Please note that the **inequality is flipped** as $\log(1-p)$ is always negative.
+
+
+
+## Acceptance/Rejection method
+
+Introductory examples 
+
+- triangle distribution and uniform distribution within in a circle
+
+Objective: to obtain sample from a target PDF $f(x)$.
+
+
+
+**Preparation**
+
+You need a pdf $g(x)$ and an constant $c$. Conditions
+
+- You are able to generate a sample of random variable $Y$ from pdf $g(x)$
+(note that the **area under curve of a pdf is one**)
+- There needs to be a $c$ such that $f(x) \leq c \cdot g(x)$
+  (note that $c$ is necessarily $\geq 1$)
+
+
+
+**How to obtain a samples** (will test in exam)
+
+Step 1) Obtain sample $Y$ from the pdf $g$
+
+Step 2) Obtain an independent sample $U$ from the uniform distribution.
+
+Step 3) If $U \leq \frac{f(y)}{(c \cdot g(Y))}$ then set $X = Y$ accept, or else reject and restart this procedure.
+
+
+
+**Number of computations**
+
+![Screenshot 2019-11-11 at 10.38.59 AM](assets/Screenshot 2019-11-11 at 10.38.59 AM.png)
+
+Therefore $c$ characterises the efficiency of the method - we want to use as small a $c$ as possible.
+
+
+
+**Proof of correctness**
+
+![Screenshot 2019-11-11 at 10.40.31 AM](assets/Screenshot 2019-11-11 at 10.40.31 AM.png)
+
+
+
+**Common types of g(x)**
+
+- Uniform distribution
+  If it is assumed that an machine can give this variable without problem.
+- Exponential distribution
+  $e^{-|x|}$ for $x > 0$, and $0$ for other $x$
+  
+  $\frac{1}{2}e^{-|x|}$ for all $x$
+
+
+
+
+
+## Generation of random uniform variables
+
+Linear congruential generators
+
+$x_n = a x_{n-1} + c \mod m$
+
+Ideally $m$ is a large prime number, and $a$ is a number between $1$ and $m-1$. So after a finite number (at most m) the generated values are repeated. For large prime number $m$ it takes a huge amount of time to repeat.
 
