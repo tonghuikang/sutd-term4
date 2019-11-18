@@ -1,0 +1,114 @@
+# Script for Week 10 -- session 1 (in-class activity)
+
+
+######## Set the working environemnt and Load the data
+
+
+```{r}
+# Load the MovieLens datasets
+movies <- read.csv("wk10-movies.csv",stringsAsFactors=FALSE)
+# With the option stringsAsFactors=FALSE we make sure that character vectors are 
+# not converted into factors.
+str(movies) # The dataframe consists of two variables with 8569 movies with movieID and title
+head(movies) # First part of the dataframe
+summary(movies) # Summary of the data
+
+# To read in the movie genres, we use the following commands 
+# This helps count the number of fields separated by "|" in each row of genres.csv
+countfields <- count.fields("genres.csv", sep="|") 
+countfields[1] # The first movie, for example has 5 genres listed
+# With this command, we can see that movies have from 1 to 7 genres listed
+min(countfields)
+max(countfields)
+
+# Now, we load genres.csv. The command creates a dataframe with 8569 observations 
+# and 7 variables with column names X1 ... X7.
+genres <- read.csv("genres.csv", header=FALSE, sep="|", col.names=c("X1","X2","X3","X4","X5","X6","X7"))
+#
+# Note that each variable has different number of levels. 
+str(genres) 
+
+# We want to work with a matrix having 8,569 rows and a number of columns equal to the number of genres.
+# For each cell, we want to know whether a certain genre is associated (1) or not (0) to a certain movie.
+# This requires some processing of the data contained in 'genres'. We use a dedicated function to do it.
+#
+# Back to the code folder
+setwd(".../R code")
+#
+# Source and run the function
+source('process_genre_data.R')
+M <- process_genre_data(genres)
+
+# Last step, we create a dataframe (named "Data") with movie title and classification
+Data <- as.data.frame(M)
+Data$title <- movies$title
+Data <- Data[,-19] # Drops the 19th column, which corresponds to the "" category
+
+
+######## Hierarchical clustering
+
+# With the function dist, we calculate the distance 
+# between movies using the first 19 columns (genres of movies)
+distances <- dist(Data[,1:19], method="euclidean")
+dim(Data)
+# Note that we computed 8569*8568/2 distances
+length(distances)
+
+# Execute hierarchical clustering. We use Ward's distance method to find compact clusters.
+clusterMovies1 <- hclust(distances, method="ward.D2")
+# Plots the dendrogram. We have several movies, so the lists at the bottom cannot be read
+plot(clusterMovies1) 
+
+# Let's then cut the dendrogram into 10 clusters
+clusterGroups1 <- cutree(...)
+# Compute the average value across the clusters for the Action variable. 
+# Higher value indicates many movies in the cluster are action movies.
+tapply(...) 
+
+# Create a matrix "Cat1" where rows denote categories and columns indicate clusters
+Cat1 <- matrix(0,nrow=19,ncol=10)
+for(i in 1:19)
+{Cat1[i,] <- tapply(Data[,i], clusterGroups1, mean)}
+rownames(Cat1) <- colnames(Data)[1:19]
+Cat1
+
+# Let's take a look at various movies
+subset(Data$title, clusterGroups1==6)
+subset(Data, movies$title=="Grand Budapest Hotel, The (2014)")
+clusterGroups1[8418]
+subset(Data, movies$title=="Moneyball (2011)")
+clusterGroups1[7925]
+subset(Data, movies$title=="X-Men: First Class (2011)")
+clusterGroups1[7849]
+
+
+######## K-means clustering
+
+set.seed(1)
+# This performs a K-means clustering using k=10 and 20 random initial configurations
+# (a random set of rows is chosen as initial centers)
+clusterMovies2 <- kmeans(..)
+# Total within cluster sum of squares (we want this number to be small)
+clusterMovies2$tot.withinss # 7324.78
+#
+# Let's try again, but, this time, with just one initial configuration
+set.seed(1)
+clusterMovies3 <- kmeans(..)
+clusterMovies3$tot.withinss # 7601.802
+# We can see that picking more starting point is useful!
+
+# Let's now vary the value of k and plot the error in the cluster as a function of k
+set.seed(1)
+fit <- 0
+for(k in 1:15)
+{clusterMovies4 <- kmeans(Data[,1:19], centers=k, nstart=20)
+fit[k] <- clusterMovies4$tot.withinss}
+plot(1:15,fit)
+
+# Let's see the corresponding clusters
+Cat2 <- matrix(0,nrow=19,ncol=10)
+for(i in 1:19)
+{Cat2[i,] <- tapply(Data[,i], clusterMovies2$cluster, mean)}
+rownames(Cat2) <- colnames(Data)[1:19]
+Cat2
+```

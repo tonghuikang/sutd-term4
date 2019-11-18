@@ -909,6 +909,25 @@ table(predict3,test$responsive)
 | Prediction     | Recommendation Systems |
 | Comments       | ?    |
 
+Objective of recommendation systems
+- accuracy
+- variety
+- updatable
+- computationally efficient
+
+Netflix prize - the first large scale data competition
+
+**Supervised learning versus unsupervised learning**
+**Supervised learning**. Given a set of **predictors** $\{x_1, ..., x_p\}$ and an output of $\{y\}$, we want to find a function $f(x_1, ..., x_p) = \hat{y}$ that minimise the error on some metric.
+
+**Unsupervised learning**. Given a set of features, we want to find "**patterns**" within the data. Find a group of clusters that minimise the intra-cluster variance and maxisies the inter-cluter vairance.
+
+
+
+
+
+
+
 <div style="page-break-after: always;"></div> 
 **Week 11**
 
@@ -920,6 +939,8 @@ table(predict3,test$responsive)
 | Quality of fit | ?    |
 | Prediction     | Images |
 | Comments       | ?    |
+
+Characterise each movie and user into a vector.
 
 <div style="page-break-after: always;"></div> 
 **Week 12**
