@@ -900,16 +900,116 @@ table(predict3,test$responsive)
 <div style="page-break-after: always;"></div> 
 **Week 10**
 
-| Method         | Clustering/Filtering |
+| Method         | Hierarchical clustering |
 | -------------- | ---- |
-| Target         |  |
+| Target         | Dendrogram, Clusters |
 | Model          | ?    |
 | Loss           | ?    |
 | Quality of fit | ?    |
 | Prediction     | Recommendation Systems |
 | Comments       | ?    |
 
+**Algorithmic Procedure**
+
+Compute the **Euclidean distance** between each pair. The closest pair forms a cluster and we take the midpoint. The output is a **dendrogram** (which is a binary tree).
+
+In the visualisation, the distance of the **vertical edge** represents the distance between adjacent leaves. The horizontal placement and distance do not have a meaning. Unlike K-means clustering, there is no need for any hyperparamter tuning to build a dendrogram.
+
+To create a cluster, we need to select a cutoff distance. Each tree cut by the cutoff is one cluster each. A cluster may only have one leaf, we can this an atomic cluster.
+
+
+
+You need to do **preprocessing** to convert the list of genre for each movie into to a binary list.
+
+```r
+# compute the distance between every pair
+distances <- dist(Data[,1:19], method="euclidean")
+dim(Data)
+length(distances)
+
+# execute hierarchical clustering 
+# Ward's distance method is used to find compact clusters.
+clusterMovies1 <- hclust(distances, method="ward.D2")
+
+# plot dendrogram
+plot(clusterMovies1) 
+
+# create 10 clusters (by what criteria? binary search for cutoff?)
+clusterGroups1 <- cutree(clusterMovies1, k=10)
+
+# calculate the average of each feature in the cluster
+Cat1 <- matrix(0,nrow=19,ncol=10)
+for(i in 1:19){
+  Cat1[i,] <- tapply(Data[,i], clusterGroups1, mean)}
+rownames(Cat1) <- colnames(Data)[1:19]
+Cat1
+
+# list the elements in the cluster
+subset(Data$title, clusterGroups1==6)
+```
+
+<div style="page-break-after: always;"></div> 
+**Week 10**
+
+| Method         | K-means clustering |
+| -------------- | ---- |
+| Target         | Clusters |
+| Model          | ?    |
+| Loss           | ?    |
+| Quality of fit | ?    |
+| Prediction     | Recommendation Systems |
+| Comments       | ?    |
+
+**Algorithmic Procedure**
+
+Initialisation - Given a number of clusters $k$, randomly generate $k$ different means/centroids.
+
+Assign each observation to the cluster whose mean/centroid has the closest Eculidean distance.
+
+Update calculate the new means/centroid, and repeat assignment.
+
+Stop when the assignment does not change.
+
+Downsides
+- May end up with different results
+- May not converge or take a very long time to converge.
+
+
+
+```r
+# execute k-means clustering
+# n-start is the number of different starting points
+# choose the best clustering from each of the n-start
+clusterMovies2 <- kmeans(Data[,1:19], centers=10, nstart=20)
+
+# the loss within each cluster
+clusterMovies3$withinss
+
+# the total loss for all the clusters
+clusterMovies2$tot.withinss # 7324.78
+
+# Plot loss against k
+fit <- c()
+for(k in 1:15){
+  clusterMovies4 <- kmeans(Data[,1:19], centers=k, nstart=20);
+  fit[k] <- clusterMovies4$tot.withinss}
+plot(1:15,fit)
+
+# calculate the average of each feature in the cluster
+Cat2 <- matrix(0,nrow=19,ncol=10)
+for(i in 1:19){
+  Cat2[i,] <- tapply(Data[,i], clusterMovies2$cluster, mean)}
+rownames(Cat2) <- colnames(Data)[1:19]
+Cat2
+
+# list the elements in the cluster
+subset(Data$title, clusterMovies2$cluster==6)
+```
+
+
+
 Objective of recommendation systems
+
 - accuracy
 - variety
 - updatable
@@ -922,6 +1022,20 @@ Netflix prize - the first large scale data competition
 
 **Unsupervised learning**. Given a set of features, we want to find "**patterns**" within the data. Find a group of clusters that minimise the intra-cluster variance and maxisies the inter-cluter vairance.
 
+
+
+<div style="page-break-after: always;"></div> 
+**Week 10**
+
+
+| Method         | Collaborative Flitering |
+| -------------- | ---- |
+| Target         |  |
+| Model          | ?    |
+| Loss           | ?    |
+| Quality of fit | ?    |
+| Prediction     | Recommendation Systems |
+| Comments       | ?    |
 
 
 

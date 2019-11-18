@@ -1,4 +1,4 @@
-```{r}
+
 process_genre_data <- function(genres) {
   
   # To obtain the overall set, we use
@@ -37,5 +37,5 @@ process_genre_data <- function(genres) {
     # Return M
     return(M)
 }
-```
+
 
