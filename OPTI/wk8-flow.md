@@ -1,30 +1,24 @@
-# Network flow
+# Max-flow problem
 
 ### **Taxonomy of network problems**
 
-- Linear programming 
-
-  - Min-cost problem
-
-    - Max-flow problem
-
-      - Baseball elimination
-
-        Has a particular team been eliminated from winning the season finale, given the current points and number of games left between each team? The particular team can win all the remaining game, but has no control over matches between other teams which either team will get points. We just want to know if there exists a feasible flow with value equal to 10 **(DONT UNDERSTAND)**.
-
-    - Maximum cardinality matching
+- **Linear programming (Simplex)**
+- **Min-cost flow problem (Network Simplex)**
+  - **Max-flow problem (Ford-Fulkerson)**
+  - Baseball elimination (example)
+    (Only have four layers, attempts to exhaust all supply)
+  
+  - Maximum cardinality matching
 
     - Transhipment problem
-
-      How to meet the demand minimising delivery costs?
-
-      - Transportation problem
-        (Transhipment problem without intermediate nodes)
+      How to meet the demand while minimising delivery costs?
+    - Transportation problem
+          (Transhipment problem without intermediate nodes)
         - Assignment problem
-          (The total demand is equal to total supply)
-
-    - Shortest path problem
-      (You are transferring a unit supply from the source to the tap at minimum cost)
+              (The total demand is equal to total supply)
+    
+        - **Shortest path problem (Dijkstra)**
+        (You are transferring a unit supply from the source to the tap at minimum cost)
 
 
 
@@ -84,35 +78,57 @@ $$
 
 
 
-**Ford-Fulkerson algorithm**
+## Ford-Fulkerson algorithm for max-flow
 
-Initialise the current flow value as zero.
+**Problem parameters**
 
-- Find any directed path $P$ from the source to the tap. 
-- Send the maximum possible flow $f$ along $P$.
-- Add $f$ to the current flow value.
-- Update the path $P$.
+These are the numbers that you need to keep track of
+
+- **Nodes**
+  - Provided by the problem
+    - **Label**. This is how the node is referred to. Be If this is also a number it can be quite confusing.
+    - (There are no require demand or supply)
+- **Edges** (directed)
+  - Provided by the problem
+    - Capacity of the edge
+      - You can consider that between every pair of node there is an edge, we do not show one with zero capacity.
+  - Calculated for each iterations
+    - Modified capacity
+      - If the capacity is initially zero, we augment the arc.
+
+
+
+**Initialise** the **current flow value** as zero
+
+**Iterate** with the following steps
+
+- Find any **directed path** $P$ from the source to the tap. 
+- Send the **maximum possible flow** $f$ along $P$.
+- **Add** $f$ to the current flow value.
+- **Update the path** $P$.
   - Decrease the forward capacity by $f$.
   - Increase the backward capacity by $f$
     - You may need to create an (augmenting) path.
   - If a directed edge from the source is zero, remove.
   - If a directed edge to the tap is zero, remove.
 
-Terminate the algorithm when there are no more directed paths from the source to the tap. The complexity of the algorithm depends on the choice of augmenting paths.
+**Terminate** the algorithm when there are no more directed paths from the source to the tap. The complexity of the algorithm depends on the choice of augmenting paths.
 
 The backflow capacity needs to be decreased if used (from 10 to 9 in the example below). 
 
 <img src="assets/Screenshot 2019-11-04 at 12.52.50 PM.png" alt="Screenshot 2019-11-04 at 12.52.50 PM" style="zoom:50%;" />
 
 My understanding of the intuition
-- when you assign the flow you also assign flexibility with the backflow values
-- progress is made when the edges from the source and tap is removed, eventually leaving no directed node from the source to the tap
+- when you assign the flow you also assign **flexibility** with the backflow values
+- **progress** is made when the edges from the source and tap is removed, eventually leaving no directed node from the source to the tap
 
 ![Screenshot 2019-11-17 at 9.57.46 PM](assets/Screenshot 2019-11-17 at 9.57.46 PM.png)
 
 
 
-### **Primal and dual pair for max-flow problem**
+
+
+### **Primal-dual pair for max-flow problem**
 
 ![Screen Shot 2019-11-04 at 14.48.15 PM](assets/Screen Shot 2019-11-04 at 14.48.15 PM.png)
 
@@ -128,42 +144,37 @@ Natuaral bounds - if you partition right outside the source and the tap, you get
 
 
 
-**The min-cost flow problem**
 
-This is a more general form of a max-flow problem, but still a specific class of linear programming problem.
+
+## Other min-cost flow problems
+
+**Min-cost flow problem**
+
+This is a more general form of a max-flow problem, but still a specific class of linear programming problem (refer to taxonomy)
 
 ![Screenshot 2019-11-06 at 11.42.14 AM](assets/Screenshot 2019-11-06 at 11.42.14 AM.png)
 
-For each node the outflow minus inflow equal $b_i$. If $b_i > 0$, node $i$ is a supply node, if $b_i$ is a demand node, node $i$ is a demand node.
 
-![Screenshot 2019-11-06 at 11.53.33 AM](assets/Screenshot 2019-11-06 at 11.53.33 AM.png)
-
-![Screenshot 2019-11-06 at 11.53.48 AM](assets/Screenshot 2019-11-06 at 11.53.48 AM.png)
-
-Properties
-- Feasible solution is not guaranteed - it is possible that the supply do not reach the demand.
-- Redundancy - the last flow node is a linear combination of rest of the flow nodes.
-
-**Transforming into a min-cost problem**
-In the min-cost problem total demand should be equal to the total supply $\sum_i b_i = 0$, or else there this is not a min-cost problem (or no feasible solution). Therefore
-
-- If the supply exceeds the demand, create a dummy sink connected to each source, each with **zero cost**.
-- If the demand exceeds the supply, create a dummy source connected to each source, each with **very high cost**.
-
-**Converting a max-flow problem into a min-cost problem**
-
-Every max-flow problem can be converted into a min-cost problem (refer to taxonomy of linear programming problems).
-
-Add an arc from the sink to the source with infinite capacity. The objective function is to minimise the negative of the flow of the new sink-source arc. The cost of the rest of the arcs are zero.
-
-**Assignment problem**
-
-![Screenshot 2019-11-17 at 10.48.33 PM](assets/Screenshot 2019-11-17 at 10.48.33 PM.png)
 
 **Transportation problem**
 
 ![Screenshot 2019-11-17 at 10.48.41 PM](assets/Screenshot 2019-11-17 at 10.48.41 PM.png)
 
+
+**Assignment problem**
+
+Transportation problem but demand equals supply.
+
+![Screenshot 2019-11-17 at 10.48.33 PM](assets/Screenshot 2019-11-17 at 10.48.33 PM.png)
+
+
+
 **Baseball elimination problem**
 
+This is an problem that could be interestingly formulated with linear programming.
+
+Each match requires a winner from a pair of team, forming the required supply (which can be combined into a single source). The required demand at the sink is the total required supply.
+
 ![Screenshot 2019-11-17 at 10.48.56 PM](assets/Screenshot 2019-11-17 at 10.48.56 PM.png)
+
+We want to do this as a max-flow problem because max-flow is easier to solve compared to min-cost. It is possible for Tanpa to win if all the supply constraints reaches the limit.

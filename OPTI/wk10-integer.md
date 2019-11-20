@@ -1,14 +1,12 @@
 # Integer programming
 
-Please recall Freshmore math for the definition.
-
-You need some experience and creativity to formulate the linear program.
+You need some experience and creativity to formulate the linear program from the problem.
 
 
 
 Example - flipping the board of five. Takeaways
 
-- How to constrain a linear expression to **odd and even**
+- How to constrain a linear expression to **odd and even** (use $2k + 1$, $k$ integer)
 - Use of dummy variables outside the grid to **simplify expressions**
 - **Minimising an integer variable** also constrains the variable to take only **binary** values.
 
@@ -34,53 +32,85 @@ Example - IKEA with setup costs. Takeaways
 
 
 
+
+
 **Knapsack problem**
 
 - Consider logical constraints
-- You cannot use strict inequalities in any linear program.
 
 ![Screenshot 2019-11-18 at 12.35.40 PM](assets/Screenshot 2019-11-18 at 12.35.40 PM.png)
 
 
-```python
-from functools import lru_cache
-
-def knapsack(items, maxweight):
-    # items is an array of (value, weight)
-    @lru_cache(maxsize=None)
-    def bestvalue(i, j):
-        # Return the value of the most valuable 
-        # subsequence of the first i elements in 
-        # items whose weights sum to no more than j.
-        if j < 0:
-            return float('-inf')
-        if i == 0:
-            return 0
-        value, weight, idx = items[i - 1]
-        return max(bestvalue(i - 1, j), bestvalue(i - 1, j - weight) + value)
-
-    j = maxweight
-    result = []
-    for i in reversed(range(len(items))):
-        if bestvalue(i + 1, j) != bestvalue(i, j):
-            result.append(items[i])
-            j -= items[i][1]
-    result.reverse()
-    return bestvalue(len(items), maxweight), result
-
-arr = [(a,b,c) for a,b,c in zip([16,22,12,8,11,19],
-                                [5,7,4,3,4,6],
-                                range(6))]
-knapsack(arr, 15)
-```
 
 
 
 
 
 
+## Modelling ILP problem
 
-**Miscellaneous**
+Linear programming can only solve convex problems, with inclusive boundaries, and you cannot multiply variables.
 
-Integer theorem - integer coefficient integer solution - for which problems only?
+Strategy - transform the problem into ORs and ANDs.
 
+
+
+**Modelling less-than-or-greater-than (non-convex) inequality**
+$$
+x\leq2 
+\quad \text{or} \quad 
+x \geq 6
+$$
+You can turn off either constraint by adding a binary variable $w_i$ with a big $M$.
+$$
+x \leq 2 + M w 
+\quad \text{and} \quad 
+x \geq 6 - M (1-w)
+\quad \text{and} \quad 
+w \text{ binary}
+$$
+
+Consider the geometry of the formulation.
+
+![Screenshot 2019-11-20 at 12.08.07 PM](assets/Screenshot 2019-11-20 at 12.08.07 PM.png)
+
+The yellow region is convex.
+
+
+
+**Modelling with complement constraint**
+
+One and only one of the constraint and its complement can be fulfilled. 
+
+If the variables and coefficient are integers, we can formulate a complement. For the constraint $x_1 + 2x_2 \leq 10$, the violation is $x_1 + 2x_2 \geq 11$. (We cannot use strict inequalities for linear programming).
+
+![Screenshot 2019-11-20 at 12.13.24 PM](assets/Screenshot 2019-11-20 at 12.13.24 PM.png)
+
+
+
+
+
+**Implication statement into logical constraint**
+
+If $P \implies Q$,  $\overline{P} \or Q$ must be true. $\overline{P}$ is the complement of $P$.
+
+![Screenshot 2019-11-20 at 12.22.56 PM](assets/Screenshot 2019-11-20 at 12.22.56 PM.png)
+
+
+
+
+
+
+
+**Piecewise linear functions**
+
+This is more for objective function, though it is possible for the constraint.
+
+
+![Screenshot 2019-11-20 at 12.43.46 PM](assets/Screenshot 2019-11-20 at 12.43.46 PM.png)
+
+![Screenshot 2019-11-20 at 12.43.34 PM](assets/Screenshot 2019-11-20 at 12.43.34 PM.png)
+
+$x$ is replicated into three parts.
+$x_i$ will be set to zero if we are not using the i-th piece. 
+$w_i$ indicates whether are we using the i-th piece.
