@@ -1,25 +1,42 @@
 # Quiz 2 summary
 
-
-Taxonomy of network problems (and methods)
+**Taxonomy** of network problems (and methods)
 
 - **Linear programming (Simplex)**
-- **Min-cost flow problem (Network Simplex)**
-  - **Max-flow problem (Ford-Fulkerson)**
-  - Baseball elimination (example)
-    (Only have four layers, attempts to exhaust all supply)
-  
-  - Maximum cardinality matching
 
-    - Transhipment problem
-      How to meet the demand while minimising delivery costs?
-    - Transportation problem
-          (Transhipment problem without intermediate nodes)
-        - Assignment problem
-              (The total demand is equal to total supply)
+  - **Min-cost flow problem (Network Simplex)**
     
-        - **Shortest path problem (Dijkstra)**
-          (You are transferring a unit supply from the source to the tap at minimum cost)
+    For our course we will assume all edges have infinite capacity.
+    
+    - **Max-flow problem (Ford-Fulkerson) **
+    
+      This can be formulated into a min-cost flow problem by connecting an arc from the tap of the source, with infinite capacity and negative one cost.
+    
+      (The dual problem is the **min-cut problem**.)
+    
+      - Baseball elimination (example)
+    
+        (Only have four layers, attempts to exhaust all supply)
+    
+    - Maximum cardinality matching
+    
+    - Transhipment problem
+    
+      How to meet the demand while minimising delivery costs?
+    
+      Can be formulated into a min-cost flow problem by adding dummy sources or taps with zero cost arcs. This makes the total demand equals to the total supply.
+      
+     - **Shortest path problem (Dijkstra)**
+      
+         You are transporting a unit supply from the source to the tap, at minimum cost
+         
+      - Transportation problem
+    
+        Transhipment problem without intermediate nodes.
+    
+          - Assignment problem
+        
+            Transhipment problem but the total demand is equal to the total supply.
 
 <div style="page-break-after: always;"></div>
 ## The max-flow problem
@@ -114,7 +131,6 @@ These are the numbers that you need to keep track of
 **Terminate** the algorithm when there are no more directed paths from the source to the tap. The complexity of the algorithm depends on the choice of augmenting paths.
 
 <div style="page-break-after: always;"></div>
-
 The backflow capacity needs to be decreased if used (from 10 to 9 in the example below). 
 
 <img src="assets/Screenshot 2019-11-04 at 12.52.50 PM.png" alt="Screenshot 2019-11-04 at 12.52.50 PM" style="zoom:30%;" />
@@ -124,27 +140,31 @@ My understanding of the intuition
 - **progress** is made when the edges from the source and tap is removed, eventually leaving no directed node from the source to the tap
 
 <div style="page-break-after: always;"></div>
-
 <img src="assets/Screenshot 2019-11-17 at 9.57.46 PM.png" alt="Screenshot 2019-11-17 at 9.57.46 PM" style="zoom:33%;" />
 
+**The backflow is ignored** in the calculation of the value of the min-cut. 
 
+Each feasible solution of the dual problem provides an upper bound to the primal problem.
+
+Natuaral bounds - if you partition right outside the source and the tap, you get trivial upper bounds. It is not possible to send any more than the source can send, or any more than the sink can take.
+
+The optimal solutions for the primal and dual problems is the same.
 
 <div style="page-break-after: always;"></div>
 ### **Primal-dual pair for max-flow problem**
+
+The dual of max-flow problem is the min cut problem. Assigning the $d$-values provides a partition.
 
 <img src="assets/Screen Shot 2019-11-04 at 14.48.15 PM.png" alt="Screen Shot 2019-11-04 at 14.48.15 PM" style="zoom: 33%;" />
 
 <img src="assets/Screen Shot 2019-11-04 at 14.48.03 PM.png" alt="Screen Shot 2019-11-04 at 14.48.03 PM" style="zoom:33%;" />
 
+Wikipedia offers good explanation https://en.wikipedia.org/wiki/Max-flow_min-cut_theorem
+Symbols differ.
+
 <img src="assets/Screen Shot 2019-11-04 at 14.48.06 PM.png" alt="Screen Shot 2019-11-04 at 14.48.06 PM" style="zoom:33%;" />
 
-Each of $d_k$ and $y_{ij}$ is should be binary value (why?). Assigning the d-values provides a partition.
-
-The backflow is ignored in the min-cut. Each feasible solution of the dual problem provides upper bound of the primal problem. The objective value of optimal solution of the dual problem and the primal problem is the same.
-
-Natuaral bounds - if you partition right outside the source and the tap, you get trivial upper bounds - it is not possible to send any more than the source can send, or any more than the sink can take.
-
-
+![Screenshot 2019-11-22 at 1.52.36 PM](assets/Screenshot 2019-11-22 at 1.52.36 PM.png)
 
 <div style="page-break-after: always;"></div>
 #Min-cost flow problem
@@ -228,7 +248,6 @@ These are the numbers that you need to keep track of
       - Initial cost minus decrease in simplex multiplier down the direction of the edge
 
 <div style="page-break-after: always;"></div>
-
 **Initialising the network simplex**
 
 You start with a **basic feasible solution** a minimum spanning tree that allows all supplies and demands to be satisfied.
@@ -250,7 +269,6 @@ Compute the **reduced costs**. If all reduced cost are **nonnegative**, the solu
 ![Screen Shot 2019-11-17 at 23.35.10 PM](assets/Screen Shot 2019-11-17 at 23.35.10 PM.png)
 
 <div style="page-break-after: always;"></div>
-
 **Assumptions**
 
 - No capacity constraints for the edges
@@ -264,7 +282,6 @@ Compute the **reduced costs**. If all reduced cost are **nonnegative**, the solu
 
 
 <div style="page-break-after: always;"></div>
-
 **Phase I of network simplex**
 
 Do this to obtain a basic feasible solution for the network simplex.
@@ -274,7 +291,6 @@ Do this to obtain a basic feasible solution for the network simplex.
 
 
 <div style="page-break-after: always;"></div>
-
 **Comparison between simplex and network simplex**
 
 ![Screenshot 2019-11-13 at 12.07.24 PM](assets/Screenshot 2019-11-13 at 12.07.24 PM.png)
@@ -338,7 +354,6 @@ Consider the geometry of the formulation.
 The yellow region is convex.
 
 <div style="page-break-after: always;"></div>
-
 **Modelling with complement constraint**
 
 One and only one of the constraint and its complement can be fulfilled. 
@@ -362,7 +377,6 @@ If $P \implies Q$,  $\overline{P} \or Q$ must be true. $\overline{P}$ is the com
 
 
 <div style="page-break-after: always;"></div>
-
 **Piecewise linear functions**
 
 This is more for objective function, though it is possible for the constraint.
@@ -373,4 +387,4 @@ This is more for objective function, though it is possible for the constraint.
 
 $x$ is replicated into three parts.
 $x_i$ will be set to zero if we are not using the i-th piece. 
-$w_i$ indicates whether are we using the i-th piece. .
+$w_i$ indicates whether are we using the i-th piece.
