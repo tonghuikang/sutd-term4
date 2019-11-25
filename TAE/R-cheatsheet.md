@@ -26,6 +26,7 @@ library(randomForest)
 library(SnowballC)
 library(wordcloud)
 library(e1071) # Naive Bayes
+library(jpeg)
 ```
 
 If you cannot, please panic.
@@ -66,6 +67,9 @@ summary(arr)
 which.max(arr)
 pmax(arr,arz)  # take maximum element-wise
 arr > 1  # element-wise logical check
+
+is.na() # counts number of NA
+mean() # R has this function, ignores NA values
 ```
 
 **Type casting**
@@ -1030,12 +1034,201 @@ Netflix prize - the first large scale data competition
 
 | Method         | Collaborative Flitering |
 | -------------- | ---- |
-| Target         |  |
+| Target         | Rating (regression) |
 | Model          | ?    |
-| Loss           | ?    |
+| Loss           | RSME $= \sqrt{\sum_{i=1}^u (r_{ui}-p_{ui})^2/u}$ |
 | Quality of fit | ?    |
 | Prediction     | Recommendation Systems |
 | Comments       | ?    |
+
+Essentially, take the average of the nearest 250 users, promixity is calculated by correleation.
+
+
+
+**Limitations**
+
+- Inconsistent number of ratings given to each items
+- "Cold start" - struggles with new users
+
+
+
+Instead of clustering by genres, we can predict a user's rating on a movie, with all the past ratings done by all the users.
+
+
+
+We can calculate the similarity across different users (we only calculate for the obects that has been rated by both users).
+
+
+
+**Baseline predictions for a movie by a user**
+
+- take the average of the prediction on the movie
+- take the average of the prediction by the user
+
+
+
+**Predictive models**
+
+- Identify the cluster that the test user was classified into
+  - Take the average rating by the cluster on the movie
+  - Take a weighted average taking into account of the relative importance of each user in the subcluster (not all people in the cluster has rated the novie.)
+  - Take into account bias of the user on movie - replace the average rating the user has been given with the average rating the subcluster gives. 
+
+
+
+**Dataset processing**
+
+To decrease storage and transfer size, we are usually given list of ratings. Each rating consists of the rater (user) and the rated (movie), and the score.
+
+```r
+length(unique(ratings$userId))  # 706
+length(unique(ratings$movieId)) # 8552
+sort(unique(ratings$rating))    # 0.5 1.0 ... 5.0
+```
+
+We need to transform this into a spare matrix for our input. We first create an empty matrix and them populate it.
+
+```r
+Data <- matrix(nrow=length(unique(ratings$userId)), ncol=length(unique(ratings$movieId)))
+
+for(i in 1:nrow(ratings)){
+  Data[as.character(ratings$userId[i]),
+       as.character(ratings$movieId[i])] <- ratings$rating[i]}
+```
+
+
+
+
+
+**Train test split**
+
+Type| Movies                           |                                  
+ --------- | -------------------------------- | -------------------------------- 
+ **Users** | Training data                    | Data to make baseline prediction 
+           | Data to make baseline prediction | Test set                         
+
+```r
+# We want to create a matrix with 
+# spl1 + spl1c rows and spl2 + spl2c columns
+
+set.seed(1)       
+spl1 <- sample(1:nrow(Data), 0.98*nrow(Data)) 
+# spl1 has 98% of the rows
+spl1c <- setdiff(1:nrow(Data),spl1)           
+# spl1c has the remaining ones
+
+set.seed(2)
+spl2 <- sample(1:ncol(Data), 0.8*ncol(Data))  
+# spl2 has 80% of the columns
+spl2c <- setdiff(1:ncol(Data),spl2)           
+# spl2c has the rest
+
+# spl(s) are indices
+length(spl1)  # 691
+length(spl1c) # 15
+length(spl2)  # 6841
+length(spl2c) # 1711
+```
+
+We initialise the matrices to fill in our predictions. It should have the same dimension with our test set.
+
+```r
+test_set <- Data[spl1c, spl2c]
+Base1    <- matrix(nrow=length(spl1c), ncol=length(spl2c))
+Base2    <- matrix(nrow=length(spl1c), ncol=length(spl2c))
+UserPred <- matrix(nrow=length(spl1c), ncol=length(spl2c))
+```
+
+
+
+
+**Baseline predictions**
+
+The predicted rating by each user on a movie is the average of all predictions on the movie. A movie will have the same prediction, by any user.
+
+```r
+for(i in 1:length(spl1c))  
+{Base1[i,] <- colMeans(Data[spl1,spl2c], na.rm=TRUE)}
+Base1[,1:10] 
+# All rows (users) contain the same information
+```
+
+The predicted rating by a user on each movie is the average of all predictions by the user. A user will provide the same rating for all movies.
+
+```r
+for(j in 1:length(spl2c)) 
+{Base2[,j] <- rowMeans(Data[spl1c,spl2], na.rm=TRUE)}
+Base2[,1:10] 
+# All columns (movies) contain the same information
+```
+
+
+
+**Correlation model**
+
+Essentially, we are taking the average prediction of the nearest $N$ users. We first initialse a matrix to contain the correleation between each pair of users.
+
+```r
+# Initialize matrices
+Cor <- matrix(nrow=length(spl1),ncol=1) 
+# keeps track of the correlation between users
+Order <- matrix(nrow=length(spl1c), ncol=length(spl1)) 
+# sort users in term of decreasing correlations
+```
+
+For each user, we calculate the correlation with all other users. Then each user will have a list of all (or most due to NAs) other user, ordered with decreasing correlation.
+
+```r
+# The NAs account for users who have no common ratings of movies with the user.
+for(i in 1:length(spl1c)){
+  for(j in 1:length(spl1)){
+      Cor[j] <- cor(Data[spl1c[i],spl2],
+                    Data[spl1[j],spl2],
+                    use = "pairwise.complete.obs")
+      }
+  V <- order(Cor, decreasing=TRUE, na.last=NA)
+  Order[i,] <- c(V, rep(NA, times=length(spl1)-length(V)))
+}
+```
+The prediction of the user on a movie will be average of the nearest $N$ users. $N$ is a hyperparameter chosen by us.
+
+```r
+# Now, we compute user predictions by looking at the 250 nearest neighbours and averaging equally over all these user ratings in the items in spl2c
+for(i in 1:length(spl1c))
+{UserPred[i,] <- colMeans(Data[spl1[Order[i,1:250]],spl2c], na.rm=TRUE)}    
+UserPred[,1:10]
+```
+
+
+
+
+
+**Compare the model performance**
+
+We take the average of the squared difference with the test set.
+
+```r
+RMSEBase1    <- sqrt(mean((Base1 - test_set)^2, na.rm=TRUE))
+RMSEBase2    <- sqrt(mean((Base2 - test_set)^2, na.rm=TRUE))
+RMSEUserPred <- sqrt(mean((UserPred - test_set)^2, na.rm=TRUE))
+
+
+# Last step: we vary the neighborhood set for the third model to see whether it positively affects the results
+RMSE <- rep(NA, times=490)
+for(k in 10:499)
+{for(i in 1:length(spl1c))
+  {UserPred[i,] <- colMeans(Data[spl1[Order[i,1:k]],spl2c], na.rm=TRUE)}
+  RMSE[k-10] <- sqrt(mean((UserPred - test_set)^2, na.rm=TRUE))}
+plot(10:499,RMSE)
+```
+
+Each user is represented through a vector of items (e.g. movie) and the associated rating given to each itme. 
+
+Inconsistent number of rating across items
+
+
+
+Each items is represented by a vector of attributes.
 
 
 
@@ -1045,7 +1238,7 @@ Netflix prize - the first large scale data competition
 <div style="page-break-after: always;"></div> 
 **Week 11**
 
-| Method         | SVD  |
+| Method         | Singular Value Decomposition |
 | -------------- | ---- |
 | Target         | ? |
 | Model          | ?    |
@@ -1055,6 +1248,37 @@ Netflix prize - the first large scale data competition
 | Comments       | ?    |
 
 Characterise each movie and user into a vector.
+
+
+
+**Basic linear algebra operations**
+
+```r
+# define a matrix
+A <- matrix(c(2, 2, 3, 1), nrow=2, ncol=2)
+
+# Get eigenvectors and eigenvalues
+A_eig <- eigen(A)
+A_eig$values
+A_eig$vectors
+```
+
+Eigen decomposition 
+$$
+A = V \cdot S \cdot V^{-1}
+$$
+
+$V$ is a square matrix made up of columns of eigenvectors, and $S$ is a square matrix with its main diagonal made up of eigenvalues is the corresponding order.
+
+```r
+# Implement the eigendecomposition 
+# (note the operator %*% for the matrix multiplication)
+A_eig$vectors %*% diag(A_eig$values) %*% solve(A_eig$vectors)
+```
+
+If $A$ is positive semi definite (eigenvalues of A is non-negative), $V^{-1} = V^T$
+
+
 
 <div style="page-break-after: always;"></div> 
 **Week 12**
