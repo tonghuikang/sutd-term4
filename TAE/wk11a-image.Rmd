@@ -58,20 +58,27 @@ X <- matrix(c(2,1,5,7,0,0,6,0,0,10,8,0,7,8,0,6,1,4,5,0), nrow=5, ncol=4)
 #
 # Apply SVD
 s <- svd(X)
+s
 #
 # Read output
 s$d # singular values
 s$u # left singular vectors
 s$v # right singular vectors
-#
+
 # Test
 s$u %*% diag(s$d) %*% t(s$v)
 X - (s$u %*% diag(s$d) %*% t(s$v))
+```
 
+
+```{r}
 # Approximating X
-X_hat <- s$u[,1:2] %*% diag(s$d[1:2]) %*% t(s$v[,1:2])
+k = 3
+X_hat <- s$u[,1:k] %*% diag(s$d[1:k]) %*% t(s$v[,1:k])
 X - X_hat
+```
 
+```{r}
 # Calculate the explained variance
 var <- cumsum(s$d^2)
 str(var)
@@ -87,7 +94,7 @@ rm(X, X_hat, s, var)
 ```{r}
 # We start by reading the lky image as a 3D array.
 ?readJPEG
-lky <- readJPEG("lky.jpg")
+lky <- readJPEG("wk11-gray.jpg")
 str(lky)
 # The figure has a size of 6 Mb. This is read into an array of size 410 x 640 x 3,
 # height x width x channel.
@@ -110,16 +117,18 @@ s$v # right singular vectors
 ```{r}
 # With s, we can now perform a low rank approximation. In particular, 
 # we do a rank-10 approximation by using the top 10 singular values.
-lky10 <- ..   
+k = 10
+lky10 <- s$u[,1:k] %*% diag(s$d[1:k]) %*% t(s$v[,1:k]) 
 #
 # Save the results into a jpeg file
 ?writeJPEG
-writeJPEG(lky10,"lky10.jpg") # Note that this writes a grayscale image of size 16kb.
+writeJPEG(lky10,"wk11-gray10.jpg") # Note that this writes a grayscale image of size 16kb.
 # ... obviosuly, the file is lossy and loses a lot of information.
 #
 # Let's retry with a rank50 approximation.
-lky50 <- ..
-writeJPEG(lky50,"lky50.jpg")
+k = 50
+lky50 <- s$u[,1:k] %*% diag(s$d[1:k]) %*% t(s$v[,1:k]) 
+writeJPEG(lky50,"wk11-gray50.jpg")
 # This time, we get a size of 24 and a better resolution.
 
 # Let's plot the cumulative sum of the (squared) singular values, so as to calculate the explained variance
@@ -134,7 +143,7 @@ plot(1:410,var/max(var))
 
 ```{r}
 # We now repeat the analysis using a RGB image
-pansy <- readJPEG("pansy.jpg")
+pansy <- readJPEG("wk11-color.jpg")
 str(pansy)
 # The figure has a size of 6.4 Mb. This is read into an array of size 600 x 465 x 3,
 # height x width x channel (with each channel representing the RGB intensity.
@@ -142,28 +151,30 @@ str(pansy)
 max(abs((pansy[,,1]-pansy[,,2])))
 
 # Let's now perform the Singular Value Decomposition (SVD) on the different channels
-s1 <- ..
-s2 <- ..
-s3 <- ..
+s1 <- svd(pansy[,,1])
+s2 <- svd(pansy[,,2])
+s3 <- svd(pansy[,,3])
 ```
 
 ```{r}
 # Develop low rank approximation (with rank 50)
 # initialize the vector for storing the approximation
-pansy50 <- array(dim=c(600,465,3))
-pansy50[,,1] <- ..
-pansy50[,,2] <- ..
-pansy50[,,3] <- ..
+pansy50 <- array(dim=dim(pansy))
+k = 50
+pansy50[,,1] <- s1$u[,1:k] %*% diag(s1$d[1:k]) %*% t(s1$v[,1:k])
+pansy50[,,2] <- s2$u[,1:k] %*% diag(s2$d[1:k]) %*% t(s2$v[,1:k])
+pansy50[,,3] <- s3$u[,1:k] %*% diag(s3$d[1:k]) %*% t(s3$v[,1:k])
 #
 # Save the image in a jpeg file of ize ~40 kb, which has some blurring edges of the flower and leaves.
-writeJPEG(pansy50,"pansy50.jpg")
+writeJPEG(pansy50,"wk11-color50.jpg")
 #
 # let's retey with a higher approximation
 pansy350 <- array(dim=c(600,465,3))
-pansy350[,,1] <- ..
-pansy350[,,2] <- ..
-pansy350[,,3] <- ..
-writeJPEG(pansy350,"pansy350.jpg") # --> much better!
+k = 350
+pansy350[,,1] <- s1$u[,1:k] %*% diag(s1$d[1:k]) %*% t(s1$v[,1:k])
+pansy350[,,2] <- s2$u[,1:k] %*% diag(s2$d[1:k]) %*% t(s2$v[,1:k])
+pansy350[,,3] <- s3$u[,1:k] %*% diag(s3$d[1:k]) %*% t(s3$v[,1:k])
+writeJPEG(pansy350,"wk11-color350.jpg") # --> much better!
 
 ```
 

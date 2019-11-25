@@ -1260,7 +1260,7 @@ A <- matrix(c(2, 2, 3, 1), nrow=2, ncol=2)
 # Get eigenvectors and eigenvalues
 A_eig <- eigen(A)
 A_eig$values
-A_eig$vectors
+A_eig$vectors # these vectors are normalised
 ```
 
 Eigen decomposition 
@@ -1271,12 +1271,139 @@ $$
 $V$ is a square matrix made up of columns of eigenvectors, and $S$ is a square matrix with its main diagonal made up of eigenvalues is the corresponding order.
 
 ```r
-# Implement the eigendecomposition 
+# reconstruct the matrix
 # (note the operator %*% for the matrix multiplication)
 A_eig$vectors %*% diag(A_eig$values) %*% solve(A_eig$vectors)
 ```
 
 If $A$ is positive semi definite (eigenvalues of A is non-negative), $V^{-1} = V^T$
+
+
+
+**Singular Value Decomposition**
+
+$$
+\underset{m \times n}{X} = 
+\underset{m \times n}{U} \cdot 
+\underset{n \times n}{S} \cdot 
+\underset{n \times n}{V^{T}}
+$$
+
+It can be shown that
+
+$$
+X \cdot X^T =
+U \cdot S^2 U^T
+$$
+
+$$
+X^T \cdot X  =
+V \cdot S^2 V^T
+$$
+
+$U$ contains the $m$ eigenvectors of $X \cdot X^T$ (left singular vectors)
+
+$S$ contains the $n$ square roots of $X \cdot X^T$ eigenvalues (singular **values**)
+
+$V$ contains the $n$ eigenvectors of $X^{T} \cdot X$ (right singular vectors)
+
+```r
+# define matrix
+X <- matrix(c(2,1,5,7,0,0,6,0,0,10,
+              8,0,7,8,0,6,1,4,5,0), nrow=5, ncol=4)
+
+# apply SVD
+s <- svd(X)
+s$u # U
+s$d # S
+s$v # V
+
+# reconstruct the matrix
+s$u %*% diag(s$d) %*% t(s$v)
+```
+
+When R implements SVD it transforms it into $m > n$. Check the function parameters of `svd()` for variations.
+
+**Approximating a matrix**
+$$
+\underset{m \times n}{\hat{X}} = 
+\underset{m \times k}{U_k} \cdot 
+\underset{k \times k}{S_k} \cdot 
+\underset{k \times n}{V_k^{T}}
+$$
+
+```r
+# reconstruct a matrix with limited elements
+k <- 2  # less than or equal to n
+s$u[,1:k] %*% diag(s$d[1:k]) %*% t(s$v[,1:k])
+```
+
+**Calculate explained variance**
+Frobenius norm of a matrix $||x||_F$
+$$
+||X||_F = \sqrt{\sum_{i=1}^m \sum_{j=1}^n x_{i,j}^2}
+$$
+
+$$
+\frac{||\hat{X}||_F}{||X||_F} 
+= \frac{\sigma_1^2 + ... + \sigma_k^2}
+{\sigma_1^2 + \sigma_1^2 + ... + \sigma_n^2}
+$$
+
+```r
+# calculate the explained variance
+var <- cumsum(s$d^2)
+plot(1:4,var/max(var))
+```
+
+<div style="page-break-after: always;"></div> 
+**Image compression**
+
+For grayscale images
+
+```r
+# read image
+lky <- readJPEG("wk11-gray.jpg")
+
+# grayscale images has same values for all channels
+# apply SVD on the image
+s <- svd(lky[,,1])
+
+# compress and save the image
+k = 10
+lky10 <- s$u[,1:k] %*% diag(s$d[1:k]) %*% t(s$v[,1:k]) 
+
+# write image to file
+writeJPEG(lky10,"wk11-gray10.jpg")
+
+# calculate the explained variance
+var <- cumsum(s$d^2)
+plot(1:4,var/max(var))
+```
+
+For colored images
+
+```r
+# read image
+pansy <- readJPEG("wk11-color.jpg")
+
+# apply SVD on the image
+s1 <- svd(pansy[,,1])
+s2 <- svd(pansy[,,2])
+s3 <- svd(pansy[,,3])
+
+# compress and save the image
+k = 50
+pansy50 <- array(dim=dim(pansy))
+pansy50[,,1] <- s1$u[,1:k] %*% diag(s1$d[1:k]) %*% t(s1$v[,1:k])
+pansy50[,,2] <- s2$u[,1:k] %*% diag(s2$d[1:k]) %*% t(s2$v[,1:k])
+pansy50[,,3] <- s3$u[,1:k] %*% diag(s3$d[1:k]) %*% t(s3$v[,1:k])
+
+# write image to file
+writeJPEG(pansy50,"wk11-color50.jpg")
+```
+
+
 
 
 
