@@ -25,6 +25,7 @@ UStrain <- subset(UScrime[1:42,], select=-States)
 UStest <- subset(UScrime[43:47,], select=-States)
 m1e = lm(Crime~Po1, data=UStrain)
 summary(m1e)
+summary(m1e)$r.squared
 ```
 f
 ```{r}
@@ -129,7 +130,7 @@ d,e
 ```{r}
 nonvars = c("year", "songtitle", "artistname", "songID", "artistID")
 SongsTrain = SongsTrain[,!(names(SongsTrain)%in%nonvars)]
-SongsTrain = SongsTest[,!(names(SongsTest)%in%nonvars)]
+SongsTest = SongsTest[,!(names(SongsTest)%in%nonvars)]
 
 m2d <- glm(Top10~., data=SongsTrain, family=binomial)
 summary(m2d)
@@ -200,7 +201,7 @@ preds2 <- predict(m2l,
 preds_bin2 = as.integer(preds2>0.4)
 sum(preds_bin2)
 table(preds_bin2, SongsTest$Top10)
-(712+53)/length(preds_bin2)
+(734+13)/length(preds_bin2)
 ```
 m
 ```{r}
