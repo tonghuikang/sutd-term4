@@ -1,7 +1,7 @@
 #  Simuation Analysis
 
 A careful simulation model will have to consider many **uncertain** variables 
-- such as future demand, labour force available, effect of competition, wages, prices, etc. 
+- such as future demand, labour force available, effect of competition, wages, prices, etc.
 
 
 
@@ -132,7 +132,7 @@ Step 1) Obtain sample $Y$ from the pdf $g$
 
 Step 2) Obtain an independent sample $U$ from the uniform distribution.
 
-Step 3) If $U \leq \frac{f(y)}{(c \cdot g(Y))}$ then set $X = Y$ accept, or else reject and restart this procedure.
+Step 3) If $U \leq \frac{f(Y)}{(c \cdot g(Y))}$ then set $X = Y$ accept, or else reject and restart this procedure.
 
 
 

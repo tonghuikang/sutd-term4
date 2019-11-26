@@ -1,5 +1,6 @@
 ## Possion and exponential distribution
 
+
 The interarrival time between samples of an Possion distribution is modelled with the **exponential distribution**
 
 pdf $f(x) = \lambda e^{-\lambda x} \text{ for } x \geq 0$
@@ -17,8 +18,6 @@ Given inputs - time $T$ and rate of possion distribution of lambda $\lambda$
 ![Screenshot 2019-11-13 at 10.32.45 AM](assets/Screenshot 2019-11-13 at 10.32.45 AM.png)
 
 ($U$ and $1-U$ have the same distribution)
-
-
 
 
 
