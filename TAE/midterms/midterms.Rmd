@@ -1,5 +1,11 @@
 # Question 1
 
+Issues
+Providing adjusted R2 instead of R2.
+Took the max of BIC instead of the min.
+Casted test set on training set and trained on test set.
+
+
 a
 ```{r}
 UScrime <- read.csv("UScrime.csv")
@@ -62,17 +68,17 @@ coef(m1k,which.max(summary(m1k)$adjr2))
 ```
 l
 ```{r}
-max(summary(m1k)$bic)
-which.max(summary(m1k)$bic)
-coef(m1k,which.max(summary(m1k)$bic))
+min(summary(m1k)$bic)
+which.min(summary(m1k)$bic)
+coef(m1k,which.min(summary(m1k)$bic))
 ```
 m
 ```{r}
 m1m <- regsubsets(Crime~., UStrain, method="forward")
 summary(m1m)
-max(summary(m1k)$bic)
-which.max(summary(m1k)$bic)
-coef(m1k,which.max(summary(m1k)$bic))
+min(summary(m1m)$bic)
+which.min(summary(m1m)$bic)
+coef(m1m,which.min(summary(m1m)$bic))
 ```
 n
 ```{r}
@@ -88,21 +94,21 @@ predict.regsubsets = function(object, newdata, id, ...) {
 pred <- predict(m1k, id=which.max(summary(m1k)$adjr2),
                 newdata=UStest,
                 type="response")
-sum((pred - UStest$Crime)**2)
+mean((pred - UStest$Crime)**2)
 ```
 o
 ```{r}
-pred <- predict(m1k, id=which.max(summary(m1k)$bic),
+pred <- predict(m1k, id=which.min(summary(m1k)$bic),
                 newdata=UStest,
                 type="response")
-sum((pred - UStest$Crime)**2)
+mean((pred - UStest$Crime)**2)
 ```
 p
 ```{r}
-pred <- predict(m1m, id=which.max(summary(m1k)$bic),
+pred <- predict(m1m, id=which.min(summary(m1m)$bic),
                 newdata=UStest,
                 type="response")
-sum((pred - UStest$Crime)**2)
+mean((pred - UStest$Crime)**2)
 ```
 
 # Question 2
@@ -124,6 +130,7 @@ c
 ```{r}
 SongsTrain <- subset(songs, songs$year<=2008)
 SongsTest <- subset(songs, songs$year==2009 | songs$year==2010)
+dim(SongsTrain)
 dim(SongsTest)
 ```
 d,e
