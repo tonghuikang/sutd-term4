@@ -1405,6 +1405,36 @@ writeJPEG(pansy50,"wk11-color50.jpg")
 
 
 
+<div style="page-break-after: always;"></div> 
+**Week 11**
+
+| Method         | Tobit model                  |
+| -------------- | ---------------------------- |
+| Target         | ?                            |
+| Model          | ?                            |
+| Loss           | ?                            |
+| Quality of fit | ?                            |
+| Prediction     | Images                       |
+| Comments       | ?                            |
+
+Characterise each movie and user into a vector.
+
+
+
+<div style="page-break-after: always;"></div> 
+**Week 11**
+
+| Method         | Kaplan-Meier estimator<br />Cox proportional hazard model |
+| -------------- | --------------------------------------------------------- |
+| Target         | ?                                                         |
+| Model          | ?                                                         |
+| Loss           | ?                                                         |
+| Quality of fit | ?                                                         |
+| Prediction     | Images                                                    |
+| Comments       | ?                                                         |
+
+Characterise each movie and user into a vector.
+
 
 
 <div style="page-break-after: always;"></div> 
