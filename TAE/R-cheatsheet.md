@@ -8,24 +8,25 @@
 
 This is a one-document reference of the use of R commands.
 
-Todo - collate all common procedures - train-test split, confusion matrix and sensitivity-specificity, ROC
+
+# General procedures  
 
 ## Pre-flight checklist
 
 Make sure you can import these libraries in R notebook. 
 
-```r
-library("ggplot2")
-library("psych")
-library("ggfortify")
-library("leaps")
-library("caTools")
-library("mlogit")
-library("zoo")
-library("conflicted")
-library("glmnet")
-library("rpart")
-library("rpart.plot")
+```R
+library(ggplot2)
+library(psych)
+library(ggfortify)
+library(leaps)
+library(caTools)
+library(mlogit)
+library(zoo)
+library(conflicted)
+library(glmnet)
+library(rpart)
+library(rpart.plot)
 library(tm)
 library(randomForest)
 library(SnowballC)
@@ -37,12 +38,15 @@ library(survival)
 
 If you cannot, please panic.
 
-# Common errors
+## Common errors
 
 Please remember the `.` when you are training against the rest of the data. `responsive~.,`
 
 GLM requires you to put `family='binomial'`
 
+Do not train on test data.
+
+Adjusted R-squared is not R-squared, please ask the examiners.
 
 ## Helper functions
 
@@ -58,12 +62,14 @@ Refer to the the 'Run' option on the top right of this window to see the shortcu
 - New R Cell `Cmd + Opt + I`
 
 <div style="page-break-after: always;"></div> 
-## Basics
+# Basics of R
+
+A vector is different from a dataframe.
 
 Please refer to [R-basics](./R-basics.pdf) for the very basic operations on R. 
 
 These are some commands not covered in the document
-```r
+```R
 sum(arr)
 prod(arr)
 exp(arr)
@@ -78,8 +84,9 @@ is.na() # counts number of NA
 mean() # R has this function, ignores NA values
 ```
 
-**Type casting**
-```r
+## Type casting
+
+```R
 z <- c(0:9)
 class(z)  # prints class
 as.numeric(z)  # casts into float?
@@ -90,7 +97,7 @@ as.integer(w)  # returns array of NA
 ```
 
 <div style="page-break-after: always;"></div> 
-**Matrices**
+## Matrices
 The matrix operations may require some explanation.
 
 - definition `x<-matrix(c(3,-1,2,-1),nrow=2, ncol=2)`
@@ -102,9 +109,10 @@ The matrix operations may require some explanation.
 - solving system of linear equations `a%*%solve(a)`
 - get eigenvectors `eigen(a)$vectors`
 
-**Dataframe**
+## Dataframes
 You are unlikely to do this, you are likely to load csv files.
-```r
+
+```R
 CELG <- data.frame(names=c("barack","serena"),
                    ages=c(58,38),
                    children=c(2,1))
@@ -114,7 +122,7 @@ CELG$spouse <- c("michelle","alexis")
 
 **Miscellaneous**
 
-```r
+```R
 # date configuration
 base::as.Date(32768, origin = "1900-01-01")
 
@@ -123,13 +131,15 @@ MPP2 <- mlogit(Ch~Nom+Dir+GG+PGA-1, data=D1)
 ```
 
 <div style="page-break-after: always;"></div> 
-## Data management basics
+# Preprocessing
 
-Obtained from R-basics.
+You need to preprocess the data. 
 
-**Data preliminary analysis**
+## Reading from a CSV file
 
-```r
+**Preliminary analysis**
+
+```R
 poll <- read.csv("AnonymityPoll.csv")
 summary(poll)  # 7-figure summary of every column
 str(poll)  # see some data
@@ -149,9 +159,10 @@ tapply(limited$Info.On.Internet,
 sum(is.na(poll$Internet.Use))
 ```
 
-<div style="page-break-after: always;"></div> 
+## Data manipulation
+
 **Data manipulation**
-```r
+```R
 # remove rows with any (?) NA variables
 hitters = na.omit(hitters)
 
@@ -171,9 +182,18 @@ split <- sample.split(framing1$TENCHD,SplitRatio=0.65)
 training <- subset(framing1,split==TRUE)
 test <- subset(framing1,split==FALSE)
 ```
+##Combining dataframes
+
+Column-wise and row-wise
+
+## Train-test split
+
+Please do it correct and not lose two subgrades.
+
+## Visualising the data
 
 **Data plotting**
-```r
+```R
 # plot a histogram
 hist(limited$Age)
 
@@ -193,9 +213,8 @@ stars(as.matrix(swiss[,c(2,3,5,6)]),
       axes = T)
 ```
 
-<div style="page-break-after: always;"></div> 
 **Plotting with ggplot**
-```r
+```R
 library(ggplot2)
 
 # plot histogram
@@ -273,14 +292,37 @@ ggplot(orings[orings$Field>=0,],aes(Temp,Field)) +
 ```
 
 **Statisitical testing**
-```r
+```R
 t.test(oscars$Nom[oscars$PP==1 & oscars$Ch==1],
        oscars$Nom[oscars$PP==1 & oscars$Ch==0],
        alternative = c("greater"))
 ```
 
+# Result analysis
+
+After the prediction is made, we want to evaulate numbers for example.
+
+## Deciding with probabilities
+Models may output probabilities, we want classes.
+
+## Confusion matrices
+Function here
+
+## Measures on classes
+Sensitivity and specitivity
+
+## Recevier Operating Curve
+Plotting and results
+
+
+
+
 <div style="page-break-after: always;"></div> 
-# Linear regression
+# Predictive Models
+
+Train and predict the model. Make plots if relevant.
+
+## Linear regression
 
 **Week 2**
 
@@ -294,7 +336,7 @@ t.test(oscars$Nom[oscars$PP==1 & oscars$Ch==1],
 | Prediction     | Wine prices and quality<br />Baseball batting average        |
 | Comments       | Choose only the statistically significant variables<br />This cannot predict binary objectives. |
 
-```r
+```R
 # fitting linear model
 model1  <- lm(LPRICE~VINT+HRAIN,
               data=winetrain)
@@ -308,6 +350,8 @@ pred <- predict(model1,
 ```
 
 <div style="page-break-after: always;"></div> 
+## Logistic Regression
+
 **Week 3**
 
 | Method         | Logistic Regression                                          |
@@ -320,7 +364,7 @@ pred <- predict(model1,
 | Quality of fit | $$AIC = -2LL(\hat{\beta}) + 2(p+1)$$<br />Confusion matrix<br />AUC-ROC |
 | Prediction     | Space shuttle failures<br />Risk of heart disease            |
 | Comment        |                                                              |
-<div style="page-break-after: always;"></div> 
+<div style="page-break-after: always;"></div>
 **Confusion matrices**
 
 Names  | Predict = 0 | Predict = 1 
@@ -342,8 +386,8 @@ Names  | Predict = 0 | Predict = 1
  Overall Accuracy      |                      | $\frac{TP+TN}{FP + FN + TP + TN}$ 
  ROC Curve             | Plot TPR against FPR |                                    
 
-<div style="page-break-after: always;"></div> 
-```r
+<div style="page-break-after: always;"></div>
+```R
 # fitting logisitic model (family = binomial)
 model3 <- glm(Field~Temp+Pres,
               data=orings,
@@ -370,7 +414,9 @@ plot(ROCRperf,
 as.numeric(performance(ROCRpred,measure="auc")@y.values)
 ```
 
-<div style="page-break-after: always;"></div> 
+<div style="page-break-after: always;"></div>
+## Multinomial Logit
+
 **Week 4a**
 
 | Method         | Multinomial Logit                                            |
@@ -383,8 +429,8 @@ as.numeric(performance(ROCRpred,measure="auc")@y.values)
 | Prediction     | Academy Award winners                                        |
 | Comment        | **Independence of Irrelevant Alternatives** - adding in a third alternative does not change the ratio of probabilities of two existing choxwices. (Probably it still does affect the training process?) |
 
-<div style="page-break-after: always;"></div> 
-```r
+<div style="page-break-after: always;"></div>
+```R
 # (on data with the multiple choices over different rows)
 library("mlogit")
 # extracting data
@@ -404,8 +450,8 @@ D1_new <- mlogit.data(subset(oscarsPP, Year==2007),
 Predict2 <- predict(MPP2, newdata=D1_new)
 ```
 
-<div style="page-break-after: always;"></div> 
-```r
+<div style="page-break-after: always;"></div>
+```R
 # (on data with the multiple choices on one row)
 library(mlogit)
 # extracting data
@@ -438,7 +484,9 @@ Tabtrain
 
 The willingness to pay can be observed from the survey, even though we do not directly ask the customers' valuation. When the model is fitted, the price has a negative coefficient while the safety features usually have a positive coefficient. The ratio of the coefficients is the price that customers on the average is willing the pay. The deviation can be observed the from standard error.
 
-<div style="page-break-after: always;"></div> 
+<div style="page-break-after: always;"></div>
+## Mixed Logit
+
 **Week 4b**
 
 | Method         | Mixed Logit                                                  |
@@ -452,8 +500,8 @@ The willingness to pay can be observed from the survey, even though we do not di
 
 ![Screen Shot 2019-10-14 at 03.23.48 AM](assets/Screen Shot 2019-10-14 at 03.23.48 AM.png)
 
-<div style="page-break-after: always;"></div> 
-```r
+<div style="page-break-after: always;"></div>
+```R
 #(please prepare S, the mlogit.data as per 4a second part)
 
 # fitting mixed logistic model
@@ -481,12 +529,14 @@ Tabtrainmixed
 
 "The mixed logit model does a better job of predicting customers who are not interested in choosing any of the offered options compared to MNL."
 
-<div style="page-break-after: always;"></div> 
+<div style="page-break-after: always;"></div>
+## Regsubset
+
 **Week 5a**
 
 Feature selection, based on the adjusted R-value from linear regression.
 
-```r
+```R
 # fitting linear model, exhaustive feature selection
 model2 <- regsubsets(Salary~.,
                      hitters,
@@ -512,7 +562,7 @@ coef(model3,3)
 plot(model1,scale=c("adjr2"))
 ```
 
-<div style="page-break-after: always;"></div> 
+<div style="page-break-after: always;"></div>
 **Week 5b**
 
 Simpler models often tend to work better for out-of-sample predictions and so we will penalize models for excessive model complexity. 
@@ -531,7 +581,9 @@ With the increase in computational power, we can partition the data set into tra
 - Leave out one cross validation (LOOCV)
 - k-fold cross validation
 
-<div style="page-break-after: always;"></div> 
+<div style="page-break-after: always;"></div>
+## LASSO
+
 **LASSO**
 
 Balance data fit (first term) with model complexity (second term)
@@ -568,8 +620,8 @@ Elastic Net combines both penalities.
 | Prediction     | Hitters                                                      |
 | Comments       | Choose only the statistically significant variables<br />This cannot predict binary objectives. |
 
-<div style="page-break-after: always;"></div> 
-```r
+<div style="page-break-after: always;"></div>
+```R
 # loading the dataset
 library(glmnet)
 X <- model.matrix(Salary~.,hitters)
@@ -611,7 +663,9 @@ mean((predictlasso1-y[test])^2)
 cvlasso <- cv.glmnet(X[train,],y[train])
 ```
 
-<div style="page-break-after: always;"></div> 
+<div style="page-break-after: always;"></div>
+## CART
+
 **Week 8**
 
 | Method         | CART                                    |
@@ -624,7 +678,7 @@ cvlasso <- cv.glmnet(X[train,],y[train])
 | Comments       | ?                                       |
 
 
-```r
+```R
 # fitting with CART
 cart1 <- rpart(rev~petit+respon+circuit+lctdir+issue+unconst,
                data=train, 
@@ -719,7 +773,9 @@ If the leaf terminates there, the absolute error is 72 points by predicting all 
 
 
 
-<div style="page-break-after: always;"></div> 
+<div style="page-break-after: always;"></div>
+## Random Forests
+
 **Week 9**
 
 | Method         | Random Forests    |
@@ -759,7 +815,7 @@ Downsides (compart to CART)
 - slower (though parallelizable across cores)
 - less interpretable
 
-```r
+```R
 library(randomForest)
 
 # set seed
@@ -781,91 +837,8 @@ varImpPlot(forest)
 Remember to convert the target variable into a factor.
 
 <div style="page-break-after: always;"></div> 
-**Week 10**
+## Naive Bayes
 
-| Method         | Text-ming    |
-| -------------- | ---- |
-| Target         | Not a method |
-| Model          | ?    |
-| Loss           | ?    |
-| Quality of fit | ?    |
-| Prediction     | Recommmender Systems |
-| Comments       | ?    |
-
-Read the dataset. Each entry of the dataset is a 'document'. A corpus is a set of documents
-
-```r
-library(tm)
-library(SnowballC)
-library(wordcloud)
-
-twitter <- read.csv("wk9a-text.csv",stringsAsFactors=FALSE)
-corpus <- Corpus(VectorSource(twitter$tweet))
-```
-
-Conduct text transformations to simplify the dataset.
-```r
-# list of text transfomrations
-getTransformations()
-
-# transformation into lower case
-corpus <- tm_map(corpus, function(x) iconv(enc2utf8(x), sub = "byte"))
-corpus <- tm_map(corpus, content_transformer(function(x) iconv(enc2utf8(x), sub = "bytes")))
-corpus <- tm_map(corpus,content_transformer(tolower))
-
-# remove stop words
-corpus <- tm_map(corpus,removeWords,
-stopwords("english"))
-                                            
-# remove specific words because they confuse the objective
-corpus <- tm_map(corpus,removeWords,
-c("drive","driving","driver","self-driving","car","cars"))  
-
-# remove punctuation 
-corpus <- tm_map(corpus,removePunctuation)
-
-# stemming words (get root word)
-corpus <- tm_map(corpus,stemDocument)
-```
-
-Convert into a document term matrix. 
-This is a freqlist of every document in the corpus.
-
-```r
-# convert into freqlist of words this will be a sparse matrix
-dtm <- DocumentTermMatrix(corpus)
-dtm <- removeSparseTerms(dtm,0.995)
-```
-
-Transforming into a dataframe to train and test
-
-```r
-# converting DTM into dataframe                                            
-twittersparse <- as.data.frame(as.matrix(dtm))
-
-# make sure column names start with a character
-colnames(twittersparse) <- make.names(colnames(twittersparse))
-
-# assign labels to dataframe                                            
-twittersparse$Neg <- twitter$Neg
-```
-
-Visualise the dataset with a wordcloud.
-
-```r
-# plot wordcloud                                
-colnames(twittersparse) <- make.names(colnames(twittersparse))
-colnames(twittersparse)
-word_freqs = sort(colSums(twittersparse), decreasing=TRUE) 
-# Create dataframe with words and their frequencies
-dm = data.frame(word=names(word_freqs), freq=unname(word_freqs))
-# Plot wordcloud
-wordcloud(dm$word, dm$freq, random.order=FALSE, max.words=100, colors=brewer.pal(8, "Dark2"), min.freq=2)
-```
-
-Then carry out your model based on their mdoels.
-
-<div style="page-break-after: always;"></div> 
 **Week 10**
 
 | Method         | Naive Bayes' Method |
@@ -907,7 +880,9 @@ predict3 <- predict(model3,newdata=test,type="class")
 table(predict3,test$responsive) 
 ```
 
-<div style="page-break-after: always;"></div> 
+<div style="page-break-after: always;"></div>
+## Hierarchical clustering
+
 **Week 10**
 
 | Method         | Hierarchical clustering |
@@ -931,7 +906,7 @@ To create a cluster, we need to select a cutoff distance. Each tree cut by the c
 
 You need to do **preprocessing** to convert the list of genre for each movie into to a binary list.
 
-```r
+```R
 # compute the distance between every pair
 distances <- dist(Data[,1:19], method="euclidean")
 dim(Data)
@@ -958,83 +933,10 @@ Cat1
 subset(Data$title, clusterGroups1==6)
 ```
 
-<div style="page-break-after: always;"></div> 
-**Week 10**
-
-| Method         | K-means clustering |
-| -------------- | ---- |
-| Target         | Clusters |
-| Model          | ?    |
-| Loss           | ?    |
-| Quality of fit | ?    |
-| Prediction     | Recommendation Systems |
-| Comments       | ?    |
-
-**Algorithmic Procedure**
-
-Initialisation - Given a number of clusters $k$, randomly generate $k$ different means/centroids.
-
-Assign each observation to the cluster whose mean/centroid has the closest Eculidean distance.
-
-Update calculate the new means/centroid, and repeat assignment.
-
-Stop when the assignment does not change.
-
-Downsides
-- May end up with different results
-- May not converge or take a very long time to converge.
-
-
-
-```r
-# execute k-means clustering
-# n-start is the number of different starting points
-# choose the best clustering from each of the n-start
-clusterMovies2 <- kmeans(Data[,1:19], centers=10, nstart=20)
-
-# the loss within each cluster
-clusterMovies3$withinss
-
-# the total loss for all the clusters
-clusterMovies2$tot.withinss # 7324.78
-
-# Plot loss against k
-fit <- c()
-for(k in 1:15){
-  clusterMovies4 <- kmeans(Data[,1:19], centers=k, nstart=20);
-  fit[k] <- clusterMovies4$tot.withinss}
-plot(1:15,fit)
-
-# calculate the average of each feature in the cluster
-Cat2 <- matrix(0,nrow=19,ncol=10)
-for(i in 1:19){
-  Cat2[i,] <- tapply(Data[,i], clusterMovies2$cluster, mean)}
-rownames(Cat2) <- colnames(Data)[1:19]
-Cat2
-
-# list the elements in the cluster
-subset(Data$title, clusterMovies2$cluster==6)
-```
-
-
-
-Objective of recommendation systems
-
-- accuracy
-- variety
-- updatable
-- computationally efficient
-
-Netflix prize - the first large scale data competition
-
-**Supervised learning versus unsupervised learning**
-**Supervised learning**. Given a set of **predictors** $\{x_1, ..., x_p\}$ and an output of $\{y\}$, we want to find a function $f(x_1, ..., x_p) = \hat{y}$ that minimise the error on some metric.
-
-**Unsupervised learning**. Given a set of features, we want to find "**patterns**" within the data. Find a group of clusters that minimise the intra-cluster variance and maxisies the inter-cluter vairance.
-
-
 
 <div style="page-break-after: always;"></div> 
+## Collaborative Flitering
+
 **Week 10**
 
 
@@ -1086,7 +988,7 @@ We can calculate the similarity across different users (we only calculate for th
 
 To decrease storage and transfer size, we are usually given list of ratings. Each rating consists of the rater (user) and the rated (movie), and the score.
 
-```r
+```R
 length(unique(ratings$userId))  # 706
 length(unique(ratings$movieId)) # 8552
 sort(unique(ratings$rating))    # 0.5 1.0 ... 5.0
@@ -1094,7 +996,7 @@ sort(unique(ratings$rating))    # 0.5 1.0 ... 5.0
 
 We need to transform this into a spare matrix for our input. We first create an empty matrix and them populate it.
 
-```r
+```R
 Data <- matrix(nrow=length(unique(ratings$userId)), ncol=length(unique(ratings$movieId)))
 
 for(i in 1:nrow(ratings)){
@@ -1113,7 +1015,7 @@ Type| Movies                           |
  **Users** | Training data                    | Data to make baseline prediction 
            | Data to make baseline prediction | Test set                         
 
-```r
+```R
 # We want to create a matrix with 
 # spl1 + spl1c rows and spl2 + spl2c columns
 
@@ -1138,7 +1040,7 @@ length(spl2c) # 1711
 
 We initialise the matrices to fill in our predictions. It should have the same dimension with our test set.
 
-```r
+```R
 test_set <- Data[spl1c, spl2c]
 Base1    <- matrix(nrow=length(spl1c), ncol=length(spl2c))
 Base2    <- matrix(nrow=length(spl1c), ncol=length(spl2c))
@@ -1152,7 +1054,7 @@ UserPred <- matrix(nrow=length(spl1c), ncol=length(spl2c))
 
 The predicted rating by each user on a movie is the average of all predictions on the movie. A movie will have the same prediction, by any user.
 
-```r
+```R
 for(i in 1:length(spl1c))  
 {Base1[i,] <- colMeans(Data[spl1,spl2c], na.rm=TRUE)}
 Base1[,1:10] 
@@ -1161,7 +1063,7 @@ Base1[,1:10]
 
 The predicted rating by a user on each movie is the average of all predictions by the user. A user will provide the same rating for all movies.
 
-```r
+```R
 for(j in 1:length(spl2c)) 
 {Base2[,j] <- rowMeans(Data[spl1c,spl2], na.rm=TRUE)}
 Base2[,1:10] 
@@ -1174,7 +1076,7 @@ Base2[,1:10]
 
 Essentially, we are taking the average prediction of the nearest $N$ users. We first initialse a matrix to contain the correleation between each pair of users.
 
-```r
+```R
 # Initialize matrices
 Cor <- matrix(nrow=length(spl1),ncol=1) 
 # keeps track of the correlation between users
@@ -1184,7 +1086,7 @@ Order <- matrix(nrow=length(spl1c), ncol=length(spl1))
 
 For each user, we calculate the correlation with all other users. Then each user will have a list of all (or most due to NAs) other user, ordered with decreasing correlation.
 
-```r
+```R
 # The NAs account for users who have no common ratings of movies with the user.
 for(i in 1:length(spl1c)){
   for(j in 1:length(spl1)){
@@ -1198,7 +1100,7 @@ for(i in 1:length(spl1c)){
 ```
 The prediction of the user on a movie will be average of the nearest $N$ users. $N$ is a hyperparameter chosen by us.
 
-```r
+```R
 # Now, we compute user predictions by looking at the 250 nearest neighbours and averaging equally over all these user ratings in the items in spl2c
 for(i in 1:length(spl1c))
 {UserPred[i,] <- colMeans(Data[spl1[Order[i,1:250]],spl2c], na.rm=TRUE)}    
@@ -1213,7 +1115,7 @@ UserPred[,1:10]
 
 We take the average of the squared difference with the test set.
 
-```r
+```R
 RMSEBase1    <- sqrt(mean((Base1 - test_set)^2, na.rm=TRUE))
 RMSEBase2    <- sqrt(mean((Base2 - test_set)^2, na.rm=TRUE))
 RMSEUserPred <- sqrt(mean((UserPred - test_set)^2, na.rm=TRUE))
@@ -1242,6 +1144,249 @@ Each items is represented by a vector of attributes.
 
 
 <div style="page-break-after: always;"></div> 
+## Tobit model
+
+**Week 11**
+
+| Method         | Tobit model                     |
+| -------------- | ------------------------------- |
+| Target         | For left or right censored data |
+| Model          | ?                               |
+| Loss           | ?                               |
+| Quality of fit | ?                               |
+| Prediction     | Images                          |
+| Comments       | ?                               |
+
+Characterise each movie and user into a vector.
+
+```R
+# the Tobit model
+model1 <- survreg(Surv(time_in_affairs,
+                       time_in_affairs>0,type="left")~.,
+                  data=train,dist="gaussian")
+summary(model1)
+predict1 <- predict(model1,newdata=test) 
+table(predict1<=0,test$time_in_affairs<=0)
+
+# using linear model as baseline
+model2 <- lm(time_in_affairs~., data=train)
+summary(model2)
+predict2 <- predict(model2,newdata=test)
+table(predict2 <= 0, test$time_in_affairs==0)
+```
+
+
+
+
+
+<div style="page-break-after: always;"></div> 
+## Cox proportional hazard model
+
+**Week 11**
+
+| Method         | Cox proportional hazard model |
+| -------------- | ---------------------- |
+| Target         | ?                      |
+| Model          | ?                      |
+| Loss           | ?                      |
+| Quality of fit | ?                      |
+| Prediction     | This is a linear model, with censored values. |
+| Comments       | ?                      |
+
+An event will happen at a distribution with pdf $f(x)$ and corresponding cdf $F(x)$.
+
+
+$$
+\lambda(t) = \lambda_0 \cdot exp(\beta_1 x_1 + ... + \beta)
+$$
+
+
+```R
+cox <- coxph(Surv(start,stop,event)~age+surgery+transplant,
+             data=heart)
+summary(cox)
+        
+# plot S(t)
+plot(survfit(cox))
+summary(survfit(cox))
+```
+
+
+# Non-predictive models
+
+These are models that do no produce a prediction. The output, however, can be used as a feature to the predictive models.
+
+<div style="page-break-after: always;"></div> 
+## K-means clustering
+
+**Week 10**
+
+| Method         | K-means clustering |
+| -------------- | ---- |
+| Target         | Clusters |
+| Model          | ?    |
+| Loss           | ?    |
+| Quality of fit | ?    |
+| Prediction     | Recommendation Systems |
+| Comments       | ?    |
+
+**Algorithmic Procedure**
+
+Initialisation - Given a number of clusters $k$, randomly generate $k$ different means/centroids.
+
+Assign each observation to the cluster whose mean/centroid has the closest Eculidean distance.
+
+Update calculate the new means/centroid, and repeat assignment.
+
+Stop when the assignment does not change.
+
+Downsides
+- May end up with different results
+- May not converge or take a very long time to converge.
+
+
+
+```R
+# execute k-means clustering
+# n-start is the number of different starting points
+# choose the best clustering from each of the n-start
+clusterMovies2 <- kmeans(Data[,1:19], centers=10, nstart=20)
+
+# the loss within each cluster
+clusterMovies3$withinss
+
+# the total loss for all the clusters
+clusterMovies2$tot.withinss # 7324.78
+
+# Plot loss against k
+fit <- c()
+for(k in 1:15){
+  clusterMovies4 <- kmeans(Data[,1:19], centers=k, nstart=20);
+  fit[k] <- clusterMovies4$tot.withinss}
+plot(1:15,fit)
+
+# calculate the average of each feature in the cluster
+Cat2 <- matrix(0,nrow=19,ncol=10)
+for(i in 1:19){
+  Cat2[i,] <- tapply(Data[,i], clusterMovies2$cluster, mean)}
+rownames(Cat2) <- colnames(Data)[1:19]
+Cat2
+
+# list the elements in the cluster
+subset(Data$title, clusterMovies2$cluster==6)
+```
+
+
+
+Objective of recommendation systems
+
+- accuracy
+- variety
+- updatable
+- computationally efficient
+
+Netflix prize - the first large scale data competition
+
+**Supervised learning versus unsupervised learning**
+**Supervised learning**. Given a set of **predictors** $\{x_1, ..., x_p\}$ and an output of $\{y\}$, we want to find a function $f(x_1, ..., x_p) = \hat{y}$ that minimise the error on some metric.
+
+**Unsupervised learning**. Given a set of features, we want to find "**patterns**" within the data. Find a group of clusters that minimise the intra-cluster variance and maxisies the inter-cluter vairance.
+
+
+
+
+<div style="page-break-after: always;"></div> 
+## Text mining
+
+**Week 10**
+
+| Method         | Text-mining |
+| -------------- | ---- |
+| Target         | Not a method |
+| Model          | ?    |
+| Loss           | ?    |
+| Quality of fit | ?    |
+| Prediction     | Recommmender Systems |
+| Comments       | ?    |
+
+Read the dataset. Each entry of the dataset is a 'document'. A corpus is a set of documents
+
+```R
+library(tm)
+library(SnowballC)
+library(wordcloud)
+
+twitter <- read.csv("wk9a-text.csv",stringsAsFactors=FALSE)
+corpus <- Corpus(VectorSource(twitter$tweet))
+```
+
+Conduct text transformations to simplify the dataset.
+```R
+# list of text transfomrations
+getTransformations()
+
+# transformation into lower case
+corpus <- tm_map(corpus, function(x) iconv(enc2utf8(x), sub = "byte"))
+corpus <- tm_map(corpus, content_transformer(function(x) iconv(enc2utf8(x), sub = "bytes")))
+corpus <- tm_map(corpus,content_transformer(tolower))
+
+# remove stop words
+corpus <- tm_map(corpus,removeWords,
+stopwords("english"))
+                                            
+# remove specific words because they confuse the objective
+corpus <- tm_map(corpus,removeWords,
+c("drive","driving","driver","self-driving","car","cars"))  
+
+# remove punctuation 
+corpus <- tm_map(corpus,removePunctuation)
+
+# stemming words (get root word)
+corpus <- tm_map(corpus,stemDocument)
+```
+
+Convert into a document term matrix. 
+This is a freqlist of every document in the corpus.
+
+```R
+# convert into freqlist of words this will be a sparse matrix
+dtm <- DocumentTermMatrix(corpus)
+dtm <- removeSparseTerms(dtm,0.995)
+```
+
+Transforming into a dataframe to train and test
+
+```R
+# converting DTM into dataframe                                            
+twittersparse <- as.data.frame(as.matrix(dtm))
+
+# make sure column names start with a character
+colnames(twittersparse) <- make.names(colnames(twittersparse))
+
+# assign labels to dataframe                                            
+twittersparse$Neg <- twitter$Neg
+```
+
+Visualise the dataset with a wordcloud.
+
+```R
+# plot wordcloud                                
+colnames(twittersparse) <- make.names(colnames(twittersparse))
+colnames(twittersparse)
+word_freqs = sort(colSums(twittersparse), decreasing=TRUE) 
+# Create dataframe with words and their frequencies
+dm = data.frame(word=names(word_freqs), freq=unname(word_freqs))
+# Plot wordcloud
+wordcloud(dm$word, dm$freq, random.order=FALSE, max.words=100, colors=brewer.pal(8, "Dark2"), min.freq=2)
+```
+
+Then carry out your model based on their mdoels.
+
+
+
+<div style="page-break-after: always;"></div>
+## Singular Value Decomposition
+
 **Week 11**
 
 | Method         | Singular Value Decomposition |
@@ -1259,7 +1404,7 @@ Characterise each movie and user into a vector.
 
 **Basic linear algebra operations**
 
-```r
+```R
 # define a matrix
 A <- matrix(c(2, 2, 3, 1), nrow=2, ncol=2)
 
@@ -1276,7 +1421,7 @@ $$
 
 $V$ is a square matrix made up of columns of eigenvectors, and $S$ is a square matrix with its main diagonal made up of eigenvalues is the corresponding order.
 
-```r
+```R
 # reconstruct the matrix
 # (note the operator %*% for the matrix multiplication)
 A_eig$vectors %*% diag(A_eig$values) %*% solve(A_eig$vectors)
@@ -1313,7 +1458,7 @@ $S$ contains the $n$ square roots of $X \cdot X^T$ eigenvalues (singular **value
 
 $V$ contains the $n$ eigenvectors of $X^{T} \cdot X$ (right singular vectors)
 
-```r
+```R
 # define matrix
 X <- matrix(c(2,1,5,7,0,0,6,0,0,10,
               8,0,7,8,0,6,1,4,5,0), nrow=5, ncol=4)
@@ -1338,7 +1483,7 @@ $$
 \underset{k \times n}{V_k^{T}}
 $$
 
-```r
+```R
 # reconstruct a matrix with limited elements
 k <- 2  # less than or equal to n
 s$u[,1:k] %*% diag(s$d[1:k]) %*% t(s$v[,1:k])
@@ -1356,18 +1501,22 @@ $$
 {\sigma_1^2 + \sigma_1^2 + ... + \sigma_n^2}
 $$
 
-```r
+```R
 # calculate the explained variance
 var <- cumsum(s$d^2)
 plot(1:4,var/max(var))
 ```
 
-<div style="page-break-after: always;"></div> 
+
+
+<div style="page-break-after: always;"></div>
+## Image compression
+
 **Image compression**
 
 For grayscale images
 
-```r
+```R
 # read image
 lky <- readJPEG("wk11-gray.jpg")
 
@@ -1389,7 +1538,7 @@ plot(1:4,var/max(var))
 
 For colored images
 
-```r
+```R
 # read image
 pansy <- readJPEG("wk11-color.jpg")
 
@@ -1410,40 +1559,9 @@ writeJPEG(pansy50,"wk11-color50.jpg")
 ```
 
 
+<div style="page-break-after: always;"></div>
+## Kaplan-Meier estimator
 
-<div style="page-break-after: always;"></div> 
-**Week 11**
-
-| Method         | Tobit model                     |
-| -------------- | ------------------------------- |
-| Target         | For left or right censored data |
-| Model          | ?                               |
-| Loss           | ?                               |
-| Quality of fit | ?                               |
-| Prediction     | Images                          |
-| Comments       | ?                               |
-
-Characterise each movie and user into a vector.
-
-```R
-# the Tobit model
-model1 <- survreg(Surv(time_in_affairs,
-                       time_in_affairs>0,type="left")~.,
-                  data=train,dist="gaussian")
-summary(model1)
-predict1 <- predict(model1,newdata=test) 
-table(predict1<=0,test$time_in_affairs<=0)
-
-# using linear model as baseline
-model2 <- lm(time_in_affairs~., data=train)
-summary(model2)
-predict2 <- predict(model2,newdata=test)
-table(predict2 <= 0, test$time_in_affairs==0)
-```
-
-
-
-<div style="page-break-after: always;"></div> 
 **Week 11**
 
 | Method         | Kaplan-Meier estimator |
@@ -1476,45 +1594,11 @@ summary(km,censored=TRUE)
 plot(km) 
 ```
 
-<div style="page-break-after: always;"></div> 
-**Week 11**
-
-| Method         | Cox proportional hazard model |
-| -------------- | ---------------------- |
-| Target         | ?                      |
-| Model          | ?                      |
-| Loss           | ?                      |
-| Quality of fit | ?                      |
-| Prediction     | This is a linear model, with censored values. |
-| Comments       | ?                      |
-
-An event will happen at a distribution with pdf $f(x)$ and corresponding cdf $F(x)$.
-
-
-$$
-\lambda(t) = \lambda_0 \cdot exp(\beta_1 x_1 + ... + \beta)
-$$
-
-
-```r
-cox <- coxph(Surv(start,stop,event)~age+surgery+transplant,
-             data=heart)
-summary(cox)
-        
-# plot S(t)
-plot(survfit(cox))
-summary(survfit(cox))
-```
 
 
 
-<div style="page-break-after: always;"></div> 
-**Week 12**
 
-Optimisiation with Julia. Prescriptive analysis rather than descriptive.
-
-For competition in week 13, please form your groups.
-
+# Unclassified
 
 
 **Misc**
@@ -1531,7 +1615,7 @@ Challenges - spelling, grammar, ambiguity
 
 Code for confustion matrices
 
-```r
+```R
 CM = table(predictforest,test$rev)
 CM
 # predictforest  0  1
