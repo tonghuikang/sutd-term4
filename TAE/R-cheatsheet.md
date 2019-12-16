@@ -1,7 +1,3 @@
-# R cheatsheet
-
-
-
 [TOC]
 
 (Please refer to DBA on the reasons to use R)
@@ -44,9 +40,9 @@ Please remember the `.` when you are training against the rest of the data. `res
 
 GLM requires you to put `family='binomial'`
 
-Do not train on test data.
+Do not train on test data FFS.
 
-Adjusted R-squared is not R-squared, please ask the examiners.
+Adjusted R-squared is not R-squared FFS, please ask the examiners. 
 
 ## Helper functions
 
@@ -64,11 +60,8 @@ Refer to the the 'Run' option on the top right of this window to see the shortcu
 <div style="page-break-after: always;"></div> 
 # Basics of R
 
-A vector is different from a dataframe.
+A vector is different from a dataframe. A dataframe may not have named columns for you to work with.
 
-Please refer to [R-basics](./R-basics.pdf) for the very basic operations on R. 
-
-These are some commands not covered in the document
 ```R
 sum(arr)
 prod(arr)
@@ -94,6 +87,8 @@ as.numeric(z)  # casts into float?
 z1 <- c("a","b","d")
 w <- as.character(z1)
 as.integer(w)  # returns array of NA
+
+as.factor(w)  # required for classification models
 ```
 
 <div style="page-break-after: always;"></div> 
@@ -120,7 +115,15 @@ CELG <- data.frame(names=c("barack","serena"),
 CELG$spouse <- c("michelle","alexis")
 ```
 
-**Miscellaneous**
+## Statisitical testing
+
+```R
+t.test(oscars$Nom[oscars$PP==1 & oscars$Ch==1],
+       oscars$Nom[oscars$PP==1 & oscars$Ch==0],
+       alternative = c("greater"))
+```
+
+## Miscellaneous
 
 ```R
 # date configuration
@@ -135,9 +138,7 @@ MPP2 <- mlogit(Ch~Nom+Dir+GG+PGA-1, data=D1)
 
 You need to preprocess the data. 
 
-## Reading from a CSV file
-
-**Preliminary analysis**
+## Data reading
 
 ```R
 poll <- read.csv("AnonymityPoll.csv")
@@ -161,7 +162,6 @@ sum(is.na(poll$Internet.Use))
 
 ## Data manipulation
 
-**Data manipulation**
 ```R
 # remove rows with any (?) NA variables
 hitters = na.omit(hitters)
@@ -182,17 +182,18 @@ split <- sample.split(framing1$TENCHD,SplitRatio=0.65)
 training <- subset(framing1,split==TRUE)
 test <- subset(framing1,split==FALSE)
 ```
-##Combining dataframes
+## Combining dataframes
 
 Column-wise and row-wise
 
 ## Train-test split
 
-Please do it correct and not lose two subgrades.
+Please do it correctly and not lose two subgrades.
 
 ## Visualising the data
 
 **Data plotting**
+
 ```R
 # plot a histogram
 hist(limited$Age)
@@ -214,6 +215,7 @@ stars(as.matrix(swiss[,c(2,3,5,6)]),
 ```
 
 **Plotting with ggplot**
+
 ```R
 library(ggplot2)
 
@@ -291,30 +293,98 @@ ggplot(orings[orings$Field>=0,],aes(Temp,Field)) +
   geom_jitter(na.rm=T,width=1,height=0.1) 
 ```
 
-**Statisitical testing**
-```R
-t.test(oscars$Nom[oscars$PP==1 & oscars$Ch==1],
-       oscars$Nom[oscars$PP==1 & oscars$Ch==0],
-       alternative = c("greater"))
-```
+
+## Cross validation
+
+<div style="page-break-after: always;"></div>
+**Week 5b**
+
+Simpler models often tend to work better for out-of-sample predictions and so we will penalize models for excessive model complexity. 
+
+With the increase in computational power, we can partition the data set into training, validation and test sets and conduct model assessment and selection. 
+
+- The training set is used to estimate the model parameters. 
+- The validation set is used to do model selection. 
+- The test set is the evaluation set on which we will simply evaluate or check how the model performs.
+
+
+
+**Cross validation**
+
+- Simple validation set approach
+- Leave out one cross validation (LOOCV)
+- k-fold cross validation
+
+[TODO] competition code to do cross validation
+
+
 
 # Result analysis
 
 After the prediction is made, we want to evaulate numbers for example.
 
+
+
 ## Deciding with probabilities
 Models may output probabilities, we want classes.
 
-## Confusion matrices
-Function here
 
-## Measures on classes
-Sensitivity and specitivity
+
+## Confusion matrices
+
+Names  | Predict = 0 | Predict = 1 
+--------------- | ------------------- | ------------------- 
+**Actual = 1** | False Negative (FN) | True Positive (TP)  
+**Actual = 0** | True Negative (TN)  | False Positive (FP) 
+
+<img src="assets/confusion_on_logistic.png" alt="confusion_on_logistic" style="zoom:50%;" />
+
+
+ Name                  | Alt Name             | Formula                           
+ --------------------- | -------------------- | --------------------------------- 
+ False Positive Rate   | Type I error         | $\frac{FP}{FP+TN}$                
+ True Negative Rate    | Specificity          | $\frac{TN}{FP+TN}$                
+ True Positive Rate    | Sensitivity, Recall  | $\frac{TP}{TP+FN}$                
+ False Negative Rate   | Type II error        | $\frac{FN}{TP+FN}$                
+ Precision             |                      | $\frac{TP}{TP + FP}$              
+ **Compiled measures** |                      |                                   
+ Overall Accuracy      |                      | $\frac{TP+TN}{FP + FN + TP + TN}$ 
+ ROC Curve             | Plot TPR against FPR |                                    
+
+
+## Evaluation Metrics
+```R
+CM = table(predictforest,test$rev)
+CM
+# predictforest  0  1
+#             0 47 21
+#             1 35 81
+Accuracy = (CM[1,1]+CM[2,2])/sum(CM)
+Accuracy # 0.6956522 vs 0.7119565
+BaseAccuracy =  (sum(CM[1:2,1]))/sum(CM)
+BaseAccuracy # or flip it
+Sensitivity = (CM[1,1])/sum(CM[1:2,1])
+Specificity = (CM[2,2])/sum(CM[1:2,2])
+Sensitivity
+Specificity
+```
 
 ## Recevier Operating Curve
-Plotting and results
+```R
+library(ROCR)
+# ROCR method to obtain predicted probs and actual labels
+ROCRpred <- prediction(Pred[1:138],orings$Field[1:138])
+# ROCR method to plot ROC curve
+ROCRperf <- performance(ROCRpred,x.measure="fpr",measure="tpr")
+plot(ROCRperf)  # simple plot
+plot(ROCRperf,
+     colorize=T,
+     print.cutoffs.at=c(0,0.1,0.2,0.3,0.5,1),
+     text.adj=c(-0.2,1.7))
 
-
+# Calculate area under curve (AUC)
+as.numeric(performance(ROCRpred,measure="auc")@y.values)
+```
 
 
 <div style="page-break-after: always;"></div> 
@@ -329,12 +399,11 @@ Train and predict the model. Make plots if relevant.
 | Method         | Linear Regression                                            |
 | -------------- | ------------------------------------------------------------ |
 | Target         | Number                                                       |
-| Predicts       | Number                                                       |
 | Model          | $$y_i = \beta_0 + \beta_1 x_1 + \beta_2 x_2 + ... + \epsilon_i $$ |
 | Loss           | Mean square error                                            |
 | Quality of fit | R-square<br />Adjusted R-square<br />AIC                     |
-| Prediction     | Wine prices and quality<br />Baseball batting average        |
-| Comments       | Choose only the statistically significant variables<br />This cannot predict binary objectives. |
+| Examples       | Wine prices and quality<br />Baseball batting average        |
+| Comments       | Choose only the statistically significant variables<br />This cannot predict binary objectives./ |
 
 ```R
 # fitting linear model
@@ -357,34 +426,12 @@ pred <- predict(model1,
 | Method         | Logistic Regression                                          |
 | -------------- | ------------------------------------------------------------ |
 | Target         | Binary                                                       |
-| Predicts       | Probability                                                  |
 | Model          | $$P(y_i = 1) = \dfrac{1}{1+e^{-(\beta_0 + \beta_1 x_1 + \beta_2 x_2 + ...+ \epsilon_i )}}$$ |
 | Loss           | $$LL(\beta) \\ = \displaystyle \sum_{i=1}^n \sum_{k=1}^2 y_{ik} \log \left( P(y_{ik} = 1) \right)\\= \displaystyle \sum_{i=1}^n \sum_{k=1}^2 y_{ik} \log \left( \dfrac{e^{\beta' x_{ik}}} {\sum_{l=1}^k e^{\beta' x_{il}}} \right) $$ |
 | Explanation    | $x \log (x')$, sum over $x=1$ and $x=0$ (elaborate)          |
 | Quality of fit | $$AIC = -2LL(\hat{\beta}) + 2(p+1)$$<br />Confusion matrix<br />AUC-ROC |
-| Prediction     | Space shuttle failures<br />Risk of heart disease            |
+| Examples       | Space shuttle failures<br />Risk of heart disease            |
 | Comment        |                                                              |
-<div style="page-break-after: always;"></div>
-**Confusion matrices**
-
-Names  | Predict = 0 | Predict = 1 
---------------- | ------------------- | ------------------- 
-**Actual = 1** | False Negative (FN) | True Positive (TP)  
-**Actual = 0** | True Negative (TN)  | False Positive (FP) 
-
-<img src="assets/confusion_on_logistic.png" alt="confusion_on_logistic" style="zoom:50%;" />
-
-
- Name                  | Alt Name             | Formula                           
- --------------------- | -------------------- | --------------------------------- 
- False Positive Rate   | Type I error         | $\frac{FP}{FP+TN}$                
- True Negative Rate    | Specificity          | $\frac{TN}{FP+TN}$                
- True Positive Rate    | Sensitivity, Recall  | $\frac{TP}{TP+FN}$                
- False Negative Rate   | Type II error        | $\frac{FN}{TP+FN}$                
- Precision             |                      | $\frac{TP}{TP + FP}$              
- **Compiled measures** |                      |                                   
- Overall Accuracy      |                      | $\frac{TP+TN}{FP + FN + TP + TN}$ 
- ROC Curve             | Plot TPR against FPR |                                    
 
 <div style="page-break-after: always;"></div>
 ```R
@@ -398,20 +445,6 @@ summary(model3)
 Pred <- predict(model4,
                 newdata=orings,
                 type="response")
-
-library(ROCR)
-# ROCR method to obtain predicted probs and actual labels
-ROCRpred <- prediction(Pred[1:138],orings$Field[1:138])
-# ROCR method to plot ROC curve
-ROCRperf <- performance(ROCRpred,x.measure="fpr",measure="tpr")
-plot(ROCRperf)  # simple plot
-plot(ROCRperf,
-     colorize=T,
-     print.cutoffs.at=c(0,0.1,0.2,0.3,0.5,1),
-     text.adj=c(-0.2,1.7))
-
-# Calculate area under curve (AUC)
-as.numeric(performance(ROCRpred,measure="auc")@y.values)
 ```
 
 <div style="page-break-after: always;"></div>
@@ -421,12 +454,12 @@ as.numeric(performance(ROCRpred,measure="auc")@y.values)
 
 | Method         | Multinomial Logit                                            |
 | -------------- | ------------------------------------------------------------ |
-| Target         | n-choose-1, probabilities that sum to one                    |
+| Target         | n-choose-1                                                   |
 | Model          | $$P(y_{ik} = 1 | \{ \text{options} \}) = \dfrac{e^{\beta' x_{ik}}} {\sum_{l=1}^k e^{\beta' x_{il}}}$$ |
 | Loss           | $$LL(\beta) \\ = \displaystyle \sum_{i=1}^n \sum_{k=1}^K z_{ik} \log(P(y_{ik} = 1)) \\ = \displaystyle \sum_{i=1}^n \sum_{k=1}^K z_{ik} \log \dfrac{e^{\beta' x_{ik}}} {\sum_{l=1}^k e^{\beta' x_{il}}}$$ |
 | Explanation    | $z_{ik}$ is the training option from the dataset which is binary.<br />$x_{ik}$ is the characteristic of one training option considered. ($x_{il}$ is similar, but it includes the rest of the training option included in the choice).<br />You are tasked to provide $\beta'$ that maximises the log-likelihood.<br />The probability that option $k$ is chosen from a set of choices is $P(y_{ik} = 1)$, and this is a real number. |
 | Quality of fit | Log-likelihood<br />Confusion matrix<br />Likelihood ratio index $$=1-\frac{LL(\beta)}{LL(0)}$$<br />AIC $=-2LL(\beta) + 2p$ |
-| Prediction     | Academy Award winners                                        |
+| Examples       | Academy Award winners                                        |
 | Comment        | **Independence of Irrelevant Alternatives** - adding in a third alternative does not change the ratio of probabilities of two existing choxwices. (Probably it still does affect the training process?) |
 
 <div style="page-break-after: always;"></div>
@@ -482,7 +515,11 @@ Tabtrain=table(PredictedChoice, ActualChoice)
 Tabtrain
 ```
 
-The willingness to pay can be observed from the survey, even though we do not directly ask the customers' valuation. When the model is fitted, the price has a negative coefficient while the safety features usually have a positive coefficient. The ratio of the coefficients is the price that customers on the average is willing the pay. The deviation can be observed the from standard error.
+The willingness to pay can be observed from the survey, even though we do not directly ask the customers' valuation. 
+
+- When the model is fitted, the price has a negative coefficient while the safety features usually have a positive coefficient. 
+- The ratio of the coefficients is the price that customers on the average is willing the pay. 
+- The deviation can be observed the from standard error.
 
 <div style="page-break-after: always;"></div>
 ## Mixed Logit
@@ -491,7 +528,7 @@ The willingness to pay can be observed from the survey, even though we do not di
 
 | Method         | Mixed Logit                                                  |
 | -------------- | ------------------------------------------------------------ |
-| Target         | n-choose-1, probabilities that sum to one                    |
+| Target         | n-choose-1                                                   |
 | Model          | $$P(y_{ik} = 1 | \{ \text{options} \}) = ???$$               |
 | Loss           | `???`                                                        |
 | Quality of fit | Log-likelihood<br />Confusion matrix<br />Likelihood ratio index $$=1-\frac{LL(\beta)}{LL(0)}$$<br />AIC $=-2LL(\beta) + 2p$ (number of paramters is now double) |
@@ -534,6 +571,15 @@ Tabtrainmixed
 
 **Week 5a**
 
+| Method         | Linear Regression with Subset Selection                      |
+| -------------- | ------------------------------------------------------------ |
+| Target         | Number                                                       |
+| Model          | $$y_i = \beta_0 + \beta_1 x_1 + \beta_2 x_2 + ... + \epsilon_i $$ |
+| Loss           | Mean square error                                            |
+| Quality of fit | R-square<br />Adjusted R-square<br />AIC                     |
+| Examples       | Wine prices and quality<br />Baseball batting average        |
+| Comments       | Choose only the statistically significant variables<br />This cannot predict binary objectives. |
+
 Feature selection, based on the adjusted R-value from linear regression.
 
 ```R
@@ -563,28 +609,9 @@ plot(model1,scale=c("adjr2"))
 ```
 
 <div style="page-break-after: always;"></div>
-**Week 5b**
-
-Simpler models often tend to work better for out-of-sample predictions and so we will penalize models for excessive model complexity. 
-
-With the increase in computational power, we can partition the data set into training, validation and test sets and conduct model assessment and selection. 
-
-- The training set is used to estimate the model parameters. 
-- The validation set is used to do model selection. 
-- The test set is the evaluation set on which we will simply evaluate or check how the model performs.
-
-
-
-**Cross validation**
-
-- Simple validation set approach
-- Leave out one cross validation (LOOCV)
-- k-fold cross validation
-
-<div style="page-break-after: always;"></div>
 ## LASSO
 
-**LASSO**
+**Week 5b**
 
 Balance data fit (first term) with model complexity (second term)
 $$
@@ -668,14 +695,14 @@ cvlasso <- cv.glmnet(X[train,],y[train])
 
 **Week 8**
 
-| Method         | CART                                    |
+| Method         | Classification and Regression Trees     |
 | -------------- | --------------------------------------- |
-| Target         |                                         |
-| Model          |                                         |
+| Target         | Customisable                            |
+| Model          | ?                                       |
 | Loss           | Does not attempt to find global minimum |
 | Quality of fit | ?                                       |
-| Prediction     | Supreme Court decision?                 |
-| Comments       | ?                                       |
+| Prediction     | Supreme Court decision                  |
+| Comments       |                                         |
 
 
 ```R
@@ -780,10 +807,10 @@ If the leaf terminates there, the absolute error is 72 points by predicting all 
 
 | Method         | Random Forests    |
 | -------------- | ---- |
-| Target         | ?    |
-| Model          | ?    |
-| Loss           | ?    |
-| Quality of fit | ?    |
+| Target         | Customisable |
+| Model          | ? |
+| Loss           | Customisable |
+| Quality of fit | Customisable |
 | Prediction     | Social media |
 | Comments       | ?    |
 
@@ -841,19 +868,18 @@ Remember to convert the target variable into a factor.
 
 **Week 10**
 
-| Method         | Naive Bayes' Method |
+| Method         | Naive Bayes' |
 | -------------- | ---- |
-| Target         | ? |
+| Target         | Binary |
 | Model          | ?    |
 | Loss           | ?    |
 | Quality of fit | ?    |
 | Prediction     | ? |
-| Comments       | ?    |
+| Comments       | Based on a (naive) hypothesis of **conditional independence** of the features |
 
 **Bayes Theorem**
-
 $$
-P(A|B) \cdot P(B) = P(B|A) \cdot P(A) 
+P(A|B) \cdot P(B) = P(B|A) \cdot P(A)
 $$
 
 > We now make a (naive) hypothesis of **conditional independence** of the features, that is, $x_i$ is conditionally independent of every other feature $x_j$ (with $i \neq j$).
@@ -947,7 +973,7 @@ subset(Data$title, clusterGroups1==6)
 | Loss           | RSME $= \sqrt{\sum_{i=1}^u (r_{ui}-p_{ui})^2/u}$ |
 | Quality of fit | ?    |
 | Prediction     | Recommendation Systems |
-| Comments       | ?    |
+| Comments       | Objective of recommendation systems - accuracy, variety, updatable, computationally efficient |
 
 Essentially, take the average of the nearest 250 users, promixity is calculated by correleation.
 
@@ -1008,7 +1034,7 @@ for(i in 1:nrow(ratings)){
 
 
 
-**Train test split**
+**Train test split in a matrix**
 
 Type| Movies                           |                                  
  --------- | -------------------------------- | -------------------------------- 
@@ -1150,14 +1176,14 @@ Each items is represented by a vector of attributes.
 
 | Method         | Tobit model                     |
 | -------------- | ------------------------------- |
-| Target         | For left or right censored data |
+| Target         | Number                          |
 | Model          | ?                               |
 | Loss           | ?                               |
 | Quality of fit | ?                               |
-| Prediction     | Images                          |
-| Comments       | ?                               |
+| Prediction     | ?                               |
+| Comments       | For left or right censored data |
 
-Characterise each movie and user into a vector.
+
 
 ```R
 # the Tobit model
@@ -1214,7 +1240,12 @@ summary(survfit(cox))
 
 # Non-predictive models
 
-These are models that do no produce a prediction. The output, however, can be used as a feature to the predictive models.
+These are models that do not produce a prediction. The output, however, can be used as a feature to the predictive models.
+
+**Supervised learning versus unsupervised learning**
+**Supervised learning**. Given a set of **predictors** $\{x_1, ..., x_p\}$ and an output of $\{y\}$, we want to find a function $f(x_1, ..., x_p) = \hat{y}$ that minimise the error on some metric.
+
+**Unsupervised learning**. Given a set of features, we want to find "**patterns**" within the data. Find a group of clusters that minimise the intra-cluster variance and maxisies the inter-cluter vairance.
 
 <div style="page-break-after: always;"></div> 
 ## K-means clustering
@@ -1278,36 +1309,10 @@ subset(Data$title, clusterMovies2$cluster==6)
 
 
 
-Objective of recommendation systems
-
-- accuracy
-- variety
-- updatable
-- computationally efficient
-
-Netflix prize - the first large scale data competition
-
-**Supervised learning versus unsupervised learning**
-**Supervised learning**. Given a set of **predictors** $\{x_1, ..., x_p\}$ and an output of $\{y\}$, we want to find a function $f(x_1, ..., x_p) = \hat{y}$ that minimise the error on some metric.
-
-**Unsupervised learning**. Given a set of features, we want to find "**patterns**" within the data. Find a group of clusters that minimise the intra-cluster variance and maxisies the inter-cluter vairance.
-
-
-
-
 <div style="page-break-after: always;"></div> 
 ## Text mining
 
-**Week 10**
-
-| Method         | Text-mining |
-| -------------- | ---- |
-| Target         | Not a method |
-| Model          | ?    |
-| Loss           | ?    |
-| Quality of fit | ?    |
-| Prediction     | Recommmender Systems |
-| Comments       | ?    |
+Converts text into number for predictive models.
 
 Read the dataset. Each entry of the dataset is a 'document'. A corpus is a set of documents
 
@@ -1395,14 +1400,14 @@ Then carry out your model based on their mdoels.
 | Model          | ?    |
 | Loss           | ?    |
 | Quality of fit | ?    |
-| Prediction     | Images |
-| Comments       | ?    |
+| Prediction     | NA                           |
+| Comments       | For image compression |
 
 Characterise each movie and user into a vector.
 
 
 
-**Basic linear algebra operations**
+**Review of linear algebra**
 
 ```R
 # define a matrix
@@ -1483,11 +1488,13 @@ $$
 \underset{k \times n}{V_k^{T}}
 $$
 
+
 ```R
 # reconstruct a matrix with limited elements
 k <- 2  # less than or equal to n
 s$u[,1:k] %*% diag(s$d[1:k]) %*% t(s$v[,1:k])
 ```
+
 
 **Calculate explained variance**
 Frobenius norm of a matrix $||x||_F$
@@ -1501,18 +1508,14 @@ $$
 {\sigma_1^2 + \sigma_1^2 + ... + \sigma_n^2}
 $$
 
+
 ```R
 # calculate the explained variance
 var <- cumsum(s$d^2)
 plot(1:4,var/max(var))
 ```
 
-
-
-<div style="page-break-after: always;"></div>
-## Image compression
-
-**Image compression**
+**Image compression with SVD**
 
 For grayscale images
 
@@ -1562,16 +1565,7 @@ writeJPEG(pansy50,"wk11-color50.jpg")
 <div style="page-break-after: always;"></div>
 ## Kaplan-Meier estimator
 
-**Week 11**
-
-| Method         | Kaplan-Meier estimator |
-| -------------- | ---------------------- |
-| Target         | ?                      |
-| Model          | ?                      |
-| Loss           | ?                      |
-| Quality of fit | ?                      |
-| Prediction     | Does not predict       |
-| Comments       | ?                      |
+[TODO] What is this for?
 
 An event will happen at a distribution with pdf $f(x)$ and corresponding cdf $F(x)$.
 
@@ -1593,41 +1587,3 @@ summary(km,censored=TRUE)
 # plot the Kaplan-Meier curve along with 95% confidence interval
 plot(km) 
 ```
-
-
-
-
-
-# Unclassified
-
-
-**Misc**
-
-Bias-variance trade-off.
-
-
-
-How to label data - manual labelling, centralised workplace, use emotions
-
-Challenges - spelling, grammar, ambiguity
-
-
-
-Code for confustion matrices
-
-```R
-CM = table(predictforest,test$rev)
-CM
-# predictforest  0  1
-#             0 47 21
-#             1 35 81
-Accuracy = (CM[1,1]+CM[2,2])/sum(CM)
-Accuracy # 0.6956522 vs 0.7119565
-BaseAccuracy =  (sum(CM[1:2,1]))/sum(CM)
-BaseAccuracy # or flip it
-Sensitivity = (CM[1,1])/sum(CM[1:2,1])
-Specificity = (CM[2,2])/sum(CM[1:2,2])
-Sensitivity
-Specificity
-```
-
