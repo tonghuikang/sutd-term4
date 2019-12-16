@@ -1,5 +1,9 @@
 # R cheatsheet
 
+
+
+[TOC]
+
 (Please refer to DBA on the reasons to use R)
 
 This is a one-document reference of the use of R commands.
@@ -7,6 +11,7 @@ This is a one-document reference of the use of R commands.
 Todo - collate all common procedures - train-test split, confusion matrix and sensitivity-specificity, ROC
 
 ## Pre-flight checklist
+
 Make sure you can import these libraries in R notebook. 
 
 ```r
@@ -27,6 +32,7 @@ library(SnowballC)
 library(wordcloud)
 library(e1071) # Naive Bayes
 library(jpeg)
+library(survival)
 ```
 
 If you cannot, please panic.
@@ -1408,32 +1414,97 @@ writeJPEG(pansy50,"wk11-color50.jpg")
 <div style="page-break-after: always;"></div> 
 **Week 11**
 
-| Method         | Tobit model                  |
-| -------------- | ---------------------------- |
-| Target         | ?                            |
-| Model          | ?                            |
-| Loss           | ?                            |
-| Quality of fit | ?                            |
-| Prediction     | Images                       |
-| Comments       | ?                            |
+| Method         | Tobit model                     |
+| -------------- | ------------------------------- |
+| Target         | For left or right censored data |
+| Model          | ?                               |
+| Loss           | ?                               |
+| Quality of fit | ?                               |
+| Prediction     | Images                          |
+| Comments       | ?                               |
 
 Characterise each movie and user into a vector.
+
+```R
+# the Tobit model
+model1 <- survreg(Surv(time_in_affairs,
+                       time_in_affairs>0,type="left")~.,
+                  data=train,dist="gaussian")
+summary(model1)
+predict1 <- predict(model1,newdata=test) 
+table(predict1<=0,test$time_in_affairs<=0)
+
+# using linear model as baseline
+model2 <- lm(time_in_affairs~., data=train)
+summary(model2)
+predict2 <- predict(model2,newdata=test)
+table(predict2 <= 0, test$time_in_affairs==0)
+```
 
 
 
 <div style="page-break-after: always;"></div> 
 **Week 11**
 
-| Method         | Kaplan-Meier estimator<br />Cox proportional hazard model |
-| -------------- | --------------------------------------------------------- |
-| Target         | ?                                                         |
-| Model          | ?                                                         |
-| Loss           | ?                                                         |
-| Quality of fit | ?                                                         |
-| Prediction     | Images                                                    |
-| Comments       | ?                                                         |
+| Method         | Kaplan-Meier estimator |
+| -------------- | ---------------------- |
+| Target         | ?                      |
+| Model          | ?                      |
+| Loss           | ?                      |
+| Quality of fit | ?                      |
+| Prediction     | Does not predict       |
+| Comments       | ?                      |
 
-Characterise each movie and user into a vector.
+An event will happen at a distribution with pdf $f(x)$ and corresponding cdf $F(x)$.
+
+The hazard function is the instantaneous rate of probability the event happening
+$$
+\lambda(t) = \frac{f(t)}{1-F(t)} = \frac{f(t)}{S(t)}
+$$
+Given the data, you can estimate $S(t) = 1 - F(t)$.
+$$
+\hat{S}(t) = \prod_{t_i < t} \frac{n_i-d_i}{n_i}
+$$
+$n_i$ is the number of people who have survived until before $t_i$. If $t_i$ are continuous values, $d_i$ will always be one.
+
+```R
+km <- survfit(Surv(start,stop,event)~1,data=heart)
+summary(km,censored=TRUE) 
+# summary of the model, with patients' survival probability 
+
+# plot the Kaplan-Meier curve along with 95% confidence interval
+plot(km) 
+```
+
+<div style="page-break-after: always;"></div> 
+**Week 11**
+
+| Method         | Cox proportional hazard model |
+| -------------- | ---------------------- |
+| Target         | ?                      |
+| Model          | ?                      |
+| Loss           | ?                      |
+| Quality of fit | ?                      |
+| Prediction     | This is a linear model, with censored values. |
+| Comments       | ?                      |
+
+An event will happen at a distribution with pdf $f(x)$ and corresponding cdf $F(x)$.
+
+
+$$
+\lambda(t) = \lambda_0 \cdot exp(\beta_1 x_1 + ... + \beta)
+$$
+
+
+```r
+cox <- coxph(Surv(start,stop,event)~age+surgery+transplant,
+             data=heart)
+summary(cox)
+        
+# plot S(t)
+plot(survfit(cox))
+summary(survfit(cox))
+```
 
 
 

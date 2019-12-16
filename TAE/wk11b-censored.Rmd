@@ -2,21 +2,15 @@
 # Script for Week 11 -- session 2b (in-class activity)
 
 
-######## Set the working environemnt, load the survival package and the heart.csv file
-
-# Remove all variables from the R environment to create a fresh start
-rm(list=ls())
-
-# Set the working folder
-# getwd()
-# setwd()
-
+```{r}
 # Load the "survival" package
 if(!require(survival)){
   install.packages("survival")
   library(survival)
 }
+```
 
+```{r}
 # heart.csv data (These data come from the Stanford Heart Transplantation Program)
 #
 # The goal is to estimate the survival of patients from the data and understand the effect that other explanatory variables may have
@@ -25,7 +19,7 @@ if(!require(survival)){
 # (no follow up information) or the patient is alive at the time if the end of the study.
 #
 # We start by reading the "heart.csv" file
-heart <- read.csv("heart.csv")
+heart <- read.csv("wk11b-heart.csv")
 str(heart)
 # 172 observations for 7 variables:
 # start, stop: entry and exit times for this time interval (in days)
@@ -42,8 +36,9 @@ subset(heart,id==1)   # Patient 1 died at the age of 31 without going through a 
 subset(heart,id==4)   # Patient 4 waited 36 days for a transplant. He/she then died after 3 days.
 subset(heart,id==25)  # Patient 25 was alive at the end of the programme.
 subset(heart,id==102) # patient 102 dropped the program after 11 days
+```
 
-
+```{r}
 ######## Kaplan-Meier estimator
 
 # Let's check the "survfit" and "Surv" functions
@@ -60,8 +55,9 @@ plot(km)
 # let's take a detailed look at the results
 subset(heart,stop==1)
 subset(heart,stop==2)
+```
 
-
+```{r}
 ######## Cox proportional hazard model
 
 # We now fit a Cox proportional hazard model, where the age, 
@@ -71,10 +67,12 @@ subset(heart,stop==2)
 ?coxph
 
 # Modelling
-cox <- coxph(..)
+cox <- coxph(Surv(start,stop,event)~age+surgery+transplant, data=heart)
 summary(cox)
+```
 
+```{r}
 # Visual analysis
 plot(survfit(cox))
 summary(survfit(cox))
-
+```
