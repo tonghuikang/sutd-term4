@@ -1,9 +1,6 @@
-[TOC]
-
-(Please refer to DBA on the reasons to use R)
-
 This is a one-document reference of the use of R commands.
 
+[TOC]
 
 # General procedures  
 
@@ -19,7 +16,6 @@ library(leaps)
 library(caTools)
 library(mlogit)
 library(zoo)
-library(conflicted)
 library(glmnet)
 library(rpart)
 library(rpart.plot)
@@ -30,6 +26,8 @@ library(wordcloud)
 library(e1071) # Naive Bayes
 library(jpeg)
 library(survival)
+library(flexclust) # for finals
+library(caret)
 ```
 
 If you cannot, please panic.
@@ -40,10 +38,11 @@ Please remember the `.` when you are training against the rest of the data. `res
 
 GLM requires you to put `family='binomial'`
 
-Do not train on test data FFS.
+Do not train on the test data FFS.
 
 Adjusted R-squared is not R-squared FFS, please ask the examiners. 
 
+<div style="page-break-after: always;"></div> 
 ## Helper functions
 
 To understand a function, use `?` to read the offline documentation.
@@ -60,7 +59,8 @@ Refer to the the 'Run' option on the top right of this window to see the shortcu
 <div style="page-break-after: always;"></div> 
 # Basics of R
 
-A vector is different from a dataframe. A dataframe may not have named columns for you to work with.
+A dataframe is not a matrix. A dataframe may have named or unnamed columns. 
+A vector is not a column.
 
 ```R
 sum(arr)
@@ -71,7 +71,7 @@ sd(arr)
 summary(arr)
 which.max(arr)
 pmax(arr,arz)  # take maximum element-wise
-arr > 1  # element-wise logical check
+arr > 3  # you can implement element-wise logical check
 
 is.na() # counts number of NA
 mean() # R has this function, ignores NA values
@@ -166,7 +166,6 @@ sum(is.na(poll$Internet.Use))
 # remove rows with any (?) NA variables
 hitters = na.omit(hitters)
 
-
 # obtain a subset
 limited <- subset(poll, poll$Internet.Use == 1)
 
@@ -176,23 +175,98 @@ eg1 <- subset(eg,select=-c(Country))
 # obtain a subset with 'or' logic operator
 limited <- subset(poll, poll$Internet.Use == 1|
                         poll$Smartphone == 1)
-
-# train-test split, stratified
-split <- sample.split(framing1$TENCHD,SplitRatio=0.65)
-training <- subset(framing1,split==TRUE)
-test <- subset(framing1,split==FALSE)
 ```
+
+<div style="page-break-after: always;"></div>
 ## Combining dataframes
 
-Column-wise and row-wise
+To combine dataframes one after another row, and fill empty cells.
+
+```R
+library(plyr)
+combined <- rbind.fill(train, test)
+```
+
+To combine dataframes beside one another and fill empty cells.
+
+```R
+library(dplyr)
+combined_features <- within(combined, rm(tweet, Id))
+```
 
 ## Train-test split
 
 Please do it correctly and not lose two subgrades.
 
-## Visualising the data
+```R
+# train-test split, stratified
+split <- sample.split(framing1$TENCHD,SplitRatio=0.65)
+training <- subset(framing1,split==TRUE)
+test <- subset(framing1,split==FALSE)
 
-**Data plotting**
+SongsTrain <- subset(songs, songs$year<=2008)
+SongsTest <- subset(songs, songs$year==2009 | songs$year==2010)
+```
+
+
+
+
+## Cross validation
+
+**Week 5b**
+
+Simpler models often tend to work better for out-of-sample predictions and so we will penalize models for excessive model complexity. 
+
+With the increase in computational power, we can partition the data set into training, validation and test sets and conduct model assessment and selection. 
+
+- The training set is used to estimate the model parameters. 
+- The validation set is used to do model selection. 
+- The test set is the evaluation set on which we will simply evaluate or check how the model performs.
+
+Types of validation
+
+- Simple validation set approach
+- Leave out one cross validation (LOOCV)
+- k-fold cross validation
+
+
+
+Defining the folds.
+
+```R
+train <- train[sample(nrow(train)),]  
+# shuffle training set
+
+val_idxx <- list()
+trn_idxx <- list()
+
+for (i in 1:NUM_FOLDS) {
+    val_idx = c(((i-1)*22500/NUM_FOLDS+1):(i*22500/NUM_FOLDS))
+    val_idxx[[i]] <- val_idx
+    
+    trn_idx <- c(0:((i-1)*22500/NUM_FOLDS),(i*22500/NUM_FOLDS+1):(22500+1))
+    trn_idx <- trn_idx[-length(trn_idx)][-1]
+
+    trn_idxx[[i]] <- trn_idx
+}
+```
+
+
+
+Accessing the folds
+
+```R
+for (i in 1:NUM_FOLDS) {
+    trn_idx <- trn_idxx[[i]]
+    val_idx <- val_idxx[[i]]
+    # and so on ...
+}
+```
+
+<div style="page-break-after: always;"></div> 
+# Data visualization
+
+Most likely not tested in exams.
 
 ```R
 # plot a histogram
@@ -207,14 +281,9 @@ plot(jitter(limited$Age),
 
 # star plot
 stars(swiss, key.loc = c(18,2))
-
-# star scatter plot
-stars(as.matrix(swiss[,c(2,3,5,6)]), 
-      location = as.matrix(swiss[,c(4,1)]), 
-      axes = T)
 ```
 
-**Plotting with ggplot**
+## Assorted plots
 
 ```R
 library(ggplot2)
@@ -241,7 +310,11 @@ bar  # to show plot
 # plot with flipped coordinates, and polar plot
 bar + coord_flip()
 bar + coord_polar()
+```
 
+<div style="page-break-after: always;"></div> 
+## Scatter plots
+```R
 # many scatter plot
 a <- ggplot(WHO, aes(x=GNI, y=FertilityRate))
 a + geom_point(na.rm=T) + facet_wrap(.~Region)
@@ -251,9 +324,7 @@ a + geom_point(na.rm=T) + geom_smooth(na.rm=T)
 
 # loess interpolation, continent represented with color
 acol <- ggplot(WHO,
-               aes(x=GNI, 
-                   y=FertilityRate, 
-                   color=Region))
+               aes(x=GNI, y=FertilityRate, color=Region))
 acol + geom_point(na.rm=T)
 acol + geom_point(na.rm=T) + geom_smooth(na.rm=T)
 
@@ -265,12 +336,8 @@ ggplot(mtcars,aes(x=wt,
 
 # plot scatterplot matrix
 ggplot(wine, aes(VINT,LPRICE)) + 
-  pairs.panels(wine, 
-               ellipses=F, 
-               lm =T, 
-               breaks=10, 
+  pairs.panels(wine, ellipses=F, breaks=10, 
                hist.col="blue")
-
 
 # scatterplot with hvlines demarcating means
 br<-mean(winetrain$LPRICE)
@@ -293,32 +360,7 @@ ggplot(orings[orings$Field>=0,],aes(Temp,Field)) +
   geom_jitter(na.rm=T,width=1,height=0.1) 
 ```
 
-
-## Cross validation
-
-<div style="page-break-after: always;"></div>
-**Week 5b**
-
-Simpler models often tend to work better for out-of-sample predictions and so we will penalize models for excessive model complexity. 
-
-With the increase in computational power, we can partition the data set into training, validation and test sets and conduct model assessment and selection. 
-
-- The training set is used to estimate the model parameters. 
-- The validation set is used to do model selection. 
-- The test set is the evaluation set on which we will simply evaluate or check how the model performs.
-
-
-
-**Cross validation**
-
-- Simple validation set approach
-- Leave out one cross validation (LOOCV)
-- k-fold cross validation
-
-[TODO] competition code to do cross validation
-
-
-
+<div style="page-break-after: always;"></div> 
 # Result analysis
 
 After the prediction is made, we want to evaulate numbers for example.
@@ -326,9 +368,15 @@ After the prediction is made, we want to evaulate numbers for example.
 
 
 ## Deciding with probabilities
-Models may output probabilities, we want classes.
+```R
+pred_test_class <- c()
 
-
+for (i in 1:nrow(pred_test_matrix)){
+    class_with_max_prob <- names(pred_test_matrix[i,][pred_test_matrix[i,] == max(pred_test_matrix[i,])])[[1]]
+    pred_test_class <- append(pred_test_class, class_with_max_prob)
+    if (length(pred_test_class) != i){print(i)}
+}
+```
 
 ## Confusion matrices
 
@@ -351,7 +399,7 @@ Names  | Predict = 0 | Predict = 1
  Overall Accuracy      |                      | $\frac{TP+TN}{FP + FN + TP + TN}$ 
  ROC Curve             | Plot TPR against FPR |                                    
 
-
+<div style="page-break-after: always;"></div> 
 ## Evaluation Metrics
 ```R
 CM = table(predictforest,test$rev)
@@ -388,9 +436,11 @@ as.numeric(performance(ROCRpred,measure="auc")@y.values)
 
 
 <div style="page-break-after: always;"></div> 
-# Predictive Models
+# Predictive Models I
 
-Train and predict the model. Make plots if relevant.
+You will train a predictive model on training data, use the model to generate predictions on the test data (and check for accuracy if possible).
+
+These model should have already been tested in the midterms and will not be tested in the finals.
 
 ## Linear regression
 
@@ -433,7 +483,6 @@ pred <- predict(model1,
 | Examples       | Space shuttle failures<br />Risk of heart disease            |
 | Comment        |                                                              |
 
-<div style="page-break-after: always;"></div>
 ```R
 # fitting logisitic model (family = binomial)
 model3 <- glm(Field~Temp+Pres,
@@ -690,7 +739,12 @@ mean((predictlasso1-y[test])^2)
 cvlasso <- cv.glmnet(X[train,],y[train])
 ```
 
-<div style="page-break-after: always;"></div>
+
+<div style="page-break-after: always;"></div> 
+# Predictive Models II
+
+Models that will be tested in finals.
+
 ## CART
 
 **Week 8**
@@ -712,6 +766,13 @@ cart1 <- rpart(rev~petit+respon+circuit+lctdir+issue+unconst,
                method="class")
 print(cart1)
 
+# Display the cp table for model cart1
+printcp(cart1)
+# We can also plot the relation between cp and error
+plotcp(cart1)
+# printcp() gives the minimal cp for which the pruning happens.
+# plotcp() plots against the geometric mean
+
 # pruning the tree
 cart2 <- prune(cart1,cp=0.01)
 fancyRpartPlot(cart2)
@@ -720,7 +781,9 @@ table(test$rev,predictcart2)
 
 # to understand the options of rpart
 ?rpart.control
+```
 
+```R
 # predicting with CART
 predictcart1_prob <- predict(cart1, newdata = test)
 pred_cart1 <- prediction(predictcart1[,2], test$rev)
@@ -759,8 +822,7 @@ Repeat each branch iteratively. Exit the branch when one exit condition is met.
 
 >  Note that all observations belong to a single sub-region beyond which greedy splits are made at each step without looking necessarily at the best split that might lead to a better tree in future steps (greedy strategy) - in other words, local optimum at each step may not provide the global optimum.
 
-
-
+<div style="page-break-after: always;"></div>
 **Bias variance trade-off**
 
 There is a trade-off between the model interpretability and performance on the training set. 
@@ -798,9 +860,7 @@ If the leaf terminates there, the absolute error is 72 points by predicting all 
      3) lctdir=conser  229  72 1 (0.31441048 0.68558952)  
 ```
 
-
-
-<div style="page-break-after: always;"></div>
+<div style="page-break-after: always;"></div> 
 ## Random Forests
 
 **Week 9**
@@ -842,6 +902,7 @@ Downsides (compart to CART)
 - slower (though parallelizable across cores)
 - less interpretable
 
+<div style="page-break-after: always;"></div>
 ```R
 library(randomForest)
 
@@ -884,10 +945,7 @@ $$
 
 > We now make a (naive) hypothesis of **conditional independence** of the features, that is, $x_i$ is conditionally independent of every other feature $x_j$ (with $i \neq j$).
 
-![Screenshot 2019-11-14 at 4.42.58 PM](assets/Screenshot 2019-11-14 at 4.42.58 PM.png)
-
-
-```{r}
+```R
 # train the model
 model3 <- naiveBayes(as.factor(responsive)~.,data=train)
 summary(model3)
@@ -905,6 +963,11 @@ model3$tables[5]
 predict3 <- predict(model3,newdata=test,type="class")
 table(predict3,test$responsive) 
 ```
+
+![Screenshot 2019-11-14 at 4.42.58 PM](assets/Screenshot 2019-11-14 at 4.42.58 PM.png)
+
+
+
 
 <div style="page-break-after: always;"></div>
 ## Hierarchical clustering
@@ -930,6 +993,7 @@ To create a cluster, we need to select a cutoff distance. Each tree cut by the c
 
 
 
+<div style="page-break-after: always;"></div>
 You need to do **preprocessing** to convert the list of genre for each movie into to a binary list.
 
 ```R
@@ -999,8 +1063,7 @@ We can calculate the similarity across different users (we only calculate for th
 - take the average of the prediction on the movie
 - take the average of the prediction by the user
 
-
-
+<div style="page-break-after: always;"></div>
 **Predictive models**
 
 - Identify the cluster that the test user was classified into
@@ -1032,8 +1095,7 @@ for(i in 1:nrow(ratings)){
 
 
 
-
-
+<div style="page-break-after: always;"></div>
 **Train test split in a matrix**
 
 Type| Movies                           |                                  
@@ -1073,9 +1135,7 @@ Base2    <- matrix(nrow=length(spl1c), ncol=length(spl2c))
 UserPred <- matrix(nrow=length(spl1c), ncol=length(spl2c))
 ```
 
-
-
-
+<div style="page-break-after: always;"></div>
 **Baseline predictions**
 
 The predicted rating by each user on a movie is the average of all predictions on the movie. A movie will have the same prediction, by any user.
@@ -1096,8 +1156,7 @@ Base2[,1:10]
 # All columns (movies) contain the same information
 ```
 
-
-
+<div style="page-break-after: always;"></div>
 **Correlation model**
 
 Essentially, we are taking the average prediction of the nearest $N$ users. We first initialse a matrix to contain the correleation between each pair of users.
@@ -1135,8 +1194,7 @@ UserPred[,1:10]
 
 
 
-
-
+<div style="page-break-after: always;"></div>
 **Compare the model performance**
 
 We take the average of the squared difference with the test set.
@@ -1160,11 +1218,7 @@ Each user is represented through a vector of items (e.g. movie) and the associat
 
 Inconsistent number of rating across items
 
-
-
 Each items is represented by a vector of attributes.
-
-
 
 
 
@@ -1237,7 +1291,7 @@ plot(survfit(cox))
 summary(survfit(cox))
 ```
 
-
+<div style="page-break-after: always;"></div>
 # Non-predictive models
 
 These are models that do not produce a prediction. The output, however, can be used as a feature to the predictive models.
@@ -1247,7 +1301,7 @@ These are models that do not produce a prediction. The output, however, can be u
 
 **Unsupervised learning**. Given a set of features, we want to find "**patterns**" within the data. Find a group of clusters that minimise the intra-cluster variance and maxisies the inter-cluter vairance.
 
-<div style="page-break-after: always;"></div> 
+<div style="page-break-after: always;"></div>
 ## K-means clustering
 
 **Week 10**
@@ -1275,8 +1329,7 @@ Downsides
 - May end up with different results
 - May not converge or take a very long time to converge.
 
-
-
+<div style="page-break-after: always;"></div>
 ```R
 # execute k-means clustering
 # n-start is the number of different starting points
@@ -1350,6 +1403,7 @@ corpus <- tm_map(corpus,removePunctuation)
 corpus <- tm_map(corpus,stemDocument)
 ```
 
+<div style="page-break-after: always;"></div>
 Convert into a document term matrix. 
 This is a freqlist of every document in the corpus.
 
@@ -1387,8 +1441,6 @@ wordcloud(dm$word, dm$freq, random.order=FALSE, max.words=100, colors=brewer.pal
 
 Then carry out your model based on their mdoels.
 
-
-
 <div style="page-break-after: always;"></div>
 ## Singular Value Decomposition
 
@@ -1402,10 +1454,6 @@ Then carry out your model based on their mdoels.
 | Quality of fit | ?    |
 | Prediction     | NA                           |
 | Comments       | For image compression |
-
-Characterise each movie and user into a vector.
-
-
 
 **Review of linear algebra**
 
@@ -1435,9 +1483,8 @@ A_eig$vectors %*% diag(A_eig$values) %*% solve(A_eig$vectors)
 If $A$ is positive semi definite (eigenvalues of A is non-negative), $V^{-1} = V^T$
 
 
-
+<div style="page-break-after: always;"></div>
 **Singular Value Decomposition**
-
 $$
 \underset{m \times n}{X} = 
 \underset{m \times n}{U} \cdot 
@@ -1464,12 +1511,10 @@ $S$ contains the $n$ square roots of $X \cdot X^T$ eigenvalues (singular **value
 $V$ contains the $n$ eigenvectors of $X^{T} \cdot X$ (right singular vectors)
 
 ```R
-# define matrix
 X <- matrix(c(2,1,5,7,0,0,6,0,0,10,
               8,0,7,8,0,6,1,4,5,0), nrow=5, ncol=4)
 
-# apply SVD
-s <- svd(X)
+s <- svd(X) # apply SVD
 s$u # U
 s$d # S
 s$v # V
@@ -1495,7 +1540,6 @@ k <- 2  # less than or equal to n
 s$u[,1:k] %*% diag(s$d[1:k]) %*% t(s$v[,1:k])
 ```
 
-
 **Calculate explained variance**
 Frobenius norm of a matrix $||x||_F$
 $$
@@ -1515,6 +1559,7 @@ var <- cumsum(s$d^2)
 plot(1:4,var/max(var))
 ```
 
+<div style="page-break-after: always;"></div>
 **Image compression with SVD**
 
 For grayscale images
