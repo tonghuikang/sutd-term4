@@ -1,0 +1,373 @@
+---
+output:
+  html_document: default
+---
+
+```{r}
+rm(list=ls())
+```
+
+# Q1
+
+## 1
+
+```{r}
+water_network <- read.csv("water_network.csv")
+# water_network
+training <- water_network[1:13000,]
+testing <- water_network[13001:length(water_network$ANOMALY),]
+table(training$ANOMALY)
+table(testing$ANOMALY)
+```
+
+## 2
+
+```{r}
+library(rpart)
+modelCART <- rpart(ANOMALY~., data=training[,-1])
+modelCART$frame
+```
+
+## 3
+
+```{r}
+library(rpart.plot)
+prp(modelCART)
+```
+
+## 4
+
+```{r}
+predictcart1_prob <- predict(modelCART, newdata = training)
+caret::confusionMatrix(as.factor(predictcart1_prob > 0.5),
+                       as.factor(training$ANOMALY==1))
+
+
+predictcart1_prob <- predict(modelCART, newdata = testing)
+caret::confusionMatrix(as.factor(predictcart1_prob > 0.5),
+                       as.factor(testing$ANOMALY==1))
+```
+
+## 5
+
+```{r}
+printcp(modelCART)
+```
+
+## 6
+
+```{r}
+modelCART_small <- rpart(ANOMALY~FLOW_PU10+LEVEL_T1+LEVEL_T7+PRESS_J269+PRESS_J317,
+                         data=training[,-1])
+
+predictcart1_prob <- predict(modelCART_small, newdata = training)
+caret::confusionMatrix(as.factor(predictcart1_prob > 0.5),
+                       as.factor(training$ANOMALY==1))
+
+```
+
+## 7
+
+```{r}
+predictcart1_prob <- predict(modelCART_small, newdata = testing)
+caret::confusionMatrix(as.factor(predictcart1_prob > 0.5),
+                       as.factor(testing$ANOMALY==1))
+```
+
+## 8
+
+```{r}
+set.seed(11)
+library(randomForest)
+
+forest <- randomForest(as.factor(ANOMALY)~., data = training[,-1])
+```
+
+```{r}
+predictForest <- predict(forest, newdata = training, type="class")
+caret::confusionMatrix(as.factor(predictForest),
+                       as.factor(training$ANOMALY==1))
+```
+
+```{r}
+predictForest <- predict(forest, newdata = testing)
+caret::confusionMatrix(as.factor(predictForest),
+                       as.factor(testing$ANOMALY==1))
+```
+
+## 9
+
+```{r}
+varImpPlot(forest)
+```
+
+## 10
+
+```{r}
+# written, referred to confusion matrix previously
+```
+
+# Q2
+
+## 1
+
+```{r}
+rm(list=ls())
+water_network <- read.csv("water_network.csv")
+train <- water_network[1:13000,]
+test <- water_network[13001:length(water_network$ANOMALY),]
+limitedTrain <- train[,-length(train)][,-1]
+limitedTest <- test[,-length(test)][,-1]
+limitedTrain
+```
+
+
+
+## 2
+
+```{r}
+for (i in 1:length(limitedTrain)){
+  limitedTrain[,i] <- as.numeric(limitedTrain[,i])
+}
+
+for (i in 1:length(limitedTest)){
+  limitedTest[,i] <- as.numeric(limitedTest[,i])
+}
+```
+
+## 3
+
+```{r}
+library(caret)
+preproc <- preProcess(limitedTrain)
+normTrain <- predict(preproc, limitedTrain)
+normTest <- predict(preproc, limitedTest)
+```
+
+
+
+```{r}
+min(limitedTrain$LEVEL_T1)
+max(limitedTrain$LEVEL_T1)
+min(normTrain$LEVEL_T1)
+max(normTrain$LEVEL_T1)
+```
+
+## 4
+
+```{r}
+distances <- dist(normTrain, method="euclidean")
+clusterDist <- hclust(distances, method="ward.D2")
+```
+
+```{r}
+sum(clusterDist$height > 280)
+```
+
+
+## 5
+
+```{r}
+clusterGroups1 <- cutree(clusterDist, k=3)
+```
+
+```{r}
+mean(subset(normTrain, clusterGroups1 == 1)$LEVEL_T1)
+mean(subset(normTrain, clusterGroups1 == 2)$LEVEL_T1)
+mean(subset(normTrain, clusterGroups1 == 3)$LEVEL_T1)
+```
+
+## 6
+
+```{r}
+set.seed(11)
+km <- kmeans(normTrain, centers=3, nstart=50)
+table(km$cluster)
+```
+
+```{r}
+library(flexclust)
+km.kcca <- as.kcca(km, normTrain)
+clusterTrain <- predict(km.kcca)
+clusterTest <- predict(km.kcca, newdata=normTest)
+```
+
+```{r}
+table(clusterTest)
+```
+
+## 8
+
+```{r}
+train1 <- subset(train, clusterTrain == 1)
+train2 <- subset(train, clusterTrain == 2)
+train3 <- subset(train, clusterTrain == 3)
+
+test1 <- subset(test, clusterTest == 1)
+test2 <- subset(test, clusterTest == 2)
+test3 <- subset(test, clusterTest == 3)
+
+mean(train1$ANOMALY)
+mean(train2$ANOMALY)
+mean(train3$ANOMALY)
+```
+
+## 9
+
+
+```{r}
+library(rpart)
+cart1 <- rpart(ANOMALY~.,
+               data=train1[,-1], 
+               method="class")
+cart2 <- rpart(ANOMALY~.,
+               data=train2[,-1], 
+               method="class")
+cart3 <- rpart(ANOMALY~.,
+               data=train3[,-1], 
+               method="class")
+
+pred1 <- predict(cart1, newdata = test1, type="class")
+pred2 <- predict(cart2, newdata = test2, type="class")
+pred3 <- predict(cart3, newdata = test3, type="class")
+
+# caret::confusionMatrix(as.factor(pred1), as.factor(test1$ANOMALY))
+# caret::confusionMatrix(as.factor(pred2), as.factor(test2$ANOMALY))
+# caret::confusionMatrix(as.factor(pred3), as.factor(test3$ANOMALY))
+
+
+t1 <- table(as.factor(pred1), as.factor(test1$ANOMALY))
+sum(diag(t1))/sum(t1)
+t2 <- table(as.factor(pred2), as.factor(test2$ANOMALY))
+sum(diag(t2))/sum(t2)
+t3 <- table(as.factor(pred3), as.factor(test3$ANOMALY))
+sum(diag(t3))/sum(t3)
+```
+
+
+## 10
+
+```{r}
+(sum(diag(t1)) + sum(diag(t2)) + sum(diag(t3))) / sum(t1 + t2 + t3)
+```
+
+
+
+# Q3
+
+
+## 1
+```{r}
+rm(list=ls())
+sst_anomalies <- read.csv("sst_anomalies.csv")
+rainfall_singapore <- read.csv("rainfall_singapore.csv")
+sst_anomalies
+rainfall_singapore
+```
+
+```{r}
+max(sst_anomalies[,-1])
+sst_anomalies$X1547[[1998-1982+1]]
+```
+
+
+## 2
+
+```{r}
+X <- sst_anomalies[,-1]
+s <- svd(X)
+sum(s$d)
+s$d
+
+count <- 0
+csum <- 0
+for (i in 1:length(s$d)){
+  count <- count + 1
+  csum <- csum + s$d[[i]]
+  if (csum/sum(s$d) > 0.9){
+    break
+  }
+}
+i
+sum(s$d[1:i]/sum(s$d))
+```
+
+```{r}
+# cor(s$u[,1:2], rainfall_singapore$rainfall)
+cor(s$u, rainfall_singapore$rainfall)
+which.max(abs(cor(s$u, rainfall_singapore$rainfall)))
+s1 <- s$u[,2]
+```
+
+```{r}
+second <- sort(abs(cor(s$u, rainfall_singapore$rainfall)), decreasing=TRUE)[[2]]
+second
+cor(s$u, rainfall_singapore$rainfall)[[23]]
+s2 <- s$u[,23]
+
+third  <- sort(abs(cor(s$u, rainfall_singapore$rainfall)), decreasing=TRUE)[[3]]
+third
+cor(s$u, rainfall_singapore$rainfall)[[7]]
+s3 <- s$u[,7]
+```
+
+```{r}
+rainfall_singapore
+```
+
+## 5
+
+```{r}
+modelLR <- lm(rainfall ~ s1, data=rainfall_singapore)
+summary(modelLR)
+```
+
+## 6
+
+```{r}
+modelLR <- lm(rainfall ~ s1+s2+s3, data=rainfall_singapore)
+summary(modelLR)
+```
+
+## 7
+
+```{r}
+mean(rainfall_singapore$rainfall)
+rainfall_cat <- rainfall_singapore$rainfall > mean(rainfall_singapore$rainfall)
+rainfall_cat
+rainfall_singapore$rainfall_cat <- rainfall_cat
+sum(rainfall_cat == TRUE)
+sum(rainfall_cat == FALSE)
+```
+
+```{r}
+library(e1071)
+model3 <- naiveBayes(as.factor(rainfall_cat) ~ s1+s2+s3, data=rainfall_singapore)
+model3
+```
+
+```{r}
+predict3 <- predict(model3, newdata=rainfall_singapore, type="class")
+caret::confusionMatrix(as.factor(predict3), 
+                       as.factor(rainfall_singapore$rainfall_cat))
+```
+
+```{r}
+rainfall_singapore$rainfall_cat
+```
+
+
+## 9
+
+```{r}
+model3$tables$s1
+mean(model3$tables$s1[1,])
+mean(model3$tables$s1[2,])
+```
+
+## 10
+
+```{r}
+# on paper
+```
+
