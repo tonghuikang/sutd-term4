@@ -82,6 +82,8 @@ Concept highlighted - backward recursion.
 
 ![Screenshot 2019-12-04 at 12.52.43 PM](assets/Screenshot 2019-12-04 at 12.52.43 PM.png)
 
+
+
 **My comments**
 
 I do not understand why forward recursion (computing stages forward in time) is difficult.

@@ -2,6 +2,7 @@ This is a one-document reference of the use of R commands.
 
 [TOC]
 
+<div style="page-break-after: always;"></div> 
 # General procedures  
 
 ## Pre-flight checklist
@@ -28,6 +29,8 @@ library(jpeg)
 library(survival)
 library(flexclust) # for finals
 library(caret)
+
+rm(list=ls())
 ```
 
 If you cannot, please panic.
@@ -38,7 +41,7 @@ Please remember the `.` when you are training against the rest of the data. `res
 
 GLM requires you to put `family='binomial'`
 
-Do not train on the test data FFS.
+Do not train on the test data FFS. Please copy correctly FFS.
 
 Adjusted R-squared is not R-squared FFS, please ask the examiners. 
 
@@ -55,12 +58,53 @@ Refer to the the 'Run' option on the top right of this window to see the shortcu
 - Run chunk `Shift + Cmd + Enter`
 - Run all `Opt + Cmd + R`
 - New R Cell `Cmd + Opt + I`
+- Comment `Cmd + /` (custom)
+
+Header to specify html-knitting output and remove environment variables
+
+```markdown
+---
+output:
+  html_document: default
+---
+
+rm(list=ls())
+```
+
+## Introduction to statistics
+
+R-squared - higher better
+Adjusted R-squared - higher better
+**AIC - lower better **
+Likelihood - higher better
+Loglikehilood - higher better
+Negative loglikelihood (logloss?) - lower better
+KL divergence - zero the same, higher more different
 
 <div style="page-break-after: always;"></div> 
 # Basics of R
 
 A dataframe is not a matrix. A dataframe may have named or unnamed columns. 
-A vector is not a column.
+A vector is not a column. Can a vector have named values? Can a matrix have named values?
+
+Common functions
+
+```R
+names()
+apply()
+# (X, MARGIN, FUN), MARGIN = row or columns
+tapply()
+# data(iris); tapply(iris$Sepal.Width, iris$Species, median)
+unname()
+unique()
+paste0()
+which()
+subset() 
+coef() # extract coefficient from linear models
+```
+
+
+Numerical functions
 
 ```R
 sum(arr)
@@ -72,6 +116,11 @@ summary(arr)
 which.max(arr)
 pmax(arr,arz)  # take maximum element-wise
 arr > 3  # you can implement element-wise logical check
+```
+
+```
+# colMeans() # calculate the mean of each column?
+cor(matrix[,COL_S:COL_E])
 
 is.na() # counts number of NA
 mean() # R has this function, ignores NA values
@@ -113,6 +162,9 @@ CELG <- data.frame(names=c("barack","serena"),
                    children=c(2,1))
 # append to dataframe
 CELG$spouse <- c("michelle","alexis")
+
+# use negative signs to exclude columns or rows
+test_2 <- df_2[-trainid_2,]
 ```
 
 ## Statisitical testing
@@ -120,7 +172,7 @@ CELG$spouse <- c("michelle","alexis")
 ```R
 t.test(oscars$Nom[oscars$PP==1 & oscars$Ch==1],
        oscars$Nom[oscars$PP==1 & oscars$Ch==0],
-       alternative = c("greater"))
+       alternative = clib("greater"))
 ```
 
 ## Miscellaneous
@@ -141,7 +193,8 @@ You need to preprocess the data.
 ## Data reading
 
 ```R
-poll <- read.csv("AnonymityPoll.csv")
+poll <- read.csv("AnonymityPoll.csv", stringsAsFactors=FALSE)
+# consider stringsAsFactors
 summary(poll)  # 7-figure summary of every column
 str(poll)  # see some data
 
@@ -175,6 +228,9 @@ eg1 <- subset(eg,select=-c(Country))
 # obtain a subset with 'or' logic operator
 limited <- subset(poll, poll$Internet.Use == 1|
                         poll$Smartphone == 1)
+
+# row subset
+# column subset
 ```
 
 <div style="page-break-after: always;"></div>
@@ -195,10 +251,12 @@ combined_features <- within(combined, rm(tweet, Id))
 ```
 
 ## Train-test split
-
 Please do it correctly and not lose two subgrades.
 
 ```R
+set.seed(144)
+library(caTools)
+
 # train-test split, stratified
 split <- sample.split(framing1$TENCHD,SplitRatio=0.65)
 training <- subset(framing1,split==TRUE)
@@ -369,6 +427,7 @@ After the prediction is made, we want to evaulate numbers for example.
 
 ## Deciding with probabilities
 ```R
+# if you have result from K-fold
 pred_test_class <- c()
 
 for (i in 1:nrow(pred_test_matrix)){
@@ -391,17 +450,27 @@ Names  | Predict = 0 | Predict = 1
  Name                  | Alt Name             | Formula                           
  --------------------- | -------------------- | --------------------------------- 
  False Positive Rate   | Type I error         | $\frac{FP}{FP+TN}$                
- True Negative Rate    | Specificity          | $\frac{TN}{FP+TN}$                
- True Positive Rate    | Sensitivity, Recall  | $\frac{TP}{TP+FN}$                
+ True Negative Rate    | Specificity          | $\frac{TN}{FP+TN} = \frac{TN}{N}$ 
+ True Positive Rate    | Sensitivity, Recall  | $\frac{TP}{TP+FN} = \frac{TP}{P}$ 
  False Negative Rate   | Type II error        | $\frac{FN}{TP+FN}$                
  Precision             |                      | $\frac{TP}{TP + FP}$              
  **Compiled measures** |                      |                                   
  Overall Accuracy      |                      | $\frac{TP+TN}{FP + FN + TP + TN}$ 
  ROC Curve             | Plot TPR against FPR |                                    
 
+Wikipedia reference
+
+![Screenshot 2019-12-19 at 11.49.09 PM](assets/Screenshot 2019-12-19 at 11.49.09 PM.png)
+
 <div style="page-break-after: always;"></div> 
 ## Evaluation Metrics
 ```R
+library(caret)
+caret::confusionMatrix(as.factor(predictLog_train > 0.5),
+                       as.factor(train$spam==1))
+
+
+# please ensure correct order
 CM = table(predictforest,test$rev)
 CM
 # predictforest  0  1
@@ -412,13 +481,31 @@ Accuracy # 0.6956522 vs 0.7119565
 BaseAccuracy =  (sum(CM[1:2,1]))/sum(CM)
 BaseAccuracy # or flip it
 Sensitivity = (CM[1,1])/sum(CM[1:2,1])
-Specificity = (CM[2,2])/sum(CM[1:2,2])
 Sensitivity
+Specificity = (CM[2,2])/sum(CM[1:2,2])
 Specificity
 ```
 
 ## Recevier Operating Curve
+
+Probably you should write an analysis procedure given predicted probs and actual binary.
+
 ```R
+library(ROCR)
+# even shorter function names are advisable
+# but we can be explicit in this document
+accuracy <- function(predict_object, data, threshold=0.5) {
+  return(sum(diag(table(predict_object >= threshold, data))) /
+           sum(table(predict_object >= threshold, data)))
+}
+auc <- function(predict_object, data) {
+  prediction_obj <- prediction(predict_object, data)
+  perf_obj <- performance(prediction_obj, measure = "auc")
+  return(perf_obj@y.values[[1]])
+}
+
+
+
 library(ROCR)
 # ROCR method to obtain predicted probs and actual labels
 ROCRpred <- prediction(Pred[1:138],orings$Field[1:138])
@@ -433,6 +520,81 @@ plot(ROCRperf,
 # Calculate area under curve (AUC)
 as.numeric(performance(ROCRpred,measure="auc")@y.values)
 ```
+
+<div style="page-break-after: always;"></div> 
+# Predictive Models I
+
+You will train a predictive model on training data, use the model to generate predictions on the test data (and check for accuracy if possible).
+
+These model should have already been tested in the midterms and will not be tested in the finals.
+
+All methods should have a prediction function. For classification models you need to specify whether you want the class (binary) or response (probability).
+
+```R
+pred_1_p <- predict(tree_1_o_2, newdata = test_1, type = "class")
+```
+
+
+
+## Linear regression
+
+**Week 2**
+
+| Method         | Linear Regression                                            |
+| -------------- | ------------------------------------------------------------ |
+| Target         | Number                                                       |
+| Model          | $$y_i = \beta_0 + \beta_1 x_1 + \beta_2 x_2 + ... + \epsilon_i $$ |
+| Loss           | Mean square error                                            |
+| Quality of fit | R-square<br />Adjusted R-square<br />AIC                     |
+| Examples       | Wine prices and quality<br />Baseball batting average        |
+| Comments       | Choose only the statistically significant variables<br />This cannot predict binary objectives./ |
+
+```R
+# fitting linear model
+model1  <- lm(LPRICE~VINT+HRAIN,
+              data=winetrain)
+summary(model1)
+confint(model7, level=0.99)  # see confidence interval
+
+# predicting values with model
+pred <- predict(model1,
+                newdata=winetest,
+                type="response")  # not sure if correct
+
+coef(model1)
+```
+
+<div style="page-break-after: always;"></div> 
+## Logistic Regression
+
+**Week 3**
+
+| Method         | Logistic Regression                                          |
+| -------------- | ------------------------------------------------------------ |
+| Target         | Binary                                                       |
+| Model          | $$P(y_i = 1) = \dfrac{1}{1+e^{-(\beta_0 + \beta_1 x_1 + \beta_2 x_2 + ...+ \epsilon_i )}}$$ |
+| Loss           | $$LL(\beta) \\ = \displaystyle \sum_{i=1}^n \sum_{k=1}^2 y_{ik} \log \left( P(y_{ik} = 1) \right)\\= \displaystyle \sum_{i=1}^n \sum_{k=1}^2 y_{ik} \log \left( \dfrac{e^{\beta' x_{ik}}} {\sum_{l=1}^k e^{\beta' x_{il}}} \right) $$ |
+| Explanation    | $x \log (x')$, sum over $x=1$ and $x=0$ (elaborate)          |
+| Quality of fit | $$AIC = -2LL(\hat{\beta}) + 2(p+1)$$<br />Confusion matrix<br />AUC-ROC |
+| Examples       | Space shuttle failures<br />Risk of heart disease            |
+| Comment        |                                                              |
+
+```R
+# fitting logisitic model (family = binomial)
+model3 <- glm(Field~Temp+Pres,
+              data=orings,
+              family=binomial)
+summary(model3)
+
+# predicting probabilities with model
+Pred <- predict(model4,
+                newdata=orings,
+                type="response")
+
+coef(model4)
+```
+
+
 
 
 <div style="page-break-after: always;"></div> 
@@ -455,12 +617,20 @@ Models that will be tested in finals.
 
 
 ```R
+library(rpart)
+library(rpart.plot)
+
+
 # fitting with CART
 cart1 <- rpart(rev~petit+respon+circuit+lctdir+issue+unconst,
                data=train, 
                method="class")
-print(cart1)
+# plot the tree
+prp(cart1, type=4, extra=2)
+```
 
+Pruning the tree
+```R
 # Display the cp table for model cart1
 printcp(cart1)
 # We can also plot the relation between cp and error
@@ -468,27 +638,28 @@ plotcp(cart1)
 # printcp() gives the minimal cp for which the pruning happens.
 # plotcp() plots against the geometric mean
 
-# pruning the tree
+# print number of splits
+unname(tail(tree_1_e$cptable[,2], 1))
+
+# pruning the tree based on complexity parameter
 cart2 <- prune(cart1,cp=0.01)
 fancyRpartPlot(cart2)
 predictcart2 <- predict(cart2,newdata=test,type="class")
 table(test$rev,predictcart2)
-
-# to understand the options of rpart
-?rpart.control
 ```
 
 ```R
 # predicting with CART
 predictcart1_prob <- predict(cart1, newdata = test)
-pred_cart1 <- prediction(predictcart1[,2], test$rev)
-perf_cart1 <- performance(pred_cart1,
-                          x.measure="fpr",measure="tpr")
-plot(perf_cart1)
-as.numeric(performance(pred_cart1,measure="auc")@y.values)
+# AUC procedure
+#pred_cart1 <- prediction(predictcart1[,2], test$rev)
+#perf_cart1 <- performance(pred_cart1,
+#                          x.measure="fpr",measure="tpr")
+#plot(perf_cart1)
+#as.numeric(performance(pred_cart1,measure="auc")@y.values)
 
-# interpret the prediction model
-prp(model1, type=4, extra=2)
+# to understand the options of rpart
+?rpart.control
 ```
 
 As the optimisation for global minimum is not computationally feasible, we use a heuristic approach instead.
@@ -528,7 +699,7 @@ To control the bias-variance trade-off (or, simply, the model complexity), CARTs
 
 **Breaking down the CART**
 
-When you print the `cart` you get this guide
+When you print the model you get this guide
 
 ```
 node), split, n, loss, yval, (yprob)
@@ -607,17 +778,31 @@ library(randomForest)
 
 forest <- randomForest(as.factor(rev)~petit+respon+circuit+unconst+lctdir+issue, data=train, nodesize=5, ntree=200)
 forest
+# remember to convert the target variable into a factor
 
 # The prediction is carried out through majority vote (across all trees)
 predictforest <- predict(forest, newdata = test, type="class")
 table(predictforest, test$rev)
+```
 
-# Variable importance
+
+
+Which of the variables is the most important in terms of the number of splits?
+
+```R
+vu <- varUsed(rf_1, count = TRUE)
+vusorted <- sort(vu, decreasing = FALSE, index.return = TRUE)
+dotchart(vusorted$x, names(rf_1$forest$xlevel[vusorted$ix]))
+```
+
+Which of the following variables is the most important in terms of mean reduction in impurity?
+
+```R
 varImpPlot(forest)
 # forest$importance
 ```
 
-Remember to convert the target variable into a factor.
+
 
 <div style="page-break-after: always;"></div> 
 ## Naive Bayes
@@ -641,6 +826,7 @@ $$
 > We now make a (naive) hypothesis of **conditional independence** of the features, that is, $x_i$ is conditionally independent of every other feature $x_j$ (with $i \neq j$).
 
 ```R
+library(e1053)
 # train the model
 model3 <- naiveBayes(as.factor(responsive)~.,data=train)
 summary(model3)
@@ -662,61 +848,6 @@ table(predict3,test$responsive)
 ![Screenshot 2019-11-14 at 4.42.58 PM](assets/Screenshot 2019-11-14 at 4.42.58 PM.png)
 
 
-
-
-<div style="page-break-after: always;"></div>
-## Hierarchical clustering
-
-**Week 10**
-
-| Method         | Hierarchical clustering |
-| -------------- | ---- |
-| Target         | Dendrogram, Clusters |
-| Model          | ?    |
-| Loss           | ?    |
-| Quality of fit | ?    |
-| Prediction     | Recommendation Systems |
-| Comments       | ?    |
-
-**Algorithmic Procedure**
-
-Compute the **Euclidean distance** between each pair. The closest pair forms a cluster and we take the midpoint. The output is a **dendrogram** (which is a binary tree).
-
-In the visualisation, the distance of the **vertical edge** represents the distance between adjacent leaves. The horizontal placement and distance do not have a meaning. Unlike K-means clustering, there is no need for any hyperparamter tuning to build a dendrogram.
-
-To create a cluster, we need to select a cutoff distance. Each tree cut by the cutoff is one cluster each. A cluster may only have one leaf, we can this an atomic cluster.
-
-
-
-<div style="page-break-after: always;"></div>
-You need to do **preprocessing** to convert the list of genre for each movie into to a binary list.
-
-```R
-# compute the distance between every pair
-distances <- dist(Data[,1:19], method="euclidean")
-dim(Data)
-length(distances)
-
-# execute hierarchical clustering 
-# Ward's distance method is used to find compact clusters.
-clusterMovies1 <- hclust(distances, method="ward.D2")
-
-# plot dendrogram
-plot(clusterMovies1) 
-
-# create 10 clusters (by what criteria? binary search for cutoff?)
-clusterGroups1 <- cutree(clusterMovies1, k=10)
-
-# calculate the average of each feature in the cluster
-Cat1 <- matrix(0,nrow=19,ncol=10)
-for(i in 1:19){
-  Cat1[i,] <- tapply(Data[,i], clusterGroups1, mean)}
-rownames(Cat1) <- colnames(Data)[1:19]
-Cat1
-
-# list the elements in the cluster
-subset(Data$title, clusterGroups1==6)
-```
 
 
 <div style="page-break-after: always;"></div> 
@@ -935,10 +1066,11 @@ Each items is represented by a vector of attributes.
 
 
 ```R
+library(survival)
 # the Tobit model
 model1 <- survreg(Surv(time_in_affairs,
                        time_in_affairs>0,type="left")~.,
-                  data=train,dist="gaussian")
+                  data=train, dist="gaussian")
 summary(model1)
 predict1 <- predict(model1,newdata=test) 
 table(predict1<=0,test$time_in_affairs<=0)
@@ -950,41 +1082,7 @@ predict2 <- predict(model2,newdata=test)
 table(predict2 <= 0, test$time_in_affairs==0)
 ```
 
-
-
-
-
-<div style="page-break-after: always;"></div> 
-## Cox proportional hazard model
-
-**Week 11**
-
-| Method         | Cox proportional hazard model |
-| -------------- | ---------------------- |
-| Target         | ?                      |
-| Model          | ?                      |
-| Loss           | ?                      |
-| Quality of fit | ?                      |
-| Prediction     | This is a linear model, with censored values. |
-| Comments       | ?                      |
-
-An event will happen at a distribution with pdf $f(x)$ and corresponding cdf $F(x)$.
-
-
-$$
-\lambda(t) = \lambda_0 \cdot exp(\beta_1 x_1 + ... + \beta)
-$$
-
-
-```R
-cox <- coxph(Surv(start,stop,event)~age+surgery+transplant,
-             data=heart)
-summary(cox)
-        
-# plot S(t)
-plot(survfit(cox))
-summary(survfit(cox))
-```
+This applies to censored target, does this apply to censored parameters as well?
 
 <div style="page-break-after: always;"></div>
 # Non-predictive models
@@ -1056,6 +1154,60 @@ subset(Data$title, clusterMovies2$cluster==6)
 ```
 
 
+<div style="page-break-after: always;"></div>
+## Hierarchical clustering
+
+**Week 10**
+
+| Method         | Hierarchical clustering |
+| -------------- | ---- |
+| Target         | Dendrogram, Clusters |
+| Model          | ?    |
+| Loss           | ?    |
+| Quality of fit | ?    |
+| Prediction     | Recommendation Systems |
+| Comments       | ?    |
+
+**Algorithmic Procedure**
+
+Compute the **Euclidean distance** between each pair. The closest pair forms a cluster and we take the midpoint. The output is a **dendrogram** (which is a binary tree).
+
+In the visualisation, the distance of the **vertical edge** represents the distance between adjacent leaves. The horizontal placement and distance do not have a meaning. Unlike K-means clustering, there is no need for any hyperparamter tuning to build a dendrogram.
+
+To create a cluster, we need to select a cutoff distance. Each tree cut by the cutoff is one cluster each. A cluster may only have one leaf, we can this an atomic cluster.
+
+One reason not to use hierarchical clustering - We might have too many observations in the dataset for hierarchical clustering to handle.
+
+<div style="page-break-after: always;"></div>
+You need to do **preprocessing** to convert the list of genre for each movie into to a binary list.
+
+```R
+# compute the distance between every pair
+distances <- dist(Data[,1:19], method="euclidean")
+dim(Data)
+length(distances)
+
+# execute hierarchical clustering 
+# Ward's distance method is used to find compact clusters.
+clusterMovies1 <- hclust(distances, method="ward.D2")
+
+# plot dendrogram
+plot(clusterMovies1) 
+
+# create 10 clusters (by what criteria? binary search for cutoff?)
+clusterGroups1 <- cutree(clusterMovies1, k=10)
+
+# calculate the average of each feature in the cluster
+Cat1 <- matrix(0,nrow=19,ncol=10)
+for(i in 1:19){
+  Cat1[i,] <- tapply(Data[,i], clusterGroups1, mean)}
+rownames(Cat1) <- colnames(Data)[1:19]
+Cat1
+
+# list the elements in the cluster
+subset(Data$title, clusterGroups1==6)
+```
+
 
 <div style="page-break-after: always;"></div> 
 ## Text mining
@@ -1105,6 +1257,7 @@ This is a freqlist of every document in the corpus.
 ```R
 # convert into freqlist of words this will be a sparse matrix
 dtm <- DocumentTermMatrix(corpus)
+dim(dtm) # dimensions before removal
 dtm <- removeSparseTerms(dtm,0.995)
 ```
 
@@ -1305,7 +1458,7 @@ writeJPEG(pansy50,"wk11-color50.jpg")
 <div style="page-break-after: always;"></div>
 ## Kaplan-Meier estimator
 
-[TODO] What is this for?
+Not a prediction model, estimate the chances of "occurance" over time just by the results.
 
 An event will happen at a distribution with pdf $f(x)$ and corresponding cdf $F(x)$.
 
@@ -1326,4 +1479,42 @@ summary(km,censored=TRUE)
 
 # plot the Kaplan-Meier curve along with 95% confidence interval
 plot(km) 
+```
+
+
+
+<div style="page-break-after: always;"></div> 
+## Cox proportional hazard model
+
+This is a prediction model but I put it here. This estimate the chances of occurance over time, now taking into account of some parameters.
+
+**Week 11**
+
+| Method         | Cox proportional hazard model |
+| -------------- | ---------------------- |
+| Target         | ?                      |
+| Model          | $\lambda(t) = \lambda_0(t) \cdot e^{\beta_1 x_1 + \beta_2 x_2 + ...}$ |
+| Loss           | ?                      |
+| Quality of fit | ?                      |
+| Prediction     | This is a linear model, with censored values. |
+| Comments       | ?                      |
+
+An event will happen at a distribution with pdf $f(x)$ and corresponding cdf $F(x)$.
+
+
+$$
+\lambda(t) = \lambda_0 \cdot exp(\beta_1 x_1 + ... + \beta)
+$$
+
+
+```R
+cox <- coxph(Surv(start,stop,event)~age+surgery+transplant,
+             data=heart)
+summary(cox)
+        
+# plot S(t)
+plot(survfit(cox))
+summary(survfit(cox))
+
+predict(cox, data=heart)
 ```

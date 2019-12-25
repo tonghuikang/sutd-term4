@@ -30,7 +30,7 @@ Improvement - solve without the subtour constraint initially. When the solution 
 
 Assume that we know the best tour from one node to another, excluding certain nodes. This can be the basis for iteration.
 
-We say that subtour $T$ **dominates** T 1 if: 
+We say that subtour $T$ **dominates** $T'$ if: 
 
 1. $T$ and $T'$ begin at 1 and end at the same city $j$. 
 2. The length of $T$ is at most the length of $T'$ . 

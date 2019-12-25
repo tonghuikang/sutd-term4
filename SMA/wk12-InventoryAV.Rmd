@@ -1,0 +1,92 @@
+## parameter for inventory system
+
+```{r}
+lambda <- 100 # mean demand size
+c <- 2 # sales price
+h <- 0.1 # inventory cost per item
+K <- 10 # fixed ordering cost
+k <- 1 # marginal ordering cost per item
+p <- 0.95 # probability that order arrives
+m <- 30 # number of days
+
+set.seed(456)
+```
+
+## To generate antithetic pair from Poisson distribution
+## using inverse transform method
+```{r}
+randpoissonAV <- function (lambda) {
+    X1 <- 0
+    X2 <- 0
+    sum1 <- exp(-lambda)
+    prod1 <- exp(-lambda)
+    sum2 <- exp(-lambda)
+    prod2 <- exp(-lambda)
+    U <- runif(1)
+    while (U > sum1) {
+        X1 <- X1 + 1
+        prod1 <- prod1 * lambda/X1
+        sum1 <- sum1 + prod1
+    }
+    while (1-U > sum2) {
+        X2 <- X2 + 1
+        prod2 <- prod2 * lambda/ X2
+        sum2 <- sum2 + prod2
+    }
+    return(c(X1,X2))
+}
+```
+
+## compute average profit from an antithetic pair
+```{r}
+simulateOneAVRun <- function (s,S) {
+    X1 <- S
+    X2 <- S
+    profit1 <- 0
+    profit2 <- 0
+    for (j in 1:m) {
+        AVdemand <- randpoissonAV(lambda)
+        demand1 <- AVdemand[1]
+        demand2 <- AVdemand[2]
+        sales1 <- min(X1,demand1)
+        sales2 <- min(X2,demand2)
+        Y1 <- X1 - sales1
+        Y2 <- X2 - sales2
+        U <- runif(1)
+        
+        if (Y1 < s && U < p) {
+            profit1 <- profit1 - (K + k * (S-Y1))
+            X1 <- S }
+        else {
+            X1 <- Y1 }
+        profit1 <- profit1 + c*sales1 - h*X1
+        
+        if (Y2 < s && 1-U < p) {
+            profit2 <- profit2 - (K + k * (S-Y2))
+            X2 <- S }
+        else {
+            X2 <- Y2 }
+        profit2 <- profit2 + c*sales2 - h*X2
+    }
+    return (profit1/m)
+#    return ((profit1 + profit2)/(2*m))
+}
+```
+
+```{r}
+# differences between independent realizations of average profits
+# using (80,200) policy and (80,198) policies
+n.rep <- 100
+result <- replicate(n.rep,simulateOneAVRun(80,200))
+
+# std.err of the estimate
+std.err <- sqrt(var(result)/n.rep)
+message("std error when antithetic pairs are used:")
+print(std.err)
+
+# confidence interval of differences between
+# expected average profits over the next m months
+ci.av <- t.test(result,conf.level=0.95)$conf.int
+message("CI using antithetic pairs:")
+print(ci.av)
+```

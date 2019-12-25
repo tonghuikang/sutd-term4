@@ -18,11 +18,12 @@ Knapsack example - there are subsets that definitely will not be in the solution
 
 
 
-### Gomory cuts
 
 ![Screenshot 2019-11-25 at 3.09.10 PM](assets/Screenshot 2019-11-25 at 3.09.10 PM.png)
 
 
+
+### Gomory cuts
 
 ![Screenshot 2019-11-25 at 3.08.38 PM](assets/Screenshot 2019-11-25 at 3.08.38 PM.png)
 
@@ -38,11 +39,11 @@ Use revised simplex to solve this.
 
 # Branch-and-Bound for binary variables
 
-For **binary programming** with $n$ variables, the brute-force or full enumeration takes $2^n$ computations.
+For a (maxismising) **binary program** with $n$ variables, the brute-force or full enumeration takes $2^n$ computations. We do not want to do all of them.
 
-Notations 
+Notations
 **IP** is the integer program which is the binary program. 
-**LP** is the linear program relaxation of the IP. 
+**LP** is the linear program **relaxation** of the IP. 
 **LP solution** refers to the optimal solution of the LP.
 **LP optimum** refers to the objective value of the optimal solution of the LP.
 
@@ -83,8 +84,6 @@ For each node there are three scenarios
   - You can prune the node.
 - Otherwise (the LP optimum is better than the current optimal solution and its solution is not all integer)
   - Create two children nodes by fixing a fractional variable in $x(j)$ to 0 and 1, and add the children note to the list of active node.
-
-
 
 
 

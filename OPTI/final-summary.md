@@ -1,4 +1,4 @@
-# Quiz 2 summary
+# Finals revision notes
 
 **Taxonomy** of network problems (and methods)
 
@@ -38,8 +38,12 @@
         
             Transhipment problem but the total demand is equal to the total supply.
 
+
 <div style="page-break-after: always;"></div>
-## The max-flow problem
+[TOC]
+
+<div style="page-break-after: always;"></div>
+# The max-flow problem
 
 Given a directed network $G = (V,E)$ and a source node $s$, a sink node $t$, and a possibly infinite capacity $u_{ij}$ for each arc $(i,j)$
 
@@ -151,7 +155,7 @@ Natuaral bounds - if you partition right outside the source and the tap, you get
 The optimal solutions for the primal and dual problems is the same.
 
 <div style="page-break-after: always;"></div>
-### **Primal-dual pair for max-flow problem**
+### Primal-dual pair for max-flow problem
 
 The dual of max-flow problem is the min cut problem. Assigning the $d$-values provides a partition.
 
@@ -199,7 +203,7 @@ Every max-flow problem can be converted into a min-cost problem (refer to taxono
 Add an arc from the sink to the source with infinite capacity. The objective function is to minimise the negative of the flow of the new sink-source arc. The cost of the rest of the arcs are zero.
 
 <div style="page-break-after: always;"></div>
-## Network simplex algorithm
+## Network simplex
 
 A tree is a graph **with no cycles**. It can be directed or undirected, but we consider undirected trees.
 
@@ -218,9 +222,7 @@ The **basic feasible solution** is a spanning tree that allows all supplies or d
 The capacity limits $u_{ij}$ will not be considered in this course.
 
 <div style="page-break-after: always;"></div>
-## Network simplex algorithm
-
-**Problem parameters**
+### Problem parameters
 
 These are the numbers that you need to keep track of
 
@@ -248,6 +250,8 @@ These are the numbers that you need to keep track of
       - Initial cost minus decrease in simplex multiplier down the direction of the edge
 
 <div style="page-break-after: always;"></div>
+### Algorithm
+
 **Initialising the network simplex**
 
 You start with a **basic feasible solution** a minimum spanning tree that allows all supplies and demands to be satisfied.
@@ -288,7 +292,13 @@ Do this to obtain a basic feasible solution for the network simplex.
 
 ![Screen Shot 2019-11-17 at 23.32.50 PM](assets/Screen Shot 2019-11-17 at 23.32.50 PM.png)
 
+(Following comment needs to be confirmed, I am not too sure.)
 
+The flow on the actual arcs is zero, and the flow on the artificial arcs is equal to the demand or supply of the node.
+
+To obtain a basic feasible solution, we want to redirect the flow on the artificial arcs to the actual arcs. We set the costs on the artificial arcs to one, and the costs on the actual arcs to zero. 
+
+If you cannot reduce the cost on this modified problem to zero, you cannot obtain a minimum spanning tree from the actual arcs, and there is no feasible solution.
 
 <div style="page-break-after: always;"></div>
 **Comparison between simplex and network simplex**
@@ -388,3 +398,217 @@ This is more for objective function, though it is possible for the constraint.
 $x$ is replicated into three parts.
 $x_i$ will be set to zero if we are not using the i-th piece. 
 $w_i$ indicates whether are we using the i-th piece.
+
+
+<div style="page-break-after: always;"></div>
+## LP relaxations to solve IP
+
+In this approach, we solve the IP by solving its LP relaxations. The relaxation is tighted with new constraints until we obtain the solution for the IP.
+
+#### LP relaxation
+
+You solve the LP relaxation. If the optimum solution is not all integers, you find valid inequalities to make the corner points integer. 
+
+- A **valid inequality** for an integer program is any inequality that is satisfied by all of its feasible solutions. 
+
+
+#### Knapsack cover inequality
+
+You observe a subset $S$ with $|S|$ elements such that its weights is larger than the limit. The **knapsack cover inequality** prevents you from choosing all of these elements, you can choose at most $|S| - 1$ elements from $S$.
+$$
+\sum_{j \in S} x_j \leq |S| - 1
+$$
+A **minimal cover** is a cover that $|S| - 1$ of its elements has a weight below the limit. Using minimal covers is usually useful.
+
+#### Gomory cuts
+
+Suppose all variables are integers. You have a equality constraint with deciment coefficient and RHS.
+
+- You can round down the coefficients and you obtain a inequality.
+- You can round down the RHS because the LHS can only provide integers.
+- Take the difference of the equality from the RHS and you obtain a Gomory cut. 
+  - "It is a cutting plane that cuts off the BFS associated with the tableau"
+  - The new inequality is added into the LP, and process repeats until the IP is solved (???)
+
+
+<div style="page-break-after: always;"></div>
+## Branch-and-Bound
+
+(incomplete and may be inaccurate)
+
+For a (**minimising**) **binary/integer program** with $n$ variables, the brute-force or full enumeration takes $2^n$ computations. We do not want to do all of them.
+
+Key idea - prune the tree
+
+- Any integer solution produced is considered for the lower bound of the IP. If LP optimum of any subproblem is lower than the lower bound prune.
+- If the LP solution of a subproblem is integer, do you not need to continue branching.
+
+Properties
+
+- The IP optimum is the minimum of the children IP problems (i.e. equal to one of them)
+
+- The LP optimum is smaller than the children LP optimums (may not be equal to one of them).
+
+
+
+![Screenshot 2019-11-27 at 11.29.06 AM](assets/Screenshot 2019-11-27 at 11.29.06 AM.png)
+
+
+<div style="page-break-after: always;"></div>
+# Dynamic programming
+
+**Elements** of a Dynamic Program
+
+- **Stages.** the decision to be optimized are taken sequentially over a number of stages, that typically represent time periods.
+
+- **States.** at each stage, all the information required to take future decisions can be represented by a state, regardless of how we reached the current state.
+
+- **Decisions.** at each stage and state, we have a set of decisions or actions available, which bring us to some state in the subsequent stage.
+
+- **Principle of optimality.** any optimal sequence of decisions has the property that, whatever the current stage, state and decision, the remaining decisions must be optimal with regard to the stage and state resulting from the current decision. (Is this the optimal substructure?)
+
+Essentially, you need to be able to calculate for all the states in one direction until you get your required answer.
+
+
+
+**Construction**
+
+You need to define the **stages** and the **states**. This breaks down the problem into subproblems.
+
+**Each stage $k$ consists of all the states**. Each stage may only have one state (126 match game) or many states (shortest path - the current node). At each stage, each state has a **value** $f_k(j)$ (126 match game - win or lose, shortest path - cost to reach) 
+
+You use the past stage(s) to compute the next stage. This is the **recursion**.
+
+Your program needs to stop when you have obtained the answer, you need to specify a **stopping condition**. The problem may be **unbounded** and your program need to be able to detect and return that.
+
+
+
+**Preflight checklist**
+
+Please provide the **mathematical expression** to compute the next stage.
+
+Please remember to define the **boundary conditions** of all states.
+
+
+
+<div style="page-break-after: always;"></div>
+## 126 Match game
+
+Each **stage** $k$ is the number of games played.
+
+There is only one **state** for each stage. So we not specify the state.
+
+The **value** function $f(k)$ indicates whether player one will win if the game starts with $n$ matches. 
+
+The **recursion** $f(k) = 1-\min\{1, f_{k-1}, f_{k-2}, f_{k-6}\}$
+
+The **boundary condition** $f(1) = f(2) = f(4) = f(5) = f(6) = 1$ and $f(3) = 0$.
+
+The **stopping condition** when $f(n)$ is computed
+
+
+
+## Shortest path
+
+Each **stage** $k$ is maximum number of arcs allowed to each the node.
+
+Each **state** $j$ is the current node. 
+
+The **value** function $f_k(j)$ is the cost of the path from the starting node to the node ended.
+
+The **recursion** $f_k(j) = \min \{ f_{k-1} (j), \min_{(i,j) \in A}\{ f_{k-1} (i) + c_ij  \} \}$
+You either do not move, or you move from another location and incur the cost.
+
+The **boundary condition** $f_0(1) = 0$ and for **other node**s $f_0(j) = \infty$
+
+The **stopping condition** $f_k(j) = f_{k+1}(j)$ $\forall j$. If $k > 2J$ there is negative cycle.
+
+
+
+## Optimal capacity expansion
+
+Each **stage** $k$ is the year.
+
+Each **state** $j$ is the number of plants at the beginning of the year.
+
+The **value** function $f_k(j)$ is minimum cost to adhere to the requirement from stage $k$ until the end of the planning horizon, if state $j$ plants has already been built. 
+
+The **recursion** $f_k(i) = \min_{j=1,2,3}\{ f_{k+1}(i), 1.5 + c_k j + f_{k+1}(i+j) \}$ but $\infty$ if $i < d_k$. 
+You either do not build a plant, or you build a number of plants incurring fixed and variable cost.
+
+The **boundary condition** $f_6(8) = 0$, $f_6(j) = \infty$ for $j \leq 7$.
+
+The **stopping condition** if $f_0(0)$ has been computed. (This is an example of backward recursion.)
+
+
+
+<div style="page-break-after: always;"></div>
+# Travelling salesman problem
+
+Find a tour in the graph that has the minimum cost.
+
+## Integer programming formulation
+
+![Screenshot 2019-12-09 at 11.54.00 AM](assets/Screenshot 2019-12-09 at 11.54.00 AM.png)
+
+To eliminate all subtours you need $2^n$ constaints. At some $n$ you cannot even insert the constraints into your computer.
+
+### Subtour elimination
+
+You solve without the subtour constraint initially. When the solution contains a subtour, add the subtour into the constraint and solve again. You might need to do this many times. Nevertheless each solution provides a lower bound to the solution. (Any feasible solution provides an upper bound to the problem.)
+
+
+<div style="page-break-after: always;"></div>
+## Dynamic programming
+
+Assume that we know the best tour from one node to another, excluding certain nodes. This can be the basis for iteration.
+
+We say that subtour $T$ **dominates** $T'$ if: 
+
+1. $T$ and $T'$ begin at 1 and end at the same city $j$. 
+2. The length of $T$ is at most the length of $T'$ . 
+3. $T$ and $T'$ visit the same set of cities.
+
+![Screenshot 2019-12-09 at 12.25.15 PM](assets/Screenshot 2019-12-09 at 12.25.15 PM.png)
+
+
+<div style="page-break-after: always;"></div>
+## Heuristic approaches
+
+A heuristic is an algorithm that will find some solution that may not be optimal. 
+
+Provable guarantees
+- "$k$-approximation algorithm" is at most $k$ times worse than the optimum.
+- "domination number $D$" is at least as good as $D$ of the possible solutions of of $(n-1)!$ solutions.
+
+ Method               | Runtime         | $k$  | $D$      
+ -------------------- | --------------- | ---- | -------- 
+ Nearest Neighbour    | $O(n^2)$        | NA   | 1        
+ Greedy               | $O(n^2 log(n))$ | NA   | 1        
+ Insertion            | $O(n^2)$        | NA   | $(n-2)!$ 
+ Christofiedes        | ?               | 2*   | 1        
+ Local search (2-Opt) | $O(n^2)$        | NA   | $(n-2)!$ 
+
+**Nearest Neighbour**
+
+Start from any node - this is random. (You can try all of them.) Then, always go to the node with smallest distance to the current node and that has not been previously visited. After visiting all nodes, go back to the starting node.
+
+**Greedy Algorithm**
+
+You start with the cheapest arc, and go to the next cheapest node that do not create a small cycle, until all nodes is visited.
+
+**Insertion Algorithm**
+
+Randomly start with two nodes, you have a 2-node subtour. You randomly choose a node to insert. You make a 3-node subtour by finding the best edge to replace. Repeat until you cover the entire map.
+
+**Christofiedes Algorithm**
+
+Start with the minimum spanning tree. Then do magic.
+
+Assumes **triangle inequality**. (Triangle inequality do not hold in real life, however. A direct path may be shorter than a detour.)
+
+**Local search Algorithms (2-Opt)**
+
+Find a pair of edges that will have a lower cost when swapped. Repeat until you cannot find such a pair.
+
+This improves any current solution. This algorithm makes it harder for observers to point out an easier solution visually.

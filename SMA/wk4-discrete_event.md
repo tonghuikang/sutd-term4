@@ -44,7 +44,7 @@ Shape | Function| Rules
 - | - | - 
 Circle | Event| Events can be triggered only by other events, through condition nodes and delay nodes.<br />There must be one event node that has no incoming arcs (triggers): this is the first event.<br />The state could only change at events. 
 Diamonds | Condition | One condition for one diamond (i.e. yes/no condition in one diamond is NOT allowed, one input only)<br />Condition nodes trigger all outgoing arcs, if condition is true.<br />You cannot change any variables inside the condition nodes.<br />(What is the dot arc for?) 
-Delay | ServiceTime| 
+Delay | ServiceTime| Can be a random variable. 
 
 
 ![Screen Shot 2019-09-30 at 13.55.41 PM](assets/Screen Shot 2019-09-30 at 13.55.41 PM.png)
