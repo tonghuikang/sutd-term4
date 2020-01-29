@@ -106,8 +106,11 @@ These are the numbers that you need to keep track of
 
 - **Nodes**
   - Provided by the problem
-    - **Label**. This is how the node is referred to. Be If this is also a number it can be quite confusing.
-    - (There are no require demand or supply)
+    - **Label**. This is how the node is referred to. If this is also a number it can be quite confusing.
+    - (There are no required demand or supply)
+
+
+
 - **Edges** (directed)
   - Provided by the problem
     - Capacity of the edge
@@ -510,7 +513,7 @@ The **stopping condition** when $f(n)$ is computed
 
 ## Shortest path
 
-Each **stage** $k$ is maximum number of arcs allowed to each the node.
+Each **stage** $k$ is maximum number of arcs allowed to each of the nodes.
 
 Each **state** $j$ is the current node. 
 
