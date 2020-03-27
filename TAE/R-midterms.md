@@ -1,6 +1,8 @@
 <div style="page-break-after: always;"></div> 
 # Predictive Models I
 
+[TOC]
+
 You will train a predictive model on training data, use the model to generate predictions on the test data (and check for accuracy if possible).
 
 These model should have already been tested in the midterms and will not be tested in the finals.
